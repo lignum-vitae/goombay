@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='goombay',
-    version='0.13.1',
+    version='0.13.2',
 
     packages=['goombay'],
     package_data={'': ['*.py']},
