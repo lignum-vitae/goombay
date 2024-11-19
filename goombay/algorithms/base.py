@@ -1,11 +1,3 @@
-try:
-    # external dependencies
-    import numpy
-    from numpy import float64
-    from numpy._typing import NDArray
-except ImportError:
-    raise ImportError("Please pip install all dependencies from requirements.txt!")
-
 class GLOBALBASE():
     def matrix(self, querySequence: str, subjectSequence: str)->list[list[float]]:
       matrix, _ = self(querySequence, subjectSequence)
