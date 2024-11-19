@@ -1,27 +1,60 @@
+![Static Badge](https://img.shields.io/badge/Project_Name-Goombay-blue)
+[![PyPI version](https://img.shields.io/pypi/v/goombay.svg)](https://pypi.python.org/pypi/goombay)
+[![License](https://img.shields.io/pypi/l/goombay.svg)](LICENSE)
+![GitHub branch check runs](https://img.shields.io/github/check-runs/dawnandrew100/goombay/master)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/goombay)
+
 # Goombay
-This project contains several sequence alignment algorithms that can also produce scoring matrices for Needleman-Wunsch, Gotoh, Smith-Waterman, Wagner-Fischer, Waterman-Smith-Beyer, Wagner-Fischer, Lowrance-Wagner, Longest Common Subsequence, and Shortest Common Supersequence algorithms. 
+This python project contains several sequence alignment algorithms that can also produce scoring matrices for Needleman-Wunsch, Gotoh, Smith-Waterman, Wagner-Fischer, Waterman-Smith-Beyer, Wagner-Fischer, Lowrance-Wagner, Longest Common Subsequence, and Shortest Common Supersequence algorithms. 
 
 ***Please ensure that numpy is installed so that this project can work correctly***
 
+# Installation and Usage
+
+```
+pip install goombay
+```
+
+All algorithms have both claases with customizable parameters and a class instance with default parameters.
+
+Each algorithm is able to perform tasks such as alignment, and displaying the underlying matrices as is shown in the implementation table. All algorithms are able to perform distance, similarity, normalized distance, and normalized similarity calculations with the exception of the hirschberg algorithm.
+
+The methods for the algorithms are:
+
+1. `.distance(seq1, seq2)` - integer value of distance between two sequences based on **match score**, **mismatch penalty**, and **gap penalties**.
+
+2. `.similarity(seq1, seq2)` - integer value of similarity between two sequences based on **match score**, **mismatch penalty**, and **gap penalties**.
+
+3. `.normalized_distance(seq1, seq2)` - float between `0` and `1` with `0` representing two identical sequences and `1` representing two sequences with no similarities.
+
+4. `.normalized_similarity(seq1, seq2)` - float between `0` and `1` with `1` representing two identical sequences and `0` representing two sequences with no similarities.
+
+5. `.align(seq1, seq2)` - displays a formated string of the alignment between the provided sequences.
+
+6. `.matrix(seq1, seq2)` - displays matrix (or matrices) created by sequences.
+
+The Hamming distance has two additional methods called `.binary_distance_array` and `.binary_similarity_array` that produces a list of bits denoting which pairwise combinations are a match and which are a mismatch.
+
 # Implementation
 
-**Below is a table of the features of each algorithm.**
+**Below is a table of the methods implemented for each algorithm as well as the class (cutomizable) and instance (default parameteres) names.**
 
-| Algorithm                    | Alignment | Matrices | Distance/Similarity/Normalized |
-| ------------------           | --------- | -------- | ------------------------------ |
-|Needleman-Wunsch              |    [x]    |    [x]   |               [x]              |
-|Gotoh (Global)                |    [x]    |    [x]   |               [x]              |
-|Gotoh (Local)                 |    [x]    |    [x]   |               [x]              |
-|Smith-Waterman                |    [x]    |    [x]   |               [x]              |
-|Waterman-Smith-Beyer          |    [x]    |    [x]   |               [x]              |
-|Wagner-Fischer                |    [x]    |    [x]   |               [x]              |
-|Lowrance-Wagner               |    [x]    |    [x]   |               [x]              |
-|Hamming                       |    [x]    |    [ ]   |               [x]              |
-|Hirschberg                    |    [x]    |    [ ]   |               [ ]              |
-|Jaro                          |    [ ]    |    [x]   |               [x]              |
-|Jaro Winkler                  |    [ ]    |    [x]   |               [x]              |
-|Longest Common Subsequence    |    [x]    |    [x]   |               [x]              |
-|Shortest Common Supersequence |    [x]    |    [x]   |               [x]              |
+| Algorithm                    | Alignment | Matrices | Distance/Similarity/Normalized | Class                         | Instance                      |
+| ------------------           | --------- | -------- | ------------------------------ | ----------------------------- | ----------------------------- |
+|Needleman-Wunsch              |    [x]    |    [x]   |               [x]              | Needleman_Wunsch              | needleman_wunsch              |
+|Gotoh (Global)                |    [x]    |    [x]   |               [x]              | Gotoh                         | gotoh                         |
+|Gotoh (Local)                 |    [x]    |    [x]   |               [x]              | Gotoh_Local                   | gotoh_local                   |
+|Smith-Waterman                |    [x]    |    [x]   |               [x]              | Smith_Waterman                | smith_waterman                |
+|Waterman-Smith-Beyer          |    [x]    |    [x]   |               [x]              | Waterman_Smith_Beyer          | waterman_smith_beyer          |
+|Wagner-Fischer                |    [x]    |    [x]   |               [x]              | Wagner_Fischer                | wagner_fischer                |
+|Lowrance-Wagner               |    [x]    |    [x]   |               [x]              | Lowrance_Wagner               | lowrance_wagner               |
+|Hamming                       |    [x]    |    [ ]   |               [x]              | Hamming                       | hamming                       |
+|Hirschberg                    |    [x]    |    [ ]   |               [ ]              | Hirschberg                    | hirschberg                    |
+|Jaro                          |    [ ]    |    [x]   |               [x]              | Jaro                          | jaro                          |
+|Jaro Winkler                  |    [ ]    |    [x]   |               [x]              | Jaro_Winkler                  | jaro_winkler                  |
+|Longest Common Subsequence    |    [x]    |    [x]   |               [x]              | Longest_Common_Subsequence    | longest_common_subsequence    |
+|Shortest Common Supersequence |    [x]    |    [x]   |               [x]              | Shortest_Common_Supersequence | shortest_common_supersequence |
+
 
 ## Algorithms Explained
 [Needleman-Wunsch](https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm)
@@ -97,10 +130,6 @@ print(needleman_wunsch.matrix("AFTG","ACTG"))
  [6. 4. 3. 1. 3.]
  [8. 6. 5. 3. 1.]]
  ```
-
-# Work In Progress
-
-Importing and parsing FASTA, FASTQ, and PDB files.
 
 # Caveats
 
