@@ -614,7 +614,7 @@ class Jaro():
           self.alignment_score[i][j] = dmatch
     return self.alignment_score
 
-class JaroWinkler(Jaro):
+class Jaro_Winkler(Jaro):
     def __init__(self, scaling_factor = 0.1):
         self.match_score = 1
         self.winkler = True
@@ -792,7 +792,7 @@ waterman_smith_beyer = Waterman_Smith_Beyer()
 smith_waterman = Smith_Waterman()
 hirschberg = Hirschberg()
 jaro = Jaro()
-jaro_winkler = JaroWinkler()
+jaro_winkler = Jaro_Winkler()
 lowrance_wagner = Lowrance_Wagner()
 longest_common_subsequence = Longest_Common_Subsequence()
 shortest_common_supersequence = Shortest_Common_Supersequence()
