@@ -5,7 +5,8 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/goombay)
 
 # Goombay
-This python project contains several sequence alignment algorithms that can also produce scoring matrices for Needleman-Wunsch, Gotoh, Smith-Waterman, Wagner-Fischer, Waterman-Smith-Beyer, Wagner-Fischer, Lowrance-Wagner, Longest Common Subsequence, and Shortest Common Supersequence algorithms. 
+This Python project contains several sequence alignment algorithms that can also produce scoring matrices for Needleman-Wunsch, Gotoh, Smith-Waterman, Wagner-Fischer, Waterman-Smith-Beyer, 
+Lowrance-Wagner, Longest Common Subsequence, and Shortest Common Supersequence algorithms. 
 
 ***Please ensure that numpy is installed so that this project can work correctly***
 
@@ -15,13 +16,13 @@ This python project contains several sequence alignment algorithms that can also
 pip install goombay
 ```
 
-All algorithms have both claases with customizable parameters and a class instance with default parameters.
+All algorithms have classes with customizable parameters and a class instance with default parameters.
 
-Each algorithm is able to perform tasks such as alignment, and displaying the underlying matrices as is shown in the implementation table. All algorithms are able to perform distance, similarity, normalized distance, and normalized similarity calculations with the exception of the hirschberg algorithm.
+Each algorithm is able to perform tasks such as alignment and displaying the underlying matrices, as shown in the implementation table. All algorithms, with the exception of the Hirschberg algorithm, can perform distance, similarity, normalized distance, and normalized similarity calculations.
 
 The methods for the algorithms are:
 
-1. `.distance(seq1, seq2)` - integer value of distance between two sequences based on **match score**, **mismatch penalty**, and **gap penalties**.
+1. `.distance(seq1, seq2)` - integer value of the distance between two sequences based on **match score**, **mismatch penalty**, and **gap penalties**.
 
 2. `.similarity(seq1, seq2)` - integer value of similarity between two sequences based on **match score**, **mismatch penalty**, and **gap penalties**.
 
@@ -29,15 +30,15 @@ The methods for the algorithms are:
 
 4. `.normalized_similarity(seq1, seq2)` - float between `0` and `1` with `1` representing two identical sequences and `0` representing two sequences with no similarities.
 
-5. `.align(seq1, seq2)` - displays a formated string of the alignment between the provided sequences.
+5. `.align(seq1, seq2)` - displays a formatted alignment string between the provided sequences.
 
 6. `.matrix(seq1, seq2)` - displays matrix (or matrices) created by sequences.
 
-The Hamming distance has two additional methods called `.binary_distance_array` and `.binary_similarity_array` that produces a list of bits denoting which pairwise combinations are a match and which are a mismatch.
+The Hamming distance has two additional methods called `.binary_distance_array` and `.binary_similarity_array` that produce a list of bits denoting which pairwise combinations are a match and which are a mismatch.
 
 # Implementation
 
-**Below is a table of the methods implemented for each algorithm as well as the class (cutomizable) and instance (default parameteres) names.**
+**Below is a table of the methods implemented for each algorithm as well as the class (customizable) and instance (default parameters) names.**
 
 | Algorithm                    | Alignment | Matrices | Distance/Similarity/Normalized | Class                         | Instance                      |
 | ------------------           | --------- | -------- | ------------------------------ | ----------------------------- | ----------------------------- |
@@ -55,31 +56,74 @@ The Hamming distance has two additional methods called `.binary_distance_array` 
 |Longest Common Subsequence    |    [x]    |    [x]   |               [x]              | Longest_Common_Subsequence    | longest_common_subsequence    |
 |Shortest Common Supersequence |    [x]    |    [x]   |               [x]              | Shortest_Common_Supersequence | shortest_common_supersequence |
 
-
 ## Algorithms Explained
-[Needleman-Wunsch](https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm)
+- [Hamming](https://en.wikipedia.org/wiki/Hamming_distance) -
+  The Hamming distance is a distance measurement between two sequences of the same length which measures the minimum number of substitutions 
+  needed to convert one string into the other.
+  When comparing numbers, the hamming distance first converts the numbers into binary and then determines the minimum number of bits that need to be flipped to turn
+  one binary sequence into the other.
+  The implementation in this project measures sequences of different lengths by comparing the letters of the longer sequence against the blanks of the shorter sequence.
+  
+- [Wagner-Fischer](https://en.wikipedia.org/wiki/Wagner%E2%80%93Fischer_algorithm) - **Levenshtein distance** -
+  The Wagner-Fischer algorithm is a global alignment algorithm that computes the Levenshtein distance between two sequences.
+  This algorithm has an invariable gap penalty of 1 and a mismatch (or substitution) cost of 1. Matches are worth 0 therefore they do not affect the score.
 
-[Gotoh (Global)](https://helios2.mi.parisdescartes.fr/~lomn/Cours/BI/Material/gap-penalty-gotoh.pdf)
+- [Lowrance-Wagner](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-019-2819-0) - **Damerau–Levenshtein distance**
+  The Lowrance-Wagner algorithm is a global alignment algorithm that computes the Levenshtein distance between two sequences 
+  with the addition of adjacent swapping between matching adjacent characters.
+  
 
-[Gotoh (Local)](http://rna.informatik.uni-freiburg.de/Teaching/index.jsp?toolName=Gotoh%20(Local))
+- [Needleman-Wunsch](https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm) -
+  The Needleman-Wunsch algorithm is a global alignment algorithm that uses a generalized form of the Levenshtein distance 
+  which allows for different weights to be given to matches, mismatches, and gaps.
+  - The keyword arguments for this algorithm are `match_score:int = 0`, `mismatch_penalty:int = 1`, and `gap_penalty:int = 2`.
 
-[Smith-Waterman ](https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm)
+- [Gotoh (Global)](https://helios2.mi.parisdescartes.fr/~lomn/Cours/BI/Material/gap-penalty-gotoh.pdf) -
+  The Gotoh algorithm is a global alignment algorithm that is a modification to the Levenshtein distance that uses an affine gap penalty
+  (similar to the Waterman-Smith-Beyer algorithm)
+  that differentiates between newly created gaps and continuations of gaps.
+  This algorithm uses three matrices; ***D*** (optimal score under affine gap penalties), ***P*** (optimal score given that query sequence ends in a gap), and 
+  ***Q*** (optimal score given that subject sequence ends in a gap).
+  - The keyword arguments for this algorithm are `match_score:int = 0`, `mismatch_penalty:int = 1`, `new_gap_penalty:int = 2`, and `continue_gap_penalty: int = 1`.
 
-[Waterman-Smith-Beyer](http://rna.informatik.uni-freiburg.de/Teaching/index.jsp?toolName=Waterman-Smith-Beyer)
+- [Gotoh (Local)](http://rna.informatik.uni-freiburg.de/Teaching/index.jsp?toolName=Gotoh%20(Local)) -
+  Similar to the global alignment version of the Gotoh alignment algorithm, the local alignment version also uses three matrices.
+  The primary difference is that the optimal alignment score is chosen between applying a penalty for either a mismatch or gap, adding to the total for a match, or zero.
+  This allows the cell to be reset to zero if it were to become negative.
+  - The keyword arguments for this algorithm are `match_score:int = 1`, `mismatch_penalty:int = 1`, `new_gap_penalty:int = 2`, and `continue_gap_penalty: int = 1`.
 
-[Wagner-Fischer](https://en.wikipedia.org/wiki/Wagner%E2%80%93Fischer_algorithm) <- Levenshtein distance
+- [Smith-Waterman ](https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm) -
+  The Smith-Waterman algorithm is the local alignment equivalent to the Needleman-Wunsch algorithm. Similar to Needleman-Wunsch, it generalizes the Levenshtein distance.
+  Similar to the Gotoh local algorithm, it resets any negative cell to zero.
+  - The keyword arguments for this algorithm are `match_score:int = 1`, `mismatch_penalty:int = 1`, and `gap_penalty:int = 2`.
 
-[Lowrance-Wagner](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-019-2819-0) <- Damerau–Levenshtein distance (Levenshtein distance plus adjacent swapping)
+- [Waterman-Smith-Beyer](http://rna.informatik.uni-freiburg.de/Teaching/index.jsp?toolName=Waterman-Smith-Beyer) -
+  The Waterman-Smith-Beyer algorithm is a global alignment algorithm that is a modification to the Levenshtein distance which uses an arbitrary gap-scoring method.
+  The specific implementation used in this package is the affine gap penalty.
+  However, a logarithmic or a quadratic gap calculation can also be performed.
+  - The keyword arguments for this algorithm are `match_score:int = 0`, `mismatch_penalty:int = 1`, `new_gap_penalty:int = 1`, and `continue_gap_penalty:int = 1`.
 
-[Hamming](https://en.wikipedia.org/wiki/Hamming_distance)
+- [Hirschberg](https://en.wikipedia.org/wiki/Hirschberg%27s_algorithm) -
+  The Hirschberg algorithm is intended to improve the Needleman-Wunsch algorithm by using recursion to improve space efficiency.
+  It uses a method known as divide and conquer to compare the two sequences.
+  - The keyword arguments for this algorithm are `match_score: int = 1`, `mismatch_penalty: int = -1`, and `gap_penalty: int = -2`.
 
-[Hirschberg](https://en.wikipedia.org/wiki/Hirschberg%27s_algorithm)
+- [Jaro & Jaro-Winkler](https://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance) -
+  The Jaro algorithm is a global alignment algorithm that measures the Jaro distance between two sequences. It produces a number between 0 and 1 that accounts
+  for the length of the strings, the number of matching characters, and the number of transpositions. The Jaro algorithm also takes into consideration matches
+  that are a certain distance away ((max sequence length/2)-1). Of these matches, transpositions (matches that aren't in the right order) are factored in.
 
-[Jaro & Jaro-Winkler](https://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance)
+  The Jaro-Winkler algorithm is the same as the Jaro algorithm but also favors sequences that have matching prefix characters (up to four) and adds a scaling factor.
+  - The keyword argument for the Jaro-Winkler algorithm is `scaling_factor = 0.1`. The scaling factor should not exceed 0.25 or else it may be possible for the similarity score to be greater than 1.
 
-[Longest Common Subsequence](https://en.wikipedia.org/wiki/Longest_common_subsequence)
+- [Longest Common Subsequence](https://en.wikipedia.org/wiki/Longest_common_subsequence) -
+  The Longest Common Subsequence algorithm generates a distance score by only allowing deletes while not changing the relative order of the characters.
+  This will display all of the shared characters between the sequences.
 
-[Shortest Common Supersequence](https://en.wikipedia.org/wiki/Shortest_common_supersequence)
+- [Shortest Common Supersequence](https://en.wikipedia.org/wiki/Shortest_common_supersequence) -
+  The Shortest Common Supersequence is the shortest combination of the two sequences that contains all the characters within both sequences
+  and does not change the relative order of the characters.
+
 
 # Code Examples
 
@@ -135,16 +179,16 @@ print(needleman_wunsch.matrix("AFTG","ACTG"))
 
 Due to the recursive nature of the Hirschberg algorithm, if a distance score or matrix is needed it is best to use the Needleman-Wunsch algorithm instead.
 
-Note that due to the fact that the Hamming distance does not allow for insertions, or deletions, the "aligned sequence" that is returned is just the original sequences in a formatted string. 
+Note that due to the fact that the Hamming distance does not allow for insertions or deletions, the "aligned sequence" that is returned is just the original sequences in a formatted string. 
 This is due to the fact that actually aligning the two sequences using this algorithm would just lead to two lines of the query sequence. 
 It should also be noted that the Hamming distance is intended to only be used with sequences of the same length. 
-To compensate for strings of differing lengths, my algorithm adds 1 extra point to the distance for every additional letter in the longer sequence since this can be seen as "swapping" the empty space for a letter or vice versa. However, any distance obtained this way **will not reflect an accurate Hamming distance**.
+To compensate for strings of differing lengths, my algorithm adds 1 extra point to the distance for every additional letter in the longer sequence since this can be seen as "swapping" the space for a letter or vice versa. However, any distance obtained this way **will not reflect an accurate Hamming distance**.
 
 My Waterman-Smith-Beyer implementation does not always align with that of [Freiburg University](http://rna.informatik.uni-freiburg.de/Teaching/index.jsp?toolName=Waterman-Smith-Beyer), the site I've been using for alignment validation.
-It is possible that their implementation has an issue and not mine but I wanted to mention this here and provide the link to my [StackOverflow](https://bioinformatics.stackexchange.com/questions/22683/waterman-smith-beyer-implementation-in-python) question for the sake of posterity.
+Their implementation may have an issue and not mine but I wanted to mention this here and provide the link to my [StackOverflow](https://bioinformatics.stackexchange.com/questions/22683/waterman-smith-beyer-implementation-in-python) question for the sake of posterity.
 
-During the beginning of this project I thought that the Levenshtein distance was an algorithm, but it is the end result that is being calculated with an approach such as Wagner-Fischer which uses Needleman-Wunsch-esque matrices to calculate the Levenshtein distance.
-Thusly, the Levenshtein distance implementation has been switched with the Wagner-Fischer algorithm.
+At the beginning of this project, I thought that the Levenshtein distance was an algorithm, but it is the end result that is being calculated with an approach such as Wagner-Fischer which uses Needleman-Wunsch-esque matrices to calculate the Levenshtein distance.
+Thus, the Levenshtein distance implementation has been switched with the Wagner-Fischer algorithm.
 Damerau-Levenshtein distance is found using the Lowrance-Wagner algorithm.
 
 Will have to do some experimenting but it appears that the normalized distance/similarity results have undefined behaviour if the match score is not 0.
