@@ -1,8 +1,8 @@
-![Static Badge](https://img.shields.io/badge/Project_Name-Goombay-blue)
+[![Static Badge](https://img.shields.io/badge/Project_Name-Goombay-blue)](https://github.com/dawnandrew100/goombay)
 [![PyPI version](https://img.shields.io/pypi/v/goombay.svg)](https://pypi.python.org/pypi/goombay)
-[![License](https://img.shields.io/pypi/l/goombay.svg)](LICENSE)
-![GitHub branch check runs](https://img.shields.io/github/check-runs/dawnandrew100/goombay/master)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/goombay)
+[![License](https://img.shields.io/pypi/l/goombay.svg)](https://github.com/dawnandrew100/goombay/blob/master/LICENSE)
+[![GitHub branch check runs](https://img.shields.io/github/check-runs/dawnandrew100/goombay/master)](https://github.com/dawnandrew100/goombay)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/goombay)](https://pypi.python.org/pypi/goombay)
 
 # Goombay
 This Python project contains several sequence alignment algorithms that can also produce scoring matrices for Needleman-Wunsch, Gotoh, Smith-Waterman, Wagner-Fischer, Waterman-Smith-Beyer, 
@@ -11,28 +11,31 @@ Lowrance-Wagner, Longest Common Subsequence, and Shortest Common Supersequence a
 ***Please ensure that numpy is installed so that this project can work correctly***
 
 # Installation and Usage
+> [!IMPORTANT]
+> Not every algorithm uses every method.
+> Please refer to implementation table to see which methods each algorithm can perform.
 
 ```
 pip install goombay
 ```
 
-All algorithms have classes with customizable parameters and a class instance with default parameters.
+All algorithms have a class with customizable parameters and a class instance with default parameters.
 
 Each algorithm is able to perform tasks such as alignment and displaying the underlying matrices, as shown in the implementation table. All algorithms, with the exception of the Hirschberg algorithm, can perform distance, similarity, normalized distance, and normalized similarity calculations.
 
 The methods for the algorithms are:
 
-1. `.distance(seq1, seq2)` - integer value of the distance between two sequences based on **match score**, **mismatch penalty**, and **gap penalties**.
+1. `.distance(seq1, seq2)` - integer value representing the distance between two sequences based on **match score**, **mismatch penalty**, and **gap penalties**.
 
-2. `.similarity(seq1, seq2)` - integer value of similarity between two sequences based on **match score**, **mismatch penalty**, and **gap penalties**.
+2. `.similarity(seq1, seq2)` - integer value representing the similarity between two sequences based on **match score**, **mismatch penalty**, and **gap penalties**.
 
-3. `.normalized_distance(seq1, seq2)` - float between `0` and `1` with `0` representing two identical sequences and `1` representing two sequences with no similarities.
+3. `.normalized_distance(seq1, seq2)` - float between `0` and `1`; `0` representing two identical sequences and `1` representing two sequences with no similarities.
 
-4. `.normalized_similarity(seq1, seq2)` - float between `0` and `1` with `1` representing two identical sequences and `0` representing two sequences with no similarities.
+4. `.normalized_similarity(seq1, seq2)` - float between `0` and `1`; `1` representing two identical sequences and `0` representing two sequences with no similarities.
 
-5. `.align(seq1, seq2)` - displays a formatted alignment string between the provided sequences.
+5. `.align(seq1, seq2)` - formatted string of the alignment between the provided sequences.
 
-6. `.matrix(seq1, seq2)` - displays matrix (or matrices) created by sequences.
+6. `.matrix(seq1, seq2)` - matrix (or matrices) created through the dynamic programming process.
 
 The Hamming distance has two additional methods called `.binary_distance_array` and `.binary_similarity_array` that produce a list of bits denoting which pairwise combinations are a match and which are a mismatch.
 
@@ -176,6 +179,8 @@ print(needleman_wunsch.matrix("AFTG","ACTG"))
  ```
 
 # Caveats
+> [!CAUTION]
+> There are some issues with alignment to be tackled in later releases.
 
 Due to the recursive nature of the Hirschberg algorithm, if a distance score or matrix is needed it is best to use the Needleman-Wunsch algorithm instead.
 
