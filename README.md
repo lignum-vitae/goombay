@@ -1,7 +1,7 @@
 [![Static Badge](https://img.shields.io/badge/Project_Name-Goombay-blue)](https://github.com/dawnandrew100/goombay)
 [![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Flignum-vitae%2Fgoombay%2Fmaster%2Fpyproject.toml)](https://github.com/lignum-vitae/goombay/blob/master/pyproject.toml)
 [![PyPI version](https://img.shields.io/pypi/v/goombay.svg)](https://pypi.python.org/pypi/goombay)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14903446.svg)](https://doi.org/10.5281/zenodo.14903446)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14903445.svg)](https://doi.org/10.5281/zenodo.14903445)
 [![License](https://img.shields.io/pypi/l/goombay.svg)](https://github.com/dawnandrew100/goombay/blob/master/LICENSE)
 [![GitHub branch check runs](https://img.shields.io/github/check-runs/dawnandrew100/goombay/master)](https://github.com/dawnandrew100/goombay)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/goombay)](https://pypi.python.org/pypi/goombay)
