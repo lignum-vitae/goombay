@@ -1,67 +1,151 @@
-from __future__ import annotations
 import unittest
-from goombay import waterman_smith_beyer
+import numpy
+from goombay.algorithms.editdistance import Waterman_Smith_Beyer
 
-class TestWatermanSmithBayer(unittest.TestCase):
-    def test_distance_diff(self):
-        dist = waterman_smith_beyer.distance("ACTG", "FHYU")
-        self.assertEqual(dist, 4.0)
+class TestWatermanSmithBeyer(unittest.TestCase):
+    """Test suite for Waterman-Smith-Beyer alignment algorithm"""
+    
+    def setUp(self):
+        """Initialize algorithm for tests"""
+        self.algorithm = Waterman_Smith_Beyer()
+        
+    def test_identical_sequences(self):
+        """Test behavior with identical sequences"""
+        score, pointer = self.algorithm("ACTG", "ACTG")
+        # Test scoring
+        self.assertEqual(score[-1][-1], 4 * self.algorithm.match_score)
+        self.assertEqual(pointer[-1][-1], 2)  # All diagonal moves
+        
+        # Test normalization
+        self.assertEqual(self.algorithm.normalized_similarity("ACTG", "ACTG"), 1.0)
+        self.assertEqual(self.algorithm.normalized_distance("ACTG", "ACTG"), 0.0)
 
-    def test_similarity_diff(self):
-        sim = waterman_smith_beyer.similarity("ACTG", "FHYU")
-        self.assertEqual(sim, 0.0)
+    def test_completely_different(self):
+        """Test behavior with completely different sequences"""
+        score, pointer = self.algorithm("AAAA", "TTTT")
+        # Test scoring
+        self.assertEqual(score[-1][-1], -4*self.algorithm.mismatch_penalty)  # All mismatches
+        self.assertTrue(numpy.all(pointer[1:,1:] == 2))  # All diagonal moves
+        
+        # Test normalization
+        self.assertEqual(self.algorithm.normalized_similarity("AAAA", "TTTT"), 0.0)
+        self.assertEqual(self.algorithm.normalized_distance("AAAA", "TTTT"), 1.0)
 
-    def test_norm_distance_diff(self):
-        dist = waterman_smith_beyer.normalized_distance("ACTG", "FHYU")
-        self.assertEqual(dist, 1.0)
+    def test_empty_sequences(self):
+        """Test behavior with empty sequences"""
+        test_cases = [
+            ("", "ACTG"),    # Empty query
+            ("ACTG", ""),    # Empty subject
+            ("", "")         # Both empty
+        ]
+        
+        for query, subject in test_cases:
+            with self.subTest(query=query, subject=subject):
+                score, _ = self.algorithm(query, subject)
+                expected_score = -4 - (len(query or subject))  # new_gap + continue_gaps
+                if query == subject == "":
+                    self.assertEqual(self.algorithm.similarity(query, subject), 1)
+                elif not subject:
+                    self.assertEqual(score[len(query)][0], expected_score)
+                elif not query:
+                    self.assertEqual(score[0][len(subject)], expected_score)
 
-    def test_norm_similarity_diff(self):
-        sim = waterman_smith_beyer.normalized_similarity("ACTG", "FHYU")
-        self.assertEqual(sim, 0.0)
-   
-    def test_distance_sim(self):
-        dist = waterman_smith_beyer.distance("ACTG", "ACTG")
-        self.assertEqual(dist, 0.0)
+    def test_single_character(self):
+        """Test behavior with single character sequences"""
+        # Test match
+        score, pointer = self.algorithm("A", "A")
+        self.assertEqual(score[-1][-1], self.algorithm.match_score)
+        self.assertEqual(pointer[-1][-1], 2)  # Diagonal move
+        
+        # Test mismatch
+        score, pointer = self.algorithm("A", "T")
+        self.assertEqual(score[-1][-1], -self.algorithm.mismatch_penalty)
+        self.assertEqual(pointer[-1][-1], 2)  # Diagonal move
 
-    def test_similarity_sim(self):
-        sim = waterman_smith_beyer.similarity("ACTG", "ACTG")
-        self.assertEqual(sim, 4.0)
+    def test_case_sensitivity(self):
+        """Test that matching is case-insensitive"""
+        test_cases = [
+            ("ACTG", "actg"),
+            ("AcTg", "aCtG"),
+            ("actg", "ACTG")
+        ]
+        
+        for query, subject in test_cases:
+            with self.subTest(query=query, subject=subject):
+                score1, _ = self.algorithm(query, subject)
+                score2, _ = self.algorithm(query.upper(), subject.upper())
+                numpy.testing.assert_array_equal(score1, score2)
 
-    def test_norm_distance_sim(self):
-        dist = waterman_smith_beyer.normalized_distance("ACTG", "ACTG")
-        self.assertEqual(dist, 0.0)
+    def test_matrix_shape(self):
+        """Test matrix dimensions"""
+        query, subject = "ACTG", "AGT"
+        score, pointer = self.algorithm(query, subject)
+        expected_shape = (len(query) + 1, len(subject) + 1)
+        self.assertEqual(score.shape, expected_shape)
+        self.assertEqual(pointer.shape, expected_shape)
 
-    def test_norm_similarity_sim(self):
-        sim = waterman_smith_beyer.normalized_similarity("ACTG", "ACTG")
-        self.assertEqual(sim, 1.0)
+    def test_matrix_values(self):
+        """Test specific values in the alignment matrix"""
+        score, pointer = self.algorithm("AC", "AT")
+        
+        expected_score = numpy.array([
+            [ 0., -5., -6.],
+            [-5.,  2., -3.],
+            [-6., -3.,  1.]
+        ])
+        numpy.testing.assert_array_almost_equal(score, expected_score)
+        
+        expected_pointer = numpy.array([
+            [4., 4., 4.],
+            [3., 2., 4.],
+            [3., 3., 2.]
+        ])
+        numpy.testing.assert_array_equal(pointer, expected_pointer)
 
-    def test_norm_distance1(self):
-        dist = waterman_smith_beyer.normalized_distance("ACTG", "AATG")
-        self.assertEqual(dist, 0.25)
+    def test_different_lengths(self):
+        """Test behavior with sequences of different lengths"""
+        test_cases = [
+            ("ACTG", "ACT"),                  # Longer query
+            ("ACT", "ACTG"),                  # Longer subject
+            ("ACGT", "AGT"),                  # Internal gap
+            ("HOLYROMANEMPIRE", "HOLYPIRE")   # Longer subject
+        ]
+        
+        for query, subject in test_cases:
+            with self.subTest(query=query, subject=subject):
+                score, pointer = self.algorithm(query, subject)
+                self.assertEqual(score.shape, (len(query) + 1, len(subject) + 1))
+                self.assertTrue(numpy.all(pointer >= 0))  # Valid pointer values
 
-    def test_norm_distance2(self):
-        dist = waterman_smith_beyer.normalized_distance("ACTG", "AAAG")
-        self.assertEqual(dist, 0.5)
+    def test_gap_penalties(self):
+        """Test behavior with gaps"""
+        test_cases = [
+            ("AT", "A-T"),   # Single gap
+            ("ACTG", "AG"),  # Multiple gaps
+            ("A", "A--A")    # Consecutive gaps
+        ]
+        
+        for query, subject in test_cases:
+            with self.subTest(query=query, subject=subject):
+                _, pointer = self.algorithm(query, subject)
+                self.assertTrue(numpy.any(pointer == 3) or numpy.any(pointer == 4))  # Should have gaps
 
-    def test_norm_distance3(self):
-        dist = waterman_smith_beyer.normalized_distance("ACTG", "AAAA")
-        self.assertEqual(dist, 0.75)
-
-    def test_norm_similarity1(self):
-        dist = waterman_smith_beyer.normalized_similarity("ACTG", "AATG")
-        self.assertEqual(dist, 0.75)
-
-    def test_norm_similarity2(self):
-        dist = waterman_smith_beyer.normalized_similarity("ACTG", "AAAG")
-        self.assertEqual(dist, 0.5)
-
-    def test_norm_similarity3(self):
-        dist = waterman_smith_beyer.normalized_similarity("ACTG", "AAAA")
-        self.assertEqual(dist, 0.25)
-
-    def test_align(self):
-        alignment = waterman_smith_beyer.align("BA", "ABA")
-        self.assertEqual(alignment, "-BA\nABA")
+    def test_scoring_parameters(self):
+        """Test behavior with different scoring parameters"""
+        custom_algorithm = Waterman_Smith_Beyer(
+            match_score=1,
+            mismatch_penalty=2,
+            new_gap_penalty=3,
+            continue_gap_penalty=1
+        )
+        
+        score, _ = custom_algorithm("AC", "AT")
+        expected_score = numpy.array([
+            [ 0., -4., -5.],
+            [-4.,  1., -3.],
+            [-5., -3., -1.]
+        ])
+        numpy.testing.assert_array_almost_equal(score, expected_score)
 
 if __name__ == '__main__':
     unittest.main()
