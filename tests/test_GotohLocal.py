@@ -1,13 +1,13 @@
 import unittest
 import numpy
-from goombay import gotoh_local, Gotoh_Local
+from goombay import Gotoh_Local
 
 class TestGotohLocal(unittest.TestCase):
     """Test suite for Gotoh Local alignment algorithm"""
     
     def setUp(self):
         """Initialize algorithm for tests"""
-        self.algorithm = gotoh_local
+        self.algorithm = Gotoh_Local()
 
     def test_identical_sequences(self):
         """Test behavior with identical sequences"""

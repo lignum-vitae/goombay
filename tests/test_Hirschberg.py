@@ -1,12 +1,12 @@
 import unittest
-from goombay import hirschberg, needleman_wunsch
+from goombay import Hirschberg, needleman_wunsch
 
 class TestHirschberg(unittest.TestCase):
     """Test suite for Hirschberg algorithm"""
     
     def setUp(self):
         """Initialize algorithm for tests"""
-        self.algorithm = hirschberg
+        self.algorithm = Hirschberg()
 
     def test_identical_sequences(self):
         """Test behavior with identical sequences"""
