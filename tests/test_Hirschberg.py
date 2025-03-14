@@ -1,5 +1,5 @@
 import unittest
-from goombay.algorithms.editdistance import hirschberg, needleman_wunsch
+from goombay import hirschberg, needleman_wunsch
 
 class TestHirschberg(unittest.TestCase):
     """Test suite for Hirschberg algorithm"""

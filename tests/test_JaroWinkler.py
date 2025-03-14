@@ -1,5 +1,5 @@
 import unittest
-from goombay.algorithms.editdistance import Jaro_Winkler
+from goombay import Jaro_Winkler
 
 class TestJaroWinkler(unittest.TestCase):
     """Test suite for Jaro-Winkler distance algorithm"""

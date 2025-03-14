@@ -1,6 +1,6 @@
 import unittest
 import numpy
-from goombay.algorithms.editdistance import Needleman_Wunsch
+from goombay import Needleman_Wunsch
 
 class TestNeedlemanWunsch(unittest.TestCase):
     """Test suite for Needleman-Wunsch global alignment algorithm"""

@@ -1,6 +1,6 @@
 import unittest
 import numpy
-from goombay.algorithms.editdistance import Gotoh
+from goombay import Gotoh
 
 class TestGotoh(unittest.TestCase):
     """Test suite for Gotoh global alignment algorithm"""

@@ -1,6 +1,6 @@
 import unittest
 import numpy
-from goombay.algorithms.editdistance import Shortest_Common_Supersequence
+from goombay import Shortest_Common_Supersequence
 
 class TestSCS(unittest.TestCase):
     """Test suite for Shortest Common Supersequence algorithm"""

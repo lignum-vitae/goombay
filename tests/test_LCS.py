@@ -1,6 +1,6 @@
 import unittest
 import numpy
-from goombay.algorithms.editdistance import Longest_Common_Subsequence
+from goombay import Longest_Common_Subsequence
 
 class TestLCS(unittest.TestCase):
     """Test suite for Longest Common Subsequence algorithm"""

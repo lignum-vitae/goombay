@@ -1,6 +1,6 @@
 import unittest
 import numpy
-from goombay.algorithms.editdistance import Waterman_Smith_Beyer
+from goombay import Waterman_Smith_Beyer
 
 class TestWatermanSmithBeyer(unittest.TestCase):
     """Test suite for Waterman-Smith-Beyer alignment algorithm"""

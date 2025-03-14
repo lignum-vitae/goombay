@@ -1,5 +1,6 @@
 from goombay.algorithms.base import GLOBALBASE
 from goombay.algorithms.base import LOCALBASE
+#Variables
 from goombay.algorithms.editdistance import hamming
 from goombay.algorithms.editdistance import jaro
 from goombay.algorithms.editdistance import jaro_winkler
@@ -13,3 +14,17 @@ from goombay.algorithms.editdistance import longest_common_subsequence
 from goombay.algorithms.editdistance import shortest_common_supersequence
 from goombay.algorithms.editdistance import gotoh
 from goombay.algorithms.editdistance import gotoh_local
+#Classes
+from goombay.algorithms.editdistance import Hamming
+from goombay.algorithms.editdistance import Jaro
+from goombay.algorithms.editdistance import Jaro_Winkler
+from goombay.algorithms.editdistance import Hirschberg 
+from goombay.algorithms.editdistance import Lowrance_Wagner
+from goombay.algorithms.editdistance import Needleman_Wunsch
+from goombay.algorithms.editdistance import Smith_Waterman
+from goombay.algorithms.editdistance import Wagner_Fischer
+from goombay.algorithms.editdistance import Waterman_Smith_Beyer
+from goombay.algorithms.editdistance import Longest_Common_Subsequence
+from goombay.algorithms.editdistance import Shortest_Common_Supersequence
+from goombay.algorithms.editdistance import Gotoh
+from goombay.algorithms.editdistance import Gotoh_Local

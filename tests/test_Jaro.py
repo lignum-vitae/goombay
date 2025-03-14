@@ -1,6 +1,6 @@
 import unittest
 import numpy
-from goombay.algorithms.editdistance import Jaro
+from goombay import Jaro
 
 class TestJaro(unittest.TestCase):
     """Test suite for Jaro distance algorithm"""

@@ -1,6 +1,6 @@
 import unittest
 import numpy
-from goombay.algorithms.editdistance import Lowrance_Wagner
+from goombay import Lowrance_Wagner
 
 class TestLowranceWagner(unittest.TestCase):
     """Test suite for Lowrance-Wagner edit distance algorithm"""

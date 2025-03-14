@@ -1,6 +1,6 @@
 import unittest
 import numpy
-from goombay.algorithms.editdistance import Smith_Waterman
+from goombay import Smith_Waterman
 
 class TestSmithWaterman(unittest.TestCase):
     """Test suite for Smith-Waterman local alignment algorithm"""

@@ -1,6 +1,6 @@
 import unittest
 import numpy
-from goombay.algorithms.editdistance import gotoh_local, Gotoh_Local
+from goombay import gotoh_local, Gotoh_Local
 
 class TestGotohLocal(unittest.TestCase):
     """Test suite for Gotoh Local alignment algorithm"""

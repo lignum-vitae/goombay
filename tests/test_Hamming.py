@@ -1,5 +1,5 @@
 import unittest
-from goombay.algorithms.editdistance import Hamming
+from goombay import Hamming
 
 class TestHamming(unittest.TestCase):
     """Test suite for Hamming distance algorithm"""
