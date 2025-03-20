@@ -191,6 +191,8 @@ print(needleman_wunsch.matrix("AFTG","ACTG"))
  [6. 4. 3. 1. 3.]
  [8. 6. 5. 3. 1.]]
  ```
+# Contributions
+Interested in contributing to Goombay? Please review our [Contribution Guidelines](https://github.com/lignum-vitae/goombay/blob/master/docs/CONTRIBUTING.md) for detailed instructions on how to get involved.
 
 # Caveats
 > [!CAUTION]
