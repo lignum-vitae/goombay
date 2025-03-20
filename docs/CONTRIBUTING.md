@@ -18,11 +18,11 @@ By participating in this project, you agree to abide by our [Code of Conduct](ht
 ### Bug Reports
 If you find a bug or unexpected behavior, please open an issue in the GitHub repository. When reporting a bug, provide the following information:
 
-A description of the problem.
-Steps to reproduce the issue (if applicable).
-Any relevant error messages.
-The version of the library you're using.
-The Python version you're using.
+- A description of the problem.
+- Steps to reproduce the issue (if applicable).
+- Any relevant error messages.
+- The version of the library you're using.
+- The Python version you're using.
 
 ### Feature Requests
 If you have an idea for a new feature or enhancement, please open an issue describing the feature and why you think it would be useful. We encourage open discussions before starting to code a new feature.
@@ -30,28 +30,29 @@ If you have an idea for a new feature or enhancement, please open an issue descr
 ### Pull Requests
 To contribute code:
 
-1. **Fork the repository** to your own GitHub account.
-2. **Clone your fork** locally:
+1. **Open a new Issue** following the above mentioned guidelines
+2. **Fork the repository** to your own GitHub account.
+3. **Clone your fork** locally:
 ```nginx
 git clone https://github.com/YOUR_USERNAME/goombay.git
 ```
-3. **Create a new branch** for your changes:
+4. **Create a new branch** for your changes:
 ```nginx
 git checkout -b feature-name
 ```
-4. **Make your changes** in your local repository.
-5. **Test your changes**. Make sure all tests pass. (See Running Tests).
-6. **Commit your changes** with a descriptive commit message:
+5. **Make your changes** in your local repository.
+6. **Test your changes**. Make sure all tests pass. (See Running Tests).
+7. **Commit your changes** with a descriptive commit message:
 ```nginx
 git commit -m "Add feature: description of change"
 ```
-7. **Push your branch** to your fork on GitHub:
+8. **Push your branch** to your fork on GitHub:
 ```nginx
 git push origin feature-name
 ```
-8. **Open a Pull Request (PR)** from your branch to the main branch of the original Goombay repository.
+9. **Open a Pull Request (PR)** from your branch to the main branch of the original Goombay repository.
 
-9. **In your PR description**, include:
+10. **In your PR description**, include:
 
 - A summary of the changes.
 - Any relevant issue numbers (e.g., fixes #123).
