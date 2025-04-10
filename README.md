@@ -4,13 +4,12 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14903445.svg)](https://doi.org/10.5281/zenodo.14903445)
 [![License](https://img.shields.io/pypi/l/goombay.svg)](https://github.com/dawnandrew100/goombay/blob/master/LICENSE)
 [![GitHub branch check runs](https://img.shields.io/github/check-runs/dawnandrew100/goombay/master)](https://github.com/dawnandrew100/goombay)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/goombay)](https://pypi.python.org/pypi/goombay)
 
 # Goombay
 This Python project contains several sequence alignment algorithms that can also produce scoring matrices for Needleman-Wunsch, Gotoh, Smith-Waterman, Wagner-Fischer, Waterman-Smith-Beyer, 
 Lowrance-Wagner, Longest Common Subsequence, and Shortest Common Supersequence algorithms. 
 
-***Please ensure that numpy is installed so that this project can work correctly***
+***This project depends on NumPy. Please ensure that it is installed.***
 
 # Installation and Usage
 > [!IMPORTANT]
