@@ -50,14 +50,14 @@ git remote
 ##### Choose ONE of the following commands
 ```nginx
 # Creates a new branch that stays in sync with the develop branch of the main repository
-git checkout -b feature-name upstream/develop
+git checkout -b <feature-name> upstream/develop
 
 # Checks out existing branch if you already have a branch locally
-git checkout feature-name
+git checkout <feature-name>
 ```
 #### 6. Make your changes in your local repository and run in your local environment.
 ```nginx
-# Downloads project as editable, which allows local imports
+# Downloads project as editable, which allows local imports. Run this command from the root directory.
 python -m pip install -e .
 
 # Files may be run as a module
@@ -66,7 +66,7 @@ python -m goombay.algorithms.editdistance
 # Or as a script
 python editdistance.py
 ```
-#### 7. Test your changes. Make sure all tests pass. (See Running Tests).
+#### 7. Test your changes. Make sure all tests pass. (See [Running Tests](#Running-Tests)).
 #### 8. Commit your changes with a descriptive commit message:
 ```nginx
 # Gets latest changes from main biobase project if you've set up an upstream branch as detailed above
@@ -99,7 +99,7 @@ git rebase --continue
 ```nginx
 git push -f origin feature-name
 ```
-#### 11. Open a Pull Request (PR) from your branch to the main branch of the original Goombay repository.
+#### 11. Open a Pull Request (PR) from your branch to the develop branch of the original Goombay repository.
 - You may need to click the `compare across forks` link under the `Compare changes` header that populates
   when you click `New pull request` to see your local repo fork.
 
@@ -146,4 +146,3 @@ By contributing to Goombay, you agree that your contributions will be licensed u
 We encourage contributions from everyone, and we strive to maintain a welcoming and inclusive community. If you have any questions, need help, or want to discuss ideas, feel free to reach out via issues or the repository discussions.
 
 Thank you for contributing to Goombay! Your help improves the project for everyone!
-
