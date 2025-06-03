@@ -1,8 +1,5 @@
-#built-in
-from __future__ import annotations
-
 #internal dependencies
-from goombay.algorithms.base import GLOBALBASE as __GLOBALBASE, LOCALBASE as __LOCALBASE
+from goombay.algorithms.base import GLOBALBASE as _GLOBALBASE, LOCALBASE as _LOCALBASE
 
 try:
     # external dependencies
@@ -18,17 +15,20 @@ def main():
     sss = ["HOLYWATERBLESSING", "HOLYERISSING", "HOLYWATISSSI", "HWATISBLESSING", "HOLYWATISSS"]
 
     for i in range(len(sss)):
-        print(waterman_smith_beyer.align(qqs, sss[i])) 
+        print(waterman_smith_beyer.align(qqs, sss[i]))
         print()
     print(waterman_smith_beyer.matrix("TRATE", "TRACE"))
     """
     query = "AGCT"
     subject = "TACG"
-    print(lowrance_wagner.align(query, subject))
-    score, pointer = lowrance_wagner(query, subject)
-    print(pointer)
+    print(needleman_wunsch.distance(query, subject))
+    print(needleman_wunsch.similarity(query, subject))
+    print(needleman_wunsch.normalized_similarity(query, subject))
+    print(needleman_wunsch.normalized_distance(query, subject))
+    print(needleman_wunsch.matrix(query, subject))
+    print(needleman_wunsch.align(query, subject))
 
-class Wagner_Fischer(__GLOBALBASE): #Levenshtein Distance
+class Wagner_Fischer(_GLOBALBASE): #Levenshtein Distance
     def __init__(self)->None:
         self.gap_penalty = 1
         self.substitution_cost = 1
@@ -78,9 +78,6 @@ class Wagner_Fischer(__GLOBALBASE): #Levenshtein Distance
         sim = max(len(querySequence), len(subjectSequence)) - self.distance(querySequence, subjectSequence)
         return max(0, sim)
 
-    def normalized_similarity(self, querySequence: str, subjectSequence: str) -> float:
-        return 1.0 - self.normalized_distance(querySequence, subjectSequence)
-
     def normalized_distance(self, querySequence: str, subjectSequence: str) -> float:
         if not querySequence and not subjectSequence:
             return 0.0
@@ -90,7 +87,13 @@ class Wagner_Fischer(__GLOBALBASE): #Levenshtein Distance
         max_dist = max_len
         return (self.distance(querySequence, subjectSequence) / max_dist)
 
-    def align(self, querySequence: str, subjectSequence: str)->str: 
+    def normalized_similarity(self, querySequence: str, subjectSequence: str) -> float:
+        return 1.0 - self.normalized_distance(querySequence, subjectSequence)
+
+    def matrix(self, querySequence: str, subjectSequence: str)->list[list[float]]:
+        return super().matrix(querySequence, subjectSequence)
+
+    def align(self, querySequence: str, subjectSequence: str)->str:
         _, pointerMatrix = self(querySequence, subjectSequence)
 
         qs, ss = [x.upper() for x in querySequence], [x.upper() for x in subjectSequence]
@@ -118,7 +121,7 @@ class Wagner_Fischer(__GLOBALBASE): #Levenshtein Distance
         subjectAlign = "".join(subjectAlign[::-1])
         return f"{queryAlign}\n{subjectAlign}"
 
-class Lowrance_Wagner(__GLOBALBASE): #Damerau-Levenshtein distance
+class Lowrance_Wagner(_GLOBALBASE): #Damerau-Levenshtein distance
     def __init__(self)->None:
         self.gap_penalty = 1
         self.substitution_cost = 1
@@ -171,9 +174,6 @@ class Lowrance_Wagner(__GLOBALBASE): #Damerau-Levenshtein distance
         sim = max(len(querySequence), len(subjectSequence)) - self.distance(querySequence, subjectSequence)
         return max(0, sim)
 
-    def normalized_similarity(self, querySequence: str, subjectSequence: str) -> float:
-        return 1.0 - self.normalized_distance(querySequence, subjectSequence)
-
     def normalized_distance(self, querySequence: str, subjectSequence: str) -> float:
         if not querySequence and not subjectSequence:
             return 0.0
@@ -183,7 +183,13 @@ class Lowrance_Wagner(__GLOBALBASE): #Damerau-Levenshtein distance
         max_dist = max_len
         return (self.distance(querySequence, subjectSequence) / max_dist)
 
-    def align(self, querySequence: str, subjectSequence: str)->str: 
+    def normalized_similarity(self, querySequence: str, subjectSequence: str) -> float:
+        return 1.0 - self.normalized_distance(querySequence, subjectSequence)
+
+    def matrix(self, querySequence: str, subjectSequence: str)->list[list[float]]:
+        return super().matrix(querySequence, subjectSequence)
+
+    def align(self, querySequence: str, subjectSequence: str)->str:
         if not querySequence and not subjectSequence:
             return "\n"
         if not querySequence:
@@ -223,7 +229,7 @@ class Lowrance_Wagner(__GLOBALBASE): #Damerau-Levenshtein distance
         subjectAlign = "".join(subjectAlign[::-1])
         return f"{queryAlign}\n{subjectAlign}"
 
-class Hamming(__GLOBALBASE):
+class Hamming():
     def _check_inputs(self, querySequence: str|int, subjectSequence: str|int) -> None:
         if not isinstance(querySequence, (str, int)) or not isinstance(subjectSequence, (str, int)):
             raise TypeError("Sequences must be strings or integers")
@@ -231,16 +237,6 @@ class Hamming(__GLOBALBASE):
             raise TypeError("Sequences must be of the same type (both strings or both integers)")
         if len(str(querySequence)) != len(str(subjectSequence)) and not isinstance(querySequence, int):
             raise ValueError("Sequences must be of equal length")
-
-    def align(self, querySequence: str|int, subjectSequence: str|int)->str:
-        self._check_inputs(querySequence, subjectSequence)
-        if isinstance(querySequence, int) and isinstance(subjectSequence, int):
-            qs, ss = int(querySequence), int(subjectSequence)
-            return f"{bin(qs)}\n{bin(ss)}"
-        return f"{querySequence}\n{subjectSequence}"
-
-    def matrix(self, qs: str, ss: str) -> None:
-        return None
 
     def __call__(self, querySequence: str|int, subjectSequence: str|int)->tuple[int,list[int]]:
         self._check_inputs(querySequence, subjectSequence)
@@ -279,8 +275,8 @@ class Hamming(__GLOBALBASE):
         if len(querySequence) == len(subjectSequence) == 0:
             return 0
         qs,ss = [x.upper() for x in querySequence], [x.upper() for x in subjectSequence]
-        query = set([(x, y) for (x, y) in enumerate(qs)]) 
-        subject = set([(x, y) for (x, y) in enumerate(ss)]) 
+        query = set([(x, y) for (x, y) in enumerate(qs)])
+        subject = set([(x, y) for (x, y) in enumerate(ss)])
         qs,sq = query-subject, subject-query
         dist = max(map(len,[qs,sq]))
         return dist 
@@ -293,8 +289,8 @@ class Hamming(__GLOBALBASE):
         if len(querySequence) == len(subjectSequence) == 0:
             return 1
         qs,ss = [x.upper() for x in querySequence], [x.upper() for x in subjectSequence]
-        query = set([(x, y) for (x, y) in enumerate(qs)]) 
-        subject = set([(x, y) for (x, y) in enumerate(ss)]) 
+        query = set([(x, y) for (x, y) in enumerate(qs)])
+        subject = set([(x, y) for (x, y) in enumerate(ss)])
         qs,sq = query-subject, subject-query
         sim = max(map(len, [querySequence, subjectSequence])) - max(map(len,[qs,sq]))
         return sim
@@ -316,7 +312,17 @@ class Hamming(__GLOBALBASE):
         simarray = [1 if num == 0 else 0 for num in distarray]
         return simarray
 
-class Needleman_Wunsch(__GLOBALBASE):
+    def matrix(self, qs: str, ss: str) -> None:
+        return None
+
+    def align(self, querySequence: str|int, subjectSequence: str|int)->str:
+        self._check_inputs(querySequence, subjectSequence)
+        if isinstance(querySequence, int) and isinstance(subjectSequence, int):
+            qs, ss = int(querySequence), int(subjectSequence)
+            return f"{bin(qs)}\n{bin(ss)}"
+        return f"{querySequence}\n{subjectSequence}"
+
+class Needleman_Wunsch(_GLOBALBASE):
     def __init__(self, match_score:int = 2, mismatch_penalty:int = 1, gap_penalty:int = 2)->None:
         self.match_score = match_score
         self.mismatch_penalty = mismatch_penalty
@@ -359,7 +365,25 @@ class Needleman_Wunsch(__GLOBALBASE):
                   self.pointer[i,j] += 4
         return self.alignment_score, self.pointer
 
-class Waterman_Smith_Beyer(__GLOBALBASE):
+    def distance(self, querySequence: str, subjectSequence: str)->float:
+        return super().distance(querySequence, subjectSequence)
+
+    def similarity(self, querySequence: str, subjectSequence: str)->float:
+        return super().similarity(querySequence, subjectSequence)
+
+    def normalized_distance(self, querySequence: str, subjectSequence: str) -> float:
+        return super().normalized_distance(querySequence, subjectSequence)
+
+    def normalized_similarity(self, querySequence: str, subjectSequence: str) -> float:
+        return super().normalized_similarity(querySequence, subjectSequence)
+
+    def matrix(self, querySequence: str, subjectSequence: str)->list[list[float]]:
+        return super().matrix(querySequence, subjectSequence)
+
+    def align(self, querySequence: str, subjectSequence: str) -> str:
+        return super().align(querySequence, subjectSequence)
+
+class Waterman_Smith_Beyer(_GLOBALBASE):
     def __init__(self, match_score:int = 2, mismatch_penalty:int = 1, new_gap_penalty:int = 4, continue_gap_penalty:int = 1)->None:
         self.match_score = match_score
         self.mismatch_penalty = mismatch_penalty
@@ -374,12 +398,12 @@ class Waterman_Smith_Beyer(__GLOBALBASE):
         #matrix initialisation
         self.alignment_score = numpy.zeros((len(qs),len(ss)))
         #pointer matrix to trace optimal alignment
-        self.pointer = numpy.zeros((len(qs), len(ss))) 
+        self.pointer = numpy.zeros((len(qs), len(ss)))
         self.pointer[:,0] = 3
         self.pointer[0,:] = 4
         #initialisation of starter values for first column and first row
         self.alignment_score[:,0] = [-self.new_gap_penalty + -n * self.continue_gap_penalty for n in range(len(qs))]
-        self.alignment_score[0,:] = [-self.new_gap_penalty + -n * self.continue_gap_penalty for n in range(len(ss))] 
+        self.alignment_score[0,:] = [-self.new_gap_penalty + -n * self.continue_gap_penalty for n in range(len(ss))]
         self.alignment_score[0][0] = 0
 
         for i, subject in enumerate(qs):
@@ -411,7 +435,25 @@ class Waterman_Smith_Beyer(__GLOBALBASE):
                     self.pointer[i,j] += 4
         return self.alignment_score, self.pointer
 
-class Gotoh(__GLOBALBASE):
+    def distance(self, querySequence: str, subjectSequence: str)->float:
+        return super().distance(querySequence, subjectSequence)
+
+    def similarity(self, querySequence: str, subjectSequence: str)->float:
+        return super().similarity(querySequence, subjectSequence)
+
+    def normalized_distance(self, querySequence: str, subjectSequence: str) -> float:
+        return super().normalized_distance(querySequence, subjectSequence)
+
+    def normalized_similarity(self, querySequence: str, subjectSequence: str) -> float:
+        return super().normalized_similarity(querySequence, subjectSequence)
+
+    def matrix(self, querySequence: str, subjectSequence: str)->list[list[float]]:
+        return super().matrix(querySequence, subjectSequence)
+
+    def align(self, querySequence: str, subjectSequence: str) -> str:
+        return super().align(querySequence, subjectSequence)
+
+class Gotoh(_GLOBALBASE):
     def __init__(self, match_score:int = 2, mismatch_penalty:int = 1, new_gap_penalty:int = 2, continue_gap_penalty: int = 1)->None:
         self.match_score = match_score
         self.mismatch_penalty = mismatch_penalty
@@ -456,15 +498,24 @@ class Gotoh(__GLOBALBASE):
 
         return self.D, self.P, self.Q, self.pointer
 
-    def matrix(self, querySequence: str, subjectSequence: str)->tuple[NDArray[float64], NDArray[float64], NDArray[float64]]:
-        D, P, Q, _ = self(querySequence, subjectSequence)
-        return D, P, Q
+    def distance(self, querySequence: str, subjectSequence: str) -> float:
+        return super().distance(querySequence, subjectSequence)
 
     def similarity(self, querySequence: str, subjectSequence: str)->float:
         if querySequence == subjectSequence == "":
             return self.match_score
         D,_, _, _ = self(querySequence, subjectSequence)
         return float(D[D.shape[0]-1,D.shape[1]-1])
+
+    def normalized_distance(self, querySequence: str, subjectSequence: str) -> float:
+        return super().normalized_distance(querySequence, subjectSequence)
+
+    def normalized_similarity(self, querySequence: str, subjectSequence: str) -> float:
+        return super().normalized_similarity(querySequence, subjectSequence)
+
+    def matrix(self, querySequence: str, subjectSequence: str)->tuple[NDArray[float64], NDArray[float64], NDArray[float64]]:
+        D, P, Q, _ = self(querySequence, subjectSequence)
+        return D, P, Q
 
     def align(self, querySequence: str, subjectSequence: str)->str: 
         _, _, _, pointerMatrix = self(querySequence, subjectSequence)
@@ -496,7 +547,7 @@ class Gotoh(__GLOBALBASE):
 
         return f"{queryAlign}\n{subjectAlign}"
 
-class Gotoh_Local(__LOCALBASE):
+class Gotoh_Local(_LOCALBASE):
     def __init__(self, match_score=2, mismatch_penalty=1, new_gap_penalty=3, continue_gap_penalty=2):
         self.match_score = match_score
         self.mismatch_penalty = mismatch_penalty
@@ -509,7 +560,7 @@ class Gotoh_Local(__LOCALBASE):
         D = numpy.zeros((len(querySequence) + 1, len(subjectSequence) + 1))
         P = numpy.zeros((len(querySequence) + 1, len(subjectSequence) + 1))
         Q = numpy.zeros((len(querySequence) + 1, len(subjectSequence) + 1))
-        
+
         # Fill matrices
         for i in range(1, len(querySequence) + 1):
             for j in range(1, len(subjectSequence) + 1):
@@ -517,7 +568,7 @@ class Gotoh_Local(__LOCALBASE):
                 P[i,j] = max(D[i-1,j] - self.new_gap_penalty, P[i-1,j] - self.continue_gap_penalty)
                 Q[i,j] = max(D[i,j-1] - self.new_gap_penalty, Q[i,j-1] - self.continue_gap_penalty)
                 D[i,j] = max(0, D[i-1,j-1] + score, P[i,j], Q[i,j])
-        
+
         return D, P, Q
 
     def _init_alignment_matrices(self, rows: int, cols: int) -> tuple[NDArray, NDArray, NDArray]:
@@ -532,14 +583,14 @@ class Gotoh_Local(__LOCALBASE):
         """Fill cell in Gotoh matrices."""
         D, P, Q = matrices
         score = self.match_score if char1.upper() == char2.upper() else -self.mismatch_penalty
-        
+
         P[i,j] = max(D[i-1,j] - self.new_gap_penalty, 
                      P[i-1,j] - self.continue_gap_penalty)
         Q[i,j] = max(D[i,j-1] - self.new_gap_penalty, 
                      Q[i,j-1] - self.continue_gap_penalty)
-        D[i,j] = max(0, 
-                     D[i-1,j-1] + score, 
-                     P[i,j], 
+        D[i,j] = max(0,
+                     D[i-1,j-1] + score,
+                     P[i,j],
                      Q[i,j])
 
     def _get_max_scores(self, matrices_A: tuple[NDArray, NDArray, NDArray],
@@ -547,6 +598,21 @@ class Gotoh_Local(__LOCALBASE):
                        matrices_AB: tuple[NDArray, NDArray, NDArray]) -> tuple[float, float, float]:
         """Get maximum scores from Gotoh matrices."""
         return matrices_A[0].max(), matrices_B[0].max(), matrices_AB[0].max()
+
+    def distance(self, querySequence: str, subjectSequence: str) -> float:
+        return super().distance(querySequence, subjectSequence)
+
+    def similarity(self, querySequence: str, subjectSequence: str)->float:
+        if not querySequence and not subjectSequence:
+            return 1.0
+        matrix, _, _  = self(querySequence, subjectSequence)
+        return matrix.max()
+
+    def normalized_distance(self, querySequence: str, subjectSequence: str) -> float:
+        return super().normalized_distance(querySequence, subjectSequence)
+
+    def normalized_similarity(self, querySequence: str, subjectSequence: str) -> float:
+        return super().normalized_similarity(querySequence, subjectSequence)
 
     def matrix(self, querySequence: str, subjectSequence: str)->tuple[NDArray[float64], NDArray[float64], NDArray[float64]]:
         D, P, Q = self(querySequence, subjectSequence)
@@ -577,13 +643,7 @@ class Gotoh_Local(__LOCALBASE):
       subjectAlign = "".join(subjectAlign[::-1])
       return f"{queryAlign}\n{subjectAlign}"
 
-    def similarity(self, querySequence: str, subjectSequence: str)->float:
-        if not querySequence and not subjectSequence:
-            return 1.0
-        matrix, _, _  = self(querySequence, subjectSequence)
-        return matrix.max()
-
-class Hirschberg(__GLOBALBASE):
+class Hirschberg():
     def __init__(self, match_score: int = 1, mismatch_penalty: int = 2, gap_penalty: int = 4)->None:
         self.match_score = match_score
         self.mismatch_penalty = mismatch_penalty
@@ -599,15 +659,15 @@ class Hirschberg(__GLOBALBASE):
             return f"{qs}\n{'-' * len(qs)}"
         elif len(qs) == 1 or len(ss) == 1:
             return self._align_simple(qs, ss)
-        
+
         # Divide and conquer
         xmid = len(qs) // 2
-        
+
         # Forward score from start to mid
         score_left = self._score(qs[:xmid], ss)
         # Backward score from end to mid
         score_right = self._score(qs[xmid:][::-1], ss[::-1])[::-1]
-        
+
         # Find optimal split point in subject sequence
         total_scores = score_left + score_right
         ymid = numpy.argmin(total_scores)
@@ -615,7 +675,7 @@ class Hirschberg(__GLOBALBASE):
         # Recursively align both halves
         left_align = self(qs[:xmid], ss[:ymid])
         right_align = self(qs[xmid:], ss[ymid:])
-        
+
         # Combine the alignments
         left_q, left_s = left_align.split('\n')
         right_q, right_s = right_align.split('\n')
@@ -634,7 +694,7 @@ class Hirschberg(__GLOBALBASE):
         for i in range(1, len(qs) + 1):
             curr_row[0] = prev_row[0] + self.gap_penalty
             for j in range(1, len(ss) + 1):
-                match_score = (-self.match_score if qs[i-1] == ss[j-1] 
+                match_score = (-self.match_score if qs[i-1] == ss[j-1]
                              else self.mismatch_penalty)
                 curr_row[j] = min(
                     prev_row[j-1] + match_score,  # match/mismatch
@@ -660,12 +720,12 @@ class Hirschberg(__GLOBALBASE):
         # Fill matrices
         for i in range(1, len(qs) + 1):
             for j in range(1, len(ss) + 1):
-                match_score = (-self.match_score if qs[i-1] == ss[j-1] 
+                match_score = (-self.match_score if qs[i-1] == ss[j-1]
                              else self.mismatch_penalty)
                 diag = score[i-1,j-1] + match_score
                 up = score[i-1,j] + self.gap_penalty
                 left = score[i,j-1] + self.gap_penalty
-                
+
                 score[i,j] = min(diag, up, left)
                 if score[i,j] == diag:
                     pointer[i,j] = 3
@@ -677,7 +737,7 @@ class Hirschberg(__GLOBALBASE):
         # Traceback
         i, j = len(qs), len(ss)
         query_align, subject_align = [], []
-        
+
         while i > 0 or j > 0:
             if i > 0 and j > 0 and pointer[i,j] == 3:
                 query_align.append(qs[i-1])
@@ -695,28 +755,6 @@ class Hirschberg(__GLOBALBASE):
 
         return f"{''.join(query_align[::-1])}\n{''.join(subject_align[::-1])}"
 
-    def align(self, querySequence: str, subjectSequence: str)->str:
-        return self(querySequence, subjectSequence)
-
-    def matrix(self, querySequence: str, subjectSequence: str)->NDArray[float64]:
-        if len(querySequence) <= 1 or len(subjectSequence) <= 1:
-            score = numpy.zeros((len(querySequence) + 1, len(subjectSequence) + 1), dtype=float64)
-            for i in range(len(querySequence) + 1):
-                score[i,0] = i * self.gap_penalty
-            for j in range(len(subjectSequence) + 1):
-                score[0,j] = j * self.gap_penalty
-            for i in range(1, len(querySequence) + 1):
-                for j in range(1, len(subjectSequence) + 1):
-                    match_score = (-self.match_score if querySequence[i-1] == subjectSequence[j-1] 
-                                 else self.mismatch_penalty)
-                    score[i,j] = min(
-                        score[i-1,j-1] + match_score,
-                        score[i-1,j] + self.gap_penalty,
-                        score[i,j-1] + self.gap_penalty
-                    )
-            return score
-        return numpy.array([[]], dtype=float64)
-
     def distance(self, querySequence: str, subjectSequence: str)->float:
         """Calculate edit distance between sequences"""
         if not querySequence and not subjectSequence:
@@ -728,7 +766,7 @@ class Hirschberg(__GLOBALBASE):
 
         alignment = self(querySequence, subjectSequence)
         query_align, subject_align = alignment.split('\n')
-        
+
         dist = 0.0
         for q, s in zip(query_align, subject_align):
             if q == '-' or s == '-':
@@ -746,7 +784,7 @@ class Hirschberg(__GLOBALBASE):
             return 0.0
         alignment = self(querySequence, subjectSequence)
         query_align, subject_align = alignment.split('\n')
-        
+
         score = 0.0
         for q, s in zip(query_align, subject_align):
             if q == s and q != '-':
@@ -763,11 +801,11 @@ class Hirschberg(__GLOBALBASE):
             return 1.0
         if querySequence == subjectSequence:
             return 0.0
-            
+
         raw_dist = self.distance(querySequence, subjectSequence)
         max_len = max(len(querySequence), len(subjectSequence))
         worst_score = max_len * self.mismatch_penalty
-        
+
         if worst_score == 0:
             return 0.0
         return min(1.0, raw_dist / worst_score)
@@ -778,15 +816,37 @@ class Hirschberg(__GLOBALBASE):
             return 0.0
         if querySequence == subjectSequence:
             return 1.0
-            
+
         return 1.0 - self.normalized_distance(querySequence, subjectSequence)
 
-class Jaro(__GLOBALBASE):
+    def matrix(self, querySequence: str, subjectSequence: str)->NDArray[float64]:
+        if len(querySequence) <= 1 or len(subjectSequence) <= 1:
+            score = numpy.zeros((len(querySequence) + 1, len(subjectSequence) + 1), dtype=float64)
+            for i in range(len(querySequence) + 1):
+                score[i,0] = i * self.gap_penalty
+            for j in range(len(subjectSequence) + 1):
+                score[0,j] = j * self.gap_penalty
+            for i in range(1, len(querySequence) + 1):
+                for j in range(1, len(subjectSequence) + 1):
+                    match_score = (-self.match_score if querySequence[i-1] == subjectSequence[j-1]
+                                 else self.mismatch_penalty)
+                    score[i,j] = min(
+                        score[i-1,j-1] + match_score,
+                        score[i-1,j] + self.gap_penalty,
+                        score[i,j-1] + self.gap_penalty
+                    )
+            return score
+        return numpy.array([[]], dtype=float64)
+
+    def align(self, querySequence: str, subjectSequence: str)->str:
+        return self(querySequence, subjectSequence)
+
+class Jaro():
     def __init__(self)->None:
         self.match_score = 1
         self.winkler = False
         self.scaling_factor = 1
-          
+
     def __call__(self, querySequence: str, subjectSequence: str) -> tuple[int, int]:
         qs, ss = (x.upper() for x in [querySequence, subjectSequence])
         if qs == ss:
@@ -807,7 +867,7 @@ class Jaro(__GLOBALBASE):
                     break
         if matches == 0:
             return 0, 0
-              
+
         transpositions = 0
         comparison = 0
         for i in range(len1):
@@ -818,6 +878,9 @@ class Jaro(__GLOBALBASE):
                     transpositions += 1
                 comparison += 1
         return matches, transpositions//2
+
+    def distance(self, querySequence: str, subjectSequence: str) -> float:
+        return 1 - self.similarity(querySequence, subjectSequence)
 
     def similarity(self, querySequence: str, subjectSequence: str) -> float:
         if not querySequence or not subjectSequence:
@@ -842,9 +905,6 @@ class Jaro(__GLOBALBASE):
                 break
             prefix_matches += 1
         return jaro_sim + prefix_matches*self.scaling_factor*(1-jaro_sim)
-
-    def distance(self, querySequence: str, subjectSequence: str) -> float:
-        return 1 - self.similarity(querySequence, subjectSequence)
 
     def normalized_distance(self, querySequence: str, subjectSequence: str) -> float:
         return self.distance(querySequence, subjectSequence)
@@ -875,7 +935,7 @@ class Jaro(__GLOBALBASE):
                 self.alignment_score[i][j] = dmatch
         return self.alignment_score
 
-    def align(self, querySequence: str, subjectSequence: str) -> str: 
+    def align(self, querySequence: str, subjectSequence: str) -> str:
         """Return aligned sequences showing matches."""
         qs, ss = [x.upper() for x in querySequence], [x.upper() for x in subjectSequence]
         if qs == ss:
@@ -885,7 +945,7 @@ class Jaro(__GLOBALBASE):
         array_qs = [False] * len(qs)
         array_ss = [False] * len(ss)
         max_dist = max(len(qs), len(ss)) // 2 - 1
-        
+
         # First pass: mark matches
         for i in range(len(qs)):
             start = max(0, i - max_dist)
@@ -898,7 +958,7 @@ class Jaro(__GLOBALBASE):
         # Build global alignment
         queryAlign, subjectAlign = [], []
         i = j = 0
-        
+
         while i < len(qs) or j < len(ss):
             if i < len(qs) and j < len(ss) and array_qs[i] and array_ss[j] and qs[i] == ss[j]:
                 # Add match
@@ -906,12 +966,12 @@ class Jaro(__GLOBALBASE):
                 subjectAlign.append(ss[j])
                 i += 1
                 j += 1
-            elif i < len(qs) and not array_qs[i]:  
+            elif i < len(qs) and not array_qs[i]:
                 # Add unmatched query character
                 queryAlign.append(qs[i])
                 subjectAlign.append('-')
                 i += 1
-            elif j < len(ss) and not array_ss[j]:  
+            elif j < len(ss) and not array_ss[j]:
                 # Add unmatched subject character
                 queryAlign.append('-')
                 subjectAlign.append(ss[j])
@@ -939,34 +999,61 @@ class Jaro_Winkler(Jaro):
         #p should not exceed 0.25 else similarity could be larger than 1
         self.scaling_factor = scaling_factor
 
-class Smith_Waterman(__LOCALBASE):
+class Smith_Waterman():
     def __init__(self, match_score:int = 1, mismatch_penalty:int = 1, gap_penalty:int = 2)->None:
         self.match_score = match_score
         self.mismatch_penalty = mismatch_penalty
         self.gap_penalty = gap_penalty
 
-    def __call__(self, querySequence: str, subjectSequence: str)-> NDArray[float64]: 
-        qs,ss = [""], [""] 
+    def __call__(self, querySequence: str, subjectSequence: str)-> NDArray[float64]:
+        qs,ss = [""], [""]
         qs.extend([x.upper() for x in querySequence])
         ss.extend([x.upper() for x in subjectSequence])
 
         #matrix initialisation
-        self.alignment_score = numpy.zeros((len(qs),len(ss))) 
+        self.alignment_score = numpy.zeros((len(qs),len(ss)))
         for i, query_char in enumerate(qs):
           for j, subject_char in enumerate(ss):
             if j == 0 or i == 0:
                 #keeps first row and column consistent throughout all calculations
                 continue
-            if query_char == subject_char: 
+            if query_char == subject_char:
                 match = self.alignment_score[i-1][j-1] + self.match_score
             else:
                 match = self.alignment_score[i-1][j-1] - self.mismatch_penalty
-            ugap = self.alignment_score[i-1][j] - self.gap_penalty 
-            lgap = self.alignment_score[i][j-1] - self.gap_penalty 
-            tmax = max(0, match, lgap, ugap) 
+            ugap = self.alignment_score[i-1][j] - self.gap_penalty
+            lgap = self.alignment_score[i][j-1] - self.gap_penalty
+            tmax = max(0, match, lgap, ugap)
             self.alignment_score[i][j] = tmax
         return self.alignment_score
- 
+
+    def distance(self, querySequence: str, subjectSequence: str)->float:
+        if not querySequence and not subjectSequence:
+            return 0
+        return max(map(len, [querySequence, subjectSequence])) - self.similarity(querySequence, subjectSequence)
+
+    def similarity(self, querySequence: str, subjectSequence: str)->float:
+        if not querySequence and not subjectSequence:
+            return 1.0
+        matrix  = self(querySequence, subjectSequence)
+        return matrix.max()
+
+    def normalized_distance(self, querySequence: str, subjectSequence: str)->float:
+        if not querySequence and not subjectSequence:
+            return 0
+        dist = self.distance(querySequence, subjectSequence)
+        return dist/max(map(len, [querySequence, subjectSequence]))
+
+    def normalized_similarity(self, querySequence: str, subjectSequence: str)->float:
+        if not querySequence and not subjectSequence:
+            return 1
+        similarity = self.similarity(querySequence, subjectSequence)
+        return similarity/max(map(len, [querySequence, subjectSequence]))
+
+    def matrix(self, querySequence: str, subjectSequence: str)->NDArray[float64]:
+        matrix = self(querySequence, subjectSequence)
+        return matrix
+
     def align(self, querySequence: str, subjectSequence: str)->str:
         matrix = self(querySequence, subjectSequence)
 
@@ -993,57 +1080,45 @@ class Smith_Waterman(__LOCALBASE):
         subjectAlign = "".join(subjectAlign[::-1])
         return f"{queryAlign}\n{subjectAlign}"
 
-    def matrix(self, querySequence: str, subjectSequence: str)->NDArray[float64]:
-        matrix = self(querySequence, subjectSequence)
-        return matrix
-
-    def similarity(self, querySequence: str, subjectSequence: str)->float:
-        if not querySequence and not subjectSequence:
-            return 1.0
-        matrix  = self(querySequence, subjectSequence)
-        return matrix.max()
-
-    def distance(self, querySequence: str, subjectSequence: str)->float:
-        if not querySequence and not subjectSequence:
-            return 0
-        return max(map(len, [querySequence, subjectSequence])) - self.similarity(querySequence, subjectSequence)
-
-    def normalized_distance(self, querySequence: str, subjectSequence: str)->float:
-        if not querySequence and not subjectSequence:
-            return 0
-        dist = self.distance(querySequence, subjectSequence)
-        return dist/max(map(len, [querySequence, subjectSequence]))
-
-    def normalized_similarity(self, querySequence: str, subjectSequence: str)->float:
-        if not querySequence and not subjectSequence:
-            return 1
-        similarity = self.similarity(querySequence, subjectSequence)
-        return similarity/max(map(len, [querySequence, subjectSequence]))
-
-class Longest_Common_Subsequence(__LOCALBASE):
+class Longest_Common_Subsequence(_LOCALBASE):
     def __init__(self):
         self.match_score = 1
 
-    def __call__(self, querySequence: str, subjectSequence: str)-> NDArray[float64]: 
-        qs,ss = [""], [""] 
+    def __call__(self, querySequence: str, subjectSequence: str)-> NDArray[float64]:
+        qs,ss = [""], [""]
         qs.extend([x.upper() for x in querySequence])
         ss.extend([x.upper() for x in subjectSequence])
 
         #matrix initialisation
-        self.alignment_score = numpy.zeros((len(qs),len(ss))) 
+        self.alignment_score = numpy.zeros((len(qs),len(ss)))
         for i, query_char in enumerate(qs):
           for j, subject_char in enumerate(ss):
             if j == 0 or i == 0:
                 #keeps first row and column consistent throughout all calculations
                 continue
-            if query_char == subject_char: 
+            if query_char == subject_char:
                 match = self.alignment_score[i-1][j-1] + self.match_score
             else:
                 match = max(self.alignment_score[i][j-1], self.alignment_score[i-1][j]) 
             self.alignment_score[i][j] = match
 
         return self.alignment_score
- 
+
+    def distance(self, querysequence: str, subjectsequence: str) -> float:
+        return super().distance(querysequence, subjectsequence)
+
+    def similarity(self, querysequence: str, subjectsequence: str) -> float:
+        return super().similarity(querysequence, subjectsequence)
+
+    def normalized_distance(self, querysequence: str, subjectsequence: str) -> float:
+        return super().normalized_distance(querysequence, subjectsequence)
+
+    def normalized_similarity(self, querysequence: str, subjectsequence: str) -> float:
+        return super().normalized_similarity(querysequence, subjectsequence)
+
+    def matrix(self, querySequence: str, subjectSequence: str) -> NDArray:
+        return super().matrix(querySequence, subjectSequence)
+
     def align(self, querySequence: str, subjectSequence: str)->str:
       matrix = self(querySequence, subjectSequence)
 
@@ -1070,16 +1145,16 @@ class Longest_Common_Subsequence(__LOCALBASE):
 
 class Shortest_Common_Supersequence():
     def __call__(self, querySequence: str, subjectSequence: str)->NDArray[float64]:
-        qs,ss = [""], [""] 
+        qs,ss = [""], [""]
         qs.extend([x.upper() for x in querySequence])
         ss.extend([x.upper() for x in subjectSequence])
 
         # Matrix initialization with correct shape
         self.alignment_score = numpy.zeros((len(qs),len(ss)), dtype=float64)
-        
+
         # Fill first row and column
         self.alignment_score[:,0] = [i for i in range(len(qs))]
-        self.alignment_score[0,:] = [j for j in range(len(ss))] 
+        self.alignment_score[0,:] = [j for j in range(len(ss))]
         # Fill rest of matrix
         for i in range(1, len(qs)):
             for j in range(1, len(ss)):
@@ -1091,6 +1166,40 @@ class Shortest_Common_Supersequence():
                         self.alignment_score[i,j-1] + 1
                     )
         return self.alignment_score
+
+    def distance(self, querySequence: str, subjectSequence: str)->float:
+        """Return length of SCS minus length of longer sequence"""
+        if not querySequence or not subjectSequence:
+            return max(len(querySequence), len(subjectSequence))
+
+        matrix = self(querySequence, subjectSequence)
+        return matrix[matrix.shape[0]-1,matrix.shape[1]-1]
+
+    def similarity(self, querySequence: str, subjectSequence: str) -> float:
+        """Calculate similarity based on matching positions in supersequence.
+
+        Similarity is the number of positions where characters match between
+        the query sequence and the shortest common supersequence.
+        """
+        if not querySequence or not subjectSequence:
+            return 0.0
+
+        scs = self.align(querySequence, subjectSequence)
+        return len(scs) - self.distance(querySequence, subjectSequence)
+
+    def normalized_distance(self, querySequence: str, subjectSequence: str)->float:
+        """Calculate normalized distance between sequences"""
+        if not querySequence or not subjectSequence:
+            return 1.0 if (querySequence or subjectSequence) else 0.0
+        if querySequence == subjectSequence == "":
+            return 0.0
+        alignment_len = len(self.align(querySequence, subjectSequence))
+        distance = self.distance(querySequence, subjectSequence)
+        return distance/alignment_len
+
+    def normalized_similarity(self, querySequence: str, subjectSequence: str)->float:
+        """Calculate normalized similarity between sequences"""
+        return 1.0 - self.normalized_distance(querySequence, subjectSequence)
 
     def matrix(self, querySequence: str, subjectSequence: str)->NDArray[float64]:
         return self(querySequence, subjectSequence)
@@ -1104,10 +1213,10 @@ class Shortest_Common_Supersequence():
         matrix = self(querySequence, subjectSequence)
         qs = [x.upper() for x in querySequence]
         ss = [x.upper() for x in subjectSequence]
-        
+
         i, j = len(qs), len(ss)
         result = []
-        
+
         while i > 0 and j > 0:
             if qs[i-1] == ss[j-1]:
                 result.append(qs[i-1])
@@ -1119,7 +1228,7 @@ class Shortest_Common_Supersequence():
             else:
                 result.append(qs[i-1])
                 i -= 1
-                
+
         # Add remaining characters
         while i > 0:
             result.append(qs[i-1])
@@ -1127,43 +1236,8 @@ class Shortest_Common_Supersequence():
         while j > 0:
             result.append(ss[j-1])
             j -= 1
-            
+
         return "".join(reversed(result))
-
-    def similarity(self, querySequence: str, subjectSequence: str) -> float:
-        """Calculate similarity based on matching positions in supersequence.
-        
-        Similarity is the number of positions where characters match between
-        the query sequence and the shortest common supersequence.
-        """
-        if not querySequence or not subjectSequence:
-            return 0.0
-
-        scs = self.align(querySequence, subjectSequence)
-        return len(scs) - self.distance(querySequence, subjectSequence)
-            
-
-    def distance(self, querySequence: str, subjectSequence: str)->float:
-        """Return length of SCS minus length of longer sequence"""
-        if not querySequence or not subjectSequence:
-            return max(len(querySequence), len(subjectSequence))
-            
-        matrix = self(querySequence, subjectSequence)
-        return matrix[matrix.shape[0]-1,matrix.shape[1]-1]
-
-    def normalized_similarity(self, querySequence: str, subjectSequence: str)->float:
-        """Calculate normalized similarity between sequences"""
-        return 1.0 - self.normalized_distance(querySequence, subjectSequence)
-
-    def normalized_distance(self, querySequence: str, subjectSequence: str)->float:
-        """Calculate normalized distance between sequences"""
-        if not querySequence or not subjectSequence:
-            return 1.0 if (querySequence or subjectSequence) else 0.0
-        if querySequence == subjectSequence == "":
-            return 0.0
-        alignment_len = len(self.align(querySequence, subjectSequence))
-        distance = self.distance(querySequence, subjectSequence)
-        return distance/alignment_len
 
 hamming = Hamming()
 wagner_fischer = Wagner_Fischer()
