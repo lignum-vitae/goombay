@@ -1,13 +1,13 @@
 import unittest
 import numpy
-from goombay import Lowrance_Wagner
+from goombay import LowranceWagner
 
 class TestLowranceWagner(unittest.TestCase):
     """Test suite for Lowrance-Wagner edit distance algorithm"""
     
     def setUp(self):
         """Initialize algorithm for tests"""
-        self.algorithm = Lowrance_Wagner()
+        self.algorithm = LowranceWagner()
 
     def test_empty_sequences(self):
         """Test behavior with empty sequences"""

@@ -1,13 +1,13 @@
 import unittest
 import numpy
-from goombay import Shortest_Common_Supersequence
+from goombay import ShortestCommonSupersequence
 
 class TestSCS(unittest.TestCase):
     """Test suite for Shortest Common Supersequence algorithm"""
     
     def setUp(self):
         """Initialize algorithm for tests"""
-        self.algorithm = Shortest_Common_Supersequence()
+        self.algorithm = ShortestCommonSupersequence()
 
     def test_empty_sequences(self):
         """Test behavior with empty sequences"""

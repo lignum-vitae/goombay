@@ -1,5 +1,5 @@
 # Base classes
-from goombay.algorithms.base import GLOBALBASE, LOCALBASE
+from goombay.algorithms.base import GlobalBase, LocalBase
 
 # Algorithms package
 from goombay.algorithms import editdistance
@@ -22,14 +22,14 @@ gotoh_local = editdistance.gotoh_local
 # Classes from algorithms package
 Hamming = editdistance.Hamming
 Jaro = editdistance.Jaro
-Jaro_Winkler = editdistance.Jaro_Winkler
+JaroWinkler = editdistance.JaroWinkler
 Hirschberg = editdistance.Hirschberg
-Lowrance_Wagner = editdistance.Lowrance_Wagner
-Needleman_Wunsch = editdistance.Needleman_Wunsch
-Smith_Waterman = editdistance.Smith_Waterman
-Wagner_Fischer = editdistance.Wagner_Fischer
-Waterman_Smith_Beyer = editdistance.Waterman_Smith_Beyer
-Longest_Common_Subsequence = editdistance.Longest_Common_Subsequence
-Shortest_Common_Supersequence = editdistance.Shortest_Common_Supersequence
+LowranceWagner = editdistance.LowranceWagner
+NeedlemanWunsch = editdistance.NeedlemanWunsch
+SmithWaterman = editdistance.SmithWaterman
+WagnerFischer = editdistance.WagnerFischer
+WatermanSmithBeyer = editdistance.WatermanSmithBeyer
+LongestCommonSubsequence = editdistance.LongestCommonSubsequence
+ShortestCommonSupersequence = editdistance.ShortestCommonSupersequence
 Gotoh = editdistance.Gotoh
-Gotoh_Local = editdistance.Gotoh_Local
+GotohLocal = editdistance.GotohLocal

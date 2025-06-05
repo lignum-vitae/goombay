@@ -1,13 +1,13 @@
 import unittest
 import numpy
-from goombay import Longest_Common_Subsequence
+from goombay import LongestCommonSubsequence
 
 class TestLCS(unittest.TestCase):
     """Test suite for Longest Common Subsequence algorithm"""
     
     def setUp(self):
         """Initialize algorithm for tests"""
-        self.algorithm = Longest_Common_Subsequence()
+        self.algorithm = LongestCommonSubsequence()
         
     def test_identical_sequences(self):
         """Test behavior with identical sequences"""
