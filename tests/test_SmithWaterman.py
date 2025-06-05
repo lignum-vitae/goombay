@@ -1,13 +1,13 @@
 import unittest
 import numpy
-from goombay import Smith_Waterman
+from goombay import SmithWaterman
 
 class TestSmithWaterman(unittest.TestCase):
     """Test suite for Smith-Waterman local alignment algorithm"""
     
     def setUp(self):
         """Initialize algorithm for tests"""
-        self.algorithm = Smith_Waterman()
+        self.algorithm = SmithWaterman()
 
     def test_identical_sequences(self):
         """Test behavior with identical sequences"""
@@ -116,7 +116,7 @@ class TestSmithWaterman(unittest.TestCase):
 
     def test_scoring_parameters(self):
         """Test behavior with different scoring parameters"""
-        custom_algorithm = Smith_Waterman(
+        custom_algorithm = SmithWaterman(
             match_score=1,
             mismatch_penalty=2,
             gap_penalty=3

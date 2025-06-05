@@ -1,13 +1,13 @@
 import unittest
 import numpy
-from goombay import Waterman_Smith_Beyer
+from goombay import WatermanSmithBeyer
 
 class TestWatermanSmithBeyer(unittest.TestCase):
     """Test suite for Waterman-Smith-Beyer alignment algorithm"""
     
     def setUp(self):
         """Initialize algorithm for tests"""
-        self.algorithm = Waterman_Smith_Beyer()
+        self.algorithm = WatermanSmithBeyer()
         
     def test_identical_sequences(self):
         """Test behavior with identical sequences"""
@@ -132,7 +132,7 @@ class TestWatermanSmithBeyer(unittest.TestCase):
 
     def test_scoring_parameters(self):
         """Test behavior with different scoring parameters"""
-        custom_algorithm = Waterman_Smith_Beyer(
+        custom_algorithm = WatermanSmithBeyer(
             match_score=1,
             mismatch_penalty=2,
             new_gap_penalty=3,

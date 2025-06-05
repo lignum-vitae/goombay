@@ -1,13 +1,13 @@
 import unittest
-from goombay import Jaro_Winkler
+from goombay import JaroWinkler
 
 class TestJaroWinkler(unittest.TestCase):
     """Test suite for Jaro-Winkler distance algorithm"""
-    
+
     def setUp(self):
         """Initialize algorithm for tests"""
-        self.algorithm = Jaro_Winkler()
-        
+        self.algorithm = JaroWinkler()
+
     def test_identical_sequences(self):
         """Test behavior with identical sequences"""
         test_cases = [
@@ -17,15 +17,15 @@ class TestJaroWinkler(unittest.TestCase):
             "A",            # Single character
             ""              # Empty string
         ]
-        
+
         for sequence in test_cases:
             with self.subTest(sequence=sequence):
                 # Test similarity
                 self.assertEqual(self.algorithm.similarity(sequence, sequence), 1.0)
-                
+
                 # Test distance
                 self.assertEqual(self.algorithm.distance(sequence, sequence), 0.0)
-                
+
                 # Test normalization
                 self.assertEqual(self.algorithm.normalized_similarity(sequence, sequence), 1.0)
                 self.assertEqual(self.algorithm.normalized_distance(sequence, sequence), 0.0)
@@ -38,15 +38,15 @@ class TestJaroWinkler(unittest.TestCase):
             ("Hello", "Warvd"),        # Regular strings
             ("ABC", "XYZ")             # No matching characters
         ]
-        
+
         for query, subject in test_cases:
             with self.subTest(query=query, subject=subject):
                 # Test similarity
                 self.assertEqual(self.algorithm.similarity(query, subject), 0.0)
-                
+
                 # Test distance
                 self.assertEqual(self.algorithm.distance(query, subject), 1.0)
-                
+
                 # Test normalization
                 self.assertEqual(self.algorithm.normalized_similarity(query, subject), 0.0)
                 self.assertEqual(self.algorithm.normalized_distance(query, subject), 1.0)
@@ -60,7 +60,7 @@ class TestJaroWinkler(unittest.TestCase):
             ("", "ACTG", 1, 0, "----\nACTG"), # Longer empty query sequence
             ("ACTG", "", 1, 0, "ACTG\n----")  # Longer empty subject sequence
         ]
-        
+
         for query, subject, dist, sim, aligned in test_cases:
             with self.subTest(query=query, subject=subject):
                 self.assertEqual(self.algorithm.similarity(query, subject), sim)
@@ -73,12 +73,12 @@ class TestJaroWinkler(unittest.TestCase):
         self.assertEqual(self.algorithm.similarity("A", "A"), 1.0)
         self.assertEqual(self.algorithm.distance("A", "A"), 0.0)
         self.assertEqual(self.algorithm.align("A", "A"), "A\nA")
-        
+
         # Test mismatch
         self.assertEqual(self.algorithm.similarity("A", "T"), 0.0)
         self.assertEqual(self.algorithm.distance("A", "T"), 1.0)
         self.assertEqual(self.algorithm.align("A", "T"), "A-\n-T")
-        
+
     def test_case_sensitivity(self):
         """Test that matching is case-insensitive"""
         test_cases = [
@@ -86,7 +86,7 @@ class TestJaroWinkler(unittest.TestCase):
             ("AcTg", "aCtG"),
             ("actg", "ACTG")
         ]
-        
+
         for query, subject in test_cases:
             with self.subTest(query=query, subject=subject):
                 self.assertEqual(
@@ -108,7 +108,7 @@ class TestJaroWinkler(unittest.TestCase):
             ("T", "ACGTTTGGGAC"), # Significantly shorter query
             ("ACGTTTGGGAC", "T")  # Significantly shorter subject
         ]
-        
+
         for query, subject in test_cases:
             with self.subTest(query=query, subject=subject):
                 sim = self.algorithm.similarity(query, subject)
@@ -129,7 +129,7 @@ class TestJaroWinkler(unittest.TestCase):
             ("MART", "MARTHA", 0.933),
             ("MARTHA", "MARHTA", 0.961)
         ]
-        
+
         for query, subject, expected in test_cases:
             with self.subTest(query=query, subject=subject):
                 self.assertAlmostEqual(
@@ -152,7 +152,7 @@ class TestJaroWinkler(unittest.TestCase):
             self.algorithm.similarity("MARTHA", "MARHTA"),
             self.algorithm.similarity("ARDWARK", "AARDVARK")
         )
-        
+
         # Length of common prefix affects bonus
         self.assertGreater(
             self.algorithm.similarity("ABCDEF", "ABCXXX"),

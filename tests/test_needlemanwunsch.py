@@ -1,23 +1,23 @@
 import unittest
 import numpy
-from goombay import Needleman_Wunsch
+from goombay import NeedlemanWunsch
 
 class TestNeedlemanWunsch(unittest.TestCase):
     """Test suite for Needleman-Wunsch global alignment algorithm"""
-    
+
     def setUp(self):
         """Initialize algorithm for tests"""
-        self.algorithm = Needleman_Wunsch()
+        self.algorithm = NeedlemanWunsch()
 
     def test_identical_sequences(self):
         """Test behavior with identical sequences"""
         # Test alignment
         self.assertEqual(self.algorithm.align("ACTG", "ACTG"), "ACTG\nACTG")
-        
+
         # Test scoring
         self.assertEqual(self.algorithm.similarity("ACTG", "ACTG"), 4 * self.algorithm.match_score)
         self.assertEqual(self.algorithm.distance("ACTG", "ACTG"), 0.0)
-        
+
         # Test normalization
         self.assertEqual(self.algorithm.normalized_similarity("ACTG", "ACTG"), 1.0)
         self.assertEqual(self.algorithm.normalized_distance("ACTG", "ACTG"), 0.0)
@@ -26,11 +26,11 @@ class TestNeedlemanWunsch(unittest.TestCase):
         """Test behavior with completely different sequences"""
         # Test alignment
         self.assertEqual(self.algorithm.align("AAAA", "TTTT"), "AAAA\nTTTT")
-        
+
         # Test scoring
         self.assertEqual(self.algorithm.similarity("AAAA", "TTTT"), -4 * self.algorithm.mismatch_penalty)
         self.assertEqual(self.algorithm.distance("AAAA", "TTTT"), 4 * self.algorithm.mismatch_penalty)
-        
+
         # Test normalization
         self.assertEqual(self.algorithm.normalized_similarity("AAAA", "TTTT"), 0.0)
         self.assertEqual(self.algorithm.normalized_distance("AAAA", "TTTT"), 1.0)
@@ -42,7 +42,7 @@ class TestNeedlemanWunsch(unittest.TestCase):
             ("ACTG", ""),    # Empty subject
             ("", "")         # Both empty
         ]
-        
+
         for query, subject in test_cases:
             with self.subTest(query=query, subject=subject):
                 if query == subject == "":
@@ -65,7 +65,7 @@ class TestNeedlemanWunsch(unittest.TestCase):
         self.assertEqual(self.algorithm.align("A", "A"), "A\nA")
         self.assertEqual(self.algorithm.similarity("A", "A"), self.algorithm.match_score)
         self.assertEqual(self.algorithm.distance("A", "A"), 0.0)
-        
+
         # Test mismatch
         self.assertEqual(self.algorithm.align("A", "T"), "A\nT")
         self.assertEqual(self.algorithm.similarity("A", "T"), -self.algorithm.mismatch_penalty)
@@ -78,7 +78,7 @@ class TestNeedlemanWunsch(unittest.TestCase):
             ("AcTg", "aCtG"),
             ("actg", "ACTG")
         ]
-        
+
         for query, subject in test_cases:
             with self.subTest(query=query, subject=subject):
                 self.assertEqual(
@@ -102,14 +102,14 @@ class TestNeedlemanWunsch(unittest.TestCase):
     def test_matrix_values(self):
         """Test specific matrix values"""
         score, pointer = self.algorithm("AC", "AT")
-        
+
         expected_score = numpy.array([
             [ 0, -2, -4],
             [-2,  2,  0],
             [-4,  0,  1]
         ])
         numpy.testing.assert_array_equal(score, expected_score)
-        
+
         # Test pointer values are valid
         self.assertTrue(numpy.all(pointer >= 0))
         self.assertTrue(numpy.all(pointer <= 7))  # Max valid pointer value
@@ -121,22 +121,22 @@ class TestNeedlemanWunsch(unittest.TestCase):
             ("ACT", "ACTG", "ACT-\nACTG"),    # Longer subject
             ("ACGT", "AGT", "ACGT\nA-GT")     # Internal gap
         ]
-        
+
         for query, subject, expected in test_cases:
             with self.subTest(query=query, subject=subject):
                 self.assertEqual(self.algorithm.align(query, subject), expected)
 
     def test_scoring_parameters(self):
         """Test behavior with different scoring parameters"""
-        custom_algorithm = Needleman_Wunsch(
+        custom_algorithm = NeedlemanWunsch(
             match_score=1,
             mismatch_penalty=2,
             gap_penalty=3
         )
-        
+
         # Test alignment
         self.assertEqual(custom_algorithm.align("ACGT", "AGT"), "ACGT\nA-GT")
-        
+
         # Test matrix values
         score, _ = custom_algorithm("AC", "AT")
         expected_score = numpy.array([
@@ -155,7 +155,7 @@ class TestNeedlemanWunsch(unittest.TestCase):
             ("ACTG", "AAAA", 0.25, 0.75),  # three mismatches
             ("ACTG", "VVVV", 0.0, 1.0)     # all mismatches
         ]
-        
+
         for query, subject, exp_sim, exp_dist in test_cases:
             with self.subTest(query=query, subject=subject):
                 self.assertAlmostEqual(self.algorithm.normalized_similarity(query, subject), exp_sim)
