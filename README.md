@@ -54,21 +54,21 @@ The Hamming distance has two additional methods called `.binary_distance_array` 
 
 **Below is a table of the methods implemented for each algorithm as well as the class (customizable) and instance (default parameters) names.**
 
-| Algorithm                    | Alignment | Matrices | Distance/Similarity/Normalized | Class                         | Instance                      |
-| ------------------           | --------- | -------- | ------------------------------ | ----------------------------- | ----------------------------- |
-|Needleman-Wunsch              |    [x]    |    [x]   |               [x]              | Needleman_Wunsch              | needleman_wunsch              |
-|Gotoh (Global)                |    [x]    |    [x]   |               [x]              | Gotoh                         | gotoh                         |
-|Gotoh (Local)                 |    [x]    |    [x]   |               [x]              | Gotoh_Local                   | gotoh_local                   |
-|Smith-Waterman                |    [x]    |    [x]   |               [x]              | Smith_Waterman                | smith_waterman                |
-|Waterman-Smith-Beyer          |    [x]    |    [x]   |               [x]              | Waterman_Smith_Beyer          | waterman_smith_beyer          |
-|Wagner-Fischer                |    [x]    |    [x]   |               [x]              | Wagner_Fischer                | wagner_fischer                |
-|Lowrance-Wagner               |    [x]    |    [x]   |               [x]              | Lowrance_Wagner               | lowrance_wagner               |
-|Hamming                       |    [x]    |    [ ]   |               [x]              | Hamming                       | hamming                       |
-|Hirschberg                    |    [x]    |    [x]   |               [x]              | Hirschberg                    | hirschberg                    |
-|Jaro                          |    [x]    |    [x]   |               [x]              | Jaro                          | jaro                          |
-|Jaro Winkler                  |    [x]    |    [x]   |               [x]              | Jaro_Winkler                  | jaro_winkler                  |
-|Longest Common Subsequence    |    [x]    |    [x]   |               [x]              | Longest_Common_Subsequence    | longest_common_subsequence    |
-|Shortest Common Supersequence |    [x]    |    [x]   |               [x]              | Shortest_Common_Supersequence | shortest_common_supersequence |
+| Algorithm                    | Alignment             | Matrices              | Distance/Similarity/Normalized  | Class                         | Instance                      |
+| ------------------           | --------------------- | --------------------- | ------------------------------- | ----------------------------- | ----------------------------- |
+|Needleman-Wunsch              |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Needleman_Wunsch              | needleman_wunsch              |
+|Gotoh (Global)                |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Gotoh                         | gotoh                         |
+|Gotoh (Local)                 |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Gotoh_Local                   | gotoh_local                   |
+|Smith-Waterman                |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Smith_Waterman                | smith_waterman                |
+|Waterman-Smith-Beyer          |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Waterman_Smith_Beyer          | waterman_smith_beyer          |
+|Wagner-Fischer                |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Wagner_Fischer                | wagner_fischer                |
+|Lowrance-Wagner               |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Lowrance_Wagner               | lowrance_wagner               |
+|Hamming                       |<ul><li> [x] </li></ul>|<ul><li> [ ] </li></ul>|     <ul><li> [x] </li></ul>     | Hamming                       | hamming                       |
+|Hirschberg                    |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Hirschberg                    | hirschberg                    |
+|Jaro                          |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Jaro                          | jaro                          |
+|Jaro Winkler                  |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Jaro_Winkler                  | jaro_winkler                  |
+|Longest Common Subsequence    |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Longest_Common_Subsequence    | longest_common_subsequence    |
+|Shortest Common Supersequence |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Shortest_Common_Supersequence | shortest_common_supersequence |
 
 ## Algorithms Explained
 - [Hamming](https://en.wikipedia.org/wiki/Hamming_distance) -
