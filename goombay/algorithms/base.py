@@ -41,15 +41,13 @@ class GlobalBase:
     def align(self, query_sequence: str, subject_sequence: str) -> str:
         _, pointer_matrix = self(query_sequence, subject_sequence)
 
-        qs, ss = [x.upper() for x in query_sequence], [
-            x.upper() for x in subject_sequence
-        ]
+        qs = [x.upper() for x in query_sequence]
+        ss = [x.upper() for x in subject_sequence]
         i, j = len(qs), len(ss)
         query_align, subject_align = [], []
 
-        while (
-            i > 0 or j > 0
-        ):  # looks for match/mismatch/gap starting from bottom right of matrix
+        # looks for match/mismatch/gap starting from bottom right of matrix
+        while i > 0 or j > 0:
             if pointer_matrix[i, j] in [2, 5, 6, 9]:
                 # appends match/mismatch then moves to the cell diagonally up and to the left
                 query_align.append(qs[i - 1])

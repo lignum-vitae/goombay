@@ -54,21 +54,22 @@ The Hamming distance has two additional methods called `.binary_distance_array` 
 
 **Below is a table of the methods implemented for each algorithm as well as the class (customizable) and instance (default parameters) names.**
 
-| Algorithm                    | Alignment             | Matrices              | Distance/Similarity/Normalized  | Class                         | Instance                      |
-| ------------------           | --------------------- | --------------------- | ------------------------------- | ----------------------------- | ----------------------------- |
-|Needleman-Wunsch              |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Needleman_Wunsch              | needleman_wunsch              |
-|Gotoh (Global)                |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Gotoh                         | gotoh                         |
-|Gotoh (Local)                 |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Gotoh_Local                   | gotoh_local                   |
-|Smith-Waterman                |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Smith_Waterman                | smith_waterman                |
-|Waterman-Smith-Beyer          |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Waterman_Smith_Beyer          | waterman_smith_beyer          |
-|Wagner-Fischer                |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Wagner_Fischer                | wagner_fischer                |
-|Lowrance-Wagner               |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Lowrance_Wagner               | lowrance_wagner               |
-|Hamming                       |<ul><li> [x] </li></ul>|<ul><li> [ ] </li></ul>|     <ul><li> [x] </li></ul>     | Hamming                       | hamming                       |
-|Hirschberg                    |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Hirschberg                    | hirschberg                    |
-|Jaro                          |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Jaro                          | jaro                          |
-|Jaro Winkler                  |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Jaro_Winkler                  | jaro_winkler                  |
-|Longest Common Subsequence    |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Longest_Common_Subsequence    | longest_common_subsequence    |
-|Shortest Common Supersequence |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Shortest_Common_Supersequence | shortest_common_supersequence |
+| Algorithm                     | Alignment             | Matrices              | Distance/Similarity/Normalized  | Class                       | Instance                      |
+| ----------------------------- | --------------------- | --------------------- | ------------------------------- | --------------------------- | ----------------------------- |
+|Needleman-Wunsch               |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Needleman_Wunsch            | needleman_wunsch              |
+|Gotoh (Global)                 |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Gotoh                       | gotoh                         |
+|Gotoh (Local)                  |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | GotohLocal                  | gotoh_local                   |
+|Smith-Waterman                 |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | SmithWaterman               | smith_waterman                |
+|Waterman-Smith-Beyer           |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | WatermanSmithBeyer          | waterman_smith_beyer          |
+|Wagner-Fischer                 |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | WagnerFischer               | wagner_fischer                |
+|Lowrance-Wagner                |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | LowranceWagner              | lowrance_wagner               |
+|Hamming                        |<ul><li> [x] </li></ul>|<ul><li> [ ] </li></ul>|     <ul><li> [x] </li></ul>     | Hamming                     | hamming                       |
+|Hirschberg                     |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Hirschberg                  | hirschberg                    |
+|Jaro                           |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Jaro                        | jaro                          |
+|Jaro Winkler                   |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | JaroWinkler                 | jaro_winkler                  |
+|Longest Common Subsequence     |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | LongestCommonSubsequence    | longest_common_subsequence    |
+|Longest Common Substring (MSA) |<ul><li> [x] </li></ul>|<ul><li> [ ] </li></ul>|     <ul><li> [x] </li></ul>     | LongestCommonSubstringMSA   | longest_common_substring_msa  |
+|Shortest Common Supersequence  |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | ShortestCommonSupersequence | shortest_common_supersequence |
 
 ## Algorithms Explained
 - [Hamming](https://en.wikipedia.org/wiki/Hamming_distance) -
@@ -77,7 +78,7 @@ The Hamming distance has two additional methods called `.binary_distance_array` 
   When comparing numbers, the hamming distance first converts the numbers into binary and then determines the minimum number of bits that need to be flipped to turn
   one binary sequence into the other.
   The hamming distance can only be calculated between strings of the same length. Numbers will be padded with 0 to match the longer binary sequence.
-  
+
 - [Wagner-Fischer](https://en.wikipedia.org/wiki/Wagner%E2%80%93Fischer_algorithm) - **Levenshtein distance** -
   The Wagner-Fischer algorithm is a global alignment algorithm that computes the Levenshtein distance between two sequences.
   This algorithm has an invariable gap penalty of 1 and a mismatch (or substitution) cost of 1. Matches are worth 0 therefore they do not affect the score.
@@ -87,7 +88,7 @@ The Hamming distance has two additional methods called `.binary_distance_array` 
   with the addition of adjacent swapping between matching adjacent characters.
   Like the Wagner-Fischer algorithm, there's an invariable gap penalty and mismatch penalty of 1. Matches are worth 0 and do not affect the score.
   In addition to these penalties, there's an invariable transposition penalty cost of 1.
-  
+
 
 - [Needleman-Wunsch](https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm) -
   The Needleman-Wunsch algorithm is a global alignment algorithm that uses a generalized form of the Levenshtein distance 
@@ -133,13 +134,17 @@ The Hamming distance has two additional methods called `.binary_distance_array` 
   - The keyword argument for the Jaro-Winkler algorithm is `scaling_factor = 0.1`. The scaling factor should not exceed 0.25 or else it may be possible for the similarity score to be greater than 1.
 
 - [Longest Common Subsequence](https://en.wikipedia.org/wiki/Longest_common_subsequence) -
-  The Longest Common Subsequence algorithm generates a distance score by only allowing deletes while not changing the relative order of the characters.
+  The Longest Common Subsequence algorithm generates an alignment by only allowing deletes while not changing the relative order of the characters.
   This will display all of the shared characters between the sequences.
+
+- [Longest Common Substring](https://en.wikipedia.org/wiki/Longest_common_substring) -
+  The Longest Common Substring algorithm generates an alignment by finding the longest string that is present in all given sequences.
+  Insertions and deletions are not allowed within these strings. There may be
+  more than one longest substring, in which case all longest substrings will be shown in a list.
 
 - [Shortest Common Supersequence](https://en.wikipedia.org/wiki/Shortest_common_supersequence) -
   The Shortest Common Supersequence is the shortest combination of the two sequences that contains all the characters within both sequences
   and does not change the relative order of the characters.
-
 
 # Code Examples
 

@@ -1,13 +1,13 @@
 # internal dependencies
 from goombay.algorithms.editdistance import (
-    Needleman_Wunsch,
-    Lowrance_Wagner,
-    Wagner_Fischer,
-    Waterman_Smith_Beyer,
+    NeedlemanWunsch,
+    LowranceWagner,
+    WagnerFischer,
+    WatermanSmithBeyer,
     Gotoh,
     Hirschberg,
     Jaro,
-    Jaro_Winkler,
+    JaroWinkler,
 )
 
 try:
@@ -24,21 +24,23 @@ def main():
     seq2 = "HOUSECARDFALLDOWN"
     seq3 = "FALLDOWN"
 
-    # print(feng_doolittle.align(seq1, seq2, seq3))
-    print(feng_doolittle.pairwise)
-    print(Feng_Doolittle.supported_pairwise_algs())
+    print(longest_common_substring.align([seq2, seq1, seq3]))
+    print(longest_common_substring.distance([seq2, seq1, seq3]))
+    print(longest_common_substring.normalized_distance([seq2, seq1, seq3]))
+    print(longest_common_substring.similarity([seq2, seq1, seq3]))
+    print(longest_common_substring.normalized_similarity([seq2, seq1, seq3]))
 
 
-class Feng_Doolittle:
+class FengDoolittle:
     supported_pairwise = {
-        "needleman_wunsch": Needleman_Wunsch,
+        "needleman_wunsch": NeedlemanWunsch,
         "jaro": Jaro,
-        "jaro_winkler": Jaro_Winkler,
+        "jaro_winkler": JaroWinkler,
         "gotoh": Gotoh,
-        "wagner_fischer": Wagner_Fischer,
-        "waterman_smith_beyer": Waterman_Smith_Beyer,
+        "wagner_fischer": WagnerFischer,
+        "waterman_smith_beyer": WatermanSmithBeyer,
         "hirschberg": Hirschberg,
-        "lowrance_wagner": Lowrance_Wagner,
+        "lowrance_wagner": LowranceWagner,
     }
 
     abbreviations = {
@@ -88,7 +90,71 @@ class Feng_Doolittle:
         raise NotImplementedError("Class method not yet implemented")
 
 
-feng_doolittle = Feng_Doolittle()
+class LongestCommonSubstringMSA:
+    def _common_substrings(self, sequences: list[str]) -> list[str]:
+        if not isinstance(sequences, list):
+            raise TypeError("common_substrings expects a list of strings")
+        if len(sequences) != 2:
+            raise ValueError("common_substrings requires exactly two strings")
+
+        s1, s2 = sequences
+        common = set()
+        s2_length = len(s2)
+
+        for start in range(s2_length):
+            for end in range(start + 2, s2_length + 1):  # substrings of length >= 2
+                substr = s2[start:end]
+                if substr not in s1:
+                    break
+                common.add(substr)
+
+        return list(common)
+
+    def __call__(self, sequences: list[str]) -> list[str]:
+        if (
+            not isinstance(sequences, list) and not isinstance(sequences, tuple)
+        ) or not all(isinstance(s, str) for s in sequences):
+            raise TypeError("longest_common_substring expects a list of strings")
+        if len(sequences) < 2:
+            raise ValueError("Provide at least two sequences")
+
+        # Generate substrings from first and last strings
+        motifs = self._common_substrings([sequences[0], sequences[-1]])
+        if not motifs:
+            return [""]
+
+        shared = [motif for motif in motifs if all(motif in seq for seq in sequences)]
+        if not shared:
+            return [""]
+
+        max_len = len(max(shared, key=len))
+        return [m for m in shared if len(m) == max_len]
+
+    def align(self, sequences: list[str]) -> list[str]:
+        return self(sequences)
+
+    def distance(self, sequences: list[str]) -> int:
+        return len(max(sequences, key=len)) - self.similarity(sequences)
+
+    def similarity(self, sequences: list[str]) -> int:
+        lcsub = self(sequences)
+        if not lcsub:
+            return 0
+        return len(lcsub[0])
+
+    def normalized_distance(self, sequences: list[str]) -> float:
+        return 1 - self.normalized_similarity(sequences)
+
+    def normalized_similarity(self, sequences: list[str]) -> float:
+        lcsub = self(sequences)
+        if not lcsub:
+            return 0
+        return len(lcsub[0]) / len(max(sequences, key=len))
+
+
+feng_doolittle = FengDoolittle()
+longest_common_substring_msa = LongestCommonSubstringMSA()
+
 
 if __name__ == "__main__":
     main()

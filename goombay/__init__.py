@@ -1,10 +1,11 @@
 # Base classes
 from goombay.algorithms.base import GlobalBase, LocalBase
 
-# Algorithms package
+# Algorithms module
 from goombay.algorithms import editdistance
+from goombay.algorithms import msa
 
-# Variables from algorithms package
+# Variables from pairwise file
 hamming = editdistance.hamming
 jaro = editdistance.jaro
 jaro_winkler = editdistance.jaro_winkler
@@ -19,7 +20,10 @@ shortest_common_supersequence = editdistance.shortest_common_supersequence
 gotoh = editdistance.gotoh
 gotoh_local = editdistance.gotoh_local
 
-# Classes from algorithms package
+# Variables from multiple sequence alignment file
+longest_common_substring_msa = msa.longest_common_substring_msa
+
+# Classes from pairwise file
 Hamming = editdistance.Hamming
 Jaro = editdistance.Jaro
 JaroWinkler = editdistance.JaroWinkler
@@ -33,3 +37,6 @@ LongestCommonSubsequence = editdistance.LongestCommonSubsequence
 ShortestCommonSupersequence = editdistance.ShortestCommonSupersequence
 Gotoh = editdistance.Gotoh
 GotohLocal = editdistance.GotohLocal
+
+# Classes from multiple sequence alignment file
+LongestCommonSubstringMSA = msa.LongestCommonSubstringMSA

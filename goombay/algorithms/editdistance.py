@@ -64,9 +64,8 @@ class WagnerFischer(_GlobalBase):  # Levenshtein Distance
                 tmin = min(match, lgap, ugap)
 
                 self.alignment_score[i][j] = tmin  # lowest value is best choice
-                if (
-                    match == tmin
-                ):  # matrix for traceback based on results from scoring matrix
+                # matrix for traceback based on results from scoring matrix
+                if match == tmin:
                     self.pointer[i, j] += 2
                 if ugap == tmin:
                     self.pointer[i, j] += 3
@@ -111,9 +110,8 @@ class WagnerFischer(_GlobalBase):  # Levenshtein Distance
         ]
         i, j = len(qs), len(ss)
         query_align, subject_align = [], []
-        while (
-            i > 0 or j > 0
-        ):  # looks for match/mismatch/gap starting from bottom right of matrix
+        # looks for match/mismatch/gap starting from bottom right of matrix
+        while i > 0 or j > 0:
             if pointer_matrix[i, j] in [2, 5, 6, 10, 9, 13, 14, 17]:
                 # appends match/mismatch then moves to the cell diagonally up and to the left
                 query_align.append(qs[i - 1])
@@ -177,9 +175,8 @@ class LowranceWagner(_GlobalBase):  # Damerau-Levenshtein distance
                 tmin = min(match, lgap, ugap, trans)
 
                 self.alignment_score[i][j] = tmin  # lowest value is best choice
-                if (
-                    match == tmin
-                ):  # matrix for traceback based on results from scoring matrix
+                # matrix for traceback based on results from scoring matrix
+                if match == tmin:
                     self.pointer[i, j] += 2
                 if ugap == tmin:
                     self.pointer[i, j] += 3
@@ -233,9 +230,8 @@ class LowranceWagner(_GlobalBase):  # Damerau-Levenshtein distance
         ]
         i, j = len(qs), len(ss)
         query_align, subject_align = [], []
-        while (
-            i > 0 or j > 0
-        ):  # looks for match/mismatch/gap starting from bottom right of matrix
+        # looks for match/mismatch/gap starting from bottom right of matrix
+        while i > 0 or j > 0:
             if pointer_matrix[i, j] in [2, 5, 6, 10, 9, 13, 14, 17]:
                 # appends match/mismatch then moves to the cell diagonally up and to the left
                 query_align.append(qs[i - 1])
@@ -291,9 +287,8 @@ class Hamming:
             qs = qs.zfill(max_len)
             ss = ss.zfill(max_len)
         else:
-            qs, ss = [x.upper() for x in query_sequence], [
-                x.upper() for x in subject_sequence
-            ]
+            qs = [x.upper() for x in query_sequence]
+            ss = [x.upper() for x in subject_sequence]
 
         if len(qs) == 1 and len(ss) == 1:
             dist = 1 if qs != ss else 0
@@ -320,9 +315,8 @@ class Hamming:
             return bin(qs ^ ss).count("1")
         if len(query_sequence) == len(subject_sequence) == 0:
             return 0
-        qs, ss = [x.upper() for x in query_sequence], [
-            x.upper() for x in subject_sequence
-        ]
+        qs = [x.upper() for x in query_sequence]
+        ss = [x.upper() for x in subject_sequence]
         query = set([(x, y) for (x, y) in enumerate(qs)])
         subject = set([(x, y) for (x, y) in enumerate(ss)])
         qs, sq = query - subject, subject - query
@@ -336,9 +330,8 @@ class Hamming:
             return bin(qs & ss).count("1")
         if len(query_sequence) == len(subject_sequence) == 0:
             return 1
-        qs, ss = [x.upper() for x in query_sequence], [
-            x.upper() for x in subject_sequence
-        ]
+        qs = [x.upper() for x in query_sequence]
+        ss = [x.upper() for x in subject_sequence]
         query = set([(x, y) for (x, y) in enumerate(qs)])
         subject = set([(x, y) for (x, y) in enumerate(ss)])
         qs, sq = query - subject, subject - query
@@ -417,9 +410,8 @@ class NeedlemanWunsch(_GlobalBase):
                 tmax = max(match, lgap, ugap)
 
                 self.alignment_score[i][j] = tmax  # highest value is best choice
-                if (
-                    match == tmax
-                ):  # matrix for traceback based on results from scoring matrix
+                # matrix for traceback based on results from scoring matrix
+                if match == tmax:
                     self.pointer[i, j] += 2
                 if ugap == tmax:
                     self.pointer[i, j] += 3
@@ -598,9 +590,8 @@ class Gotoh(_GlobalBase):
                     self.Q[i, j - 1] - self.continue_gap_penalty,
                 )
                 self.D[i, j] = max(match, self.P[i, j], self.Q[i, j])
-                if (
-                    self.D[i, j] == match
-                ):  # matrix for traceback based on results from scoring matrix
+                # matrix for traceback based on results from scoring matrix
+                if self.D[i, j] == match:
                     self.pointer[i, j] += 2
                 if self.D[i, j] == self.P[i, j]:
                     self.pointer[i, j] += 3
@@ -641,9 +632,8 @@ class Gotoh(_GlobalBase):
         i, j = len(qs), len(ss)
         query_align, subject_align = [], []
 
-        while (
-            i > 0 or j > 0
-        ):  # looks for match/mismatch/gap starting from bottom right of matrix
+        # looks for match/mismatch/gap starting from bottom right of matrix
+        while i > 0 or j > 0:
             if pointer_matrix[i, j] in [3, 5, 7, 9]:
                 # appends gap and accompanying nucleotide, then moves to the cell above
                 subject_align.append("-")
@@ -778,9 +768,8 @@ class GotohLocal(_LocalBase):
     def align(self, query_sequence: str, subject_sequence: str) -> str:
         matrix, _, _ = self(query_sequence, subject_sequence)
 
-        qs, ss = [x.upper() for x in query_sequence], [
-            x.upper() for x in subject_sequence
-        ]
+        qs = [x.upper() for x in query_sequence]
+        ss = [x.upper() for x in subject_sequence]
         if matrix.max() == 0:
             return "There is no local alignment!"
 
@@ -1120,9 +1109,8 @@ class Jaro:
 
     def align(self, query_sequence: str, subject_sequence: str) -> str:
         """Return aligned sequences showing matches."""
-        qs, ss = [x.upper() for x in query_sequence], [
-            x.upper() for x in subject_sequence
-        ]
+        qs = [x.upper() for x in query_sequence]
+        ss = [x.upper() for x in subject_sequence]
         if qs == ss:
             return f"{''.join(qs)}\n{''.join(ss)}"
 
@@ -1188,7 +1176,7 @@ class JaroWinkler(Jaro):
     def __init__(self, scaling_factor=0.1):
         self.match_score = 1
         self.winkler = True
-        # p should not exceed 0.25 else similarity could be larger than 1
+        # scaling factor should not exceed 0.25 else similarity could be larger than 1
         self.scaling_factor = scaling_factor
 
 
@@ -1255,9 +1243,8 @@ class SmithWaterman:
     def align(self, query_sequence: str, subject_sequence: str) -> str:
         matrix = self(query_sequence, subject_sequence)
 
-        qs, ss = [x.upper() for x in query_sequence], [
-            x.upper() for x in subject_sequence
-        ]
+        qs = [x.upper() for x in query_sequence]
+        ss = [x.upper() for x in subject_sequence]
         if matrix.max() == 0:
             return "There is no local alignment!"
 
