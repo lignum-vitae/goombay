@@ -20,14 +20,16 @@ def main():
         print()
     print(waterman_smith_beyer.matrix("TRATE", "TRACE"))
     """
-    query = "AGCT"
-    subject = "TACG"
-    print(needleman_wunsch.distance(query, subject))
-    print(needleman_wunsch.similarity(query, subject))
-    print(needleman_wunsch.normalized_similarity(query, subject))
-    print(needleman_wunsch.normalized_distance(query, subject))
-    print(needleman_wunsch.matrix(query, subject))
-    print(needleman_wunsch.align(query, subject))
+    query = "AGTC"
+    subject = "AGGCAT"
+    print(longest_common_substring.distance(query, subject))
+    print(longest_common_subsequence.distance(query, subject))
+    print(longest_common_substring.similarity(query, subject))
+    print(longest_common_substring.normalized_similarity(query, subject))
+    print(longest_common_substring.normalized_distance(query, subject))
+    print(longest_common_subsequence.matrix(query, subject))
+    print(longest_common_substring.align(query, subject))
+    print(longest_common_subsequence.align(query, subject))
 
 
 class WagnerFischer(_GlobalBase):  # Levenshtein Distance
@@ -1294,7 +1296,8 @@ class LongestCommonSubsequence(_LocalBase):
         return self.alignment_score
 
     def distance(self, query_sequence: str, subject_sequence: str) -> float:
-        return super().distance(query_sequence, subject_sequence)
+        qs, ss = query_sequence, subject_sequence
+        return len(max([qs, ss], key=len)) - self.similarity(qs, ss)
 
     def similarity(self, query_sequence: str, subject_sequence: str) -> float:
         return super().similarity(query_sequence, subject_sequence)
@@ -1315,24 +1318,87 @@ class LongestCommonSubsequence(_LocalBase):
 
         qs = [x.upper() for x in query_sequence]
         ss = [x.upper() for x in subject_sequence]
-        if matrix.max() == 0:
-            return "There is no common subsequence!"
 
-        i, j = len(query_sequence), len(subject_sequence)
-        common_sub_align = []
-        while matrix[i, j] > 0:
-            if i == 0 and j == 0:
-                break
-            if qs[i - 1] == ss[j - 1]:
-                common_sub_align.append(qs[i - 1])
-                i -= 1
-                j -= 1
-            elif matrix[i - 1, j] >= matrix[i, j - 1]:
-                i -= 1
-            elif matrix[i, j - 1] >= matrix[i - 1, j]:
-                j -= 1
-        common_sub_align = "".join(common_sub_align[::-1])
-        return f"{common_sub_align}"
+        longest_match = numpy.max(matrix)
+        if longest_match <= 1:
+            return []
+
+        longest_subseqs = set()
+        positions = numpy.argwhere(matrix == longest_match)
+        for position in positions:
+            temp = []
+            i, j = position
+            while i != 0 and j != 0:
+                if qs[i - 1] == ss[j - 1]:
+                    temp.append(qs[i - 1])
+                    i -= 1
+                    j -= 1
+                elif matrix[i - 1, j] >= matrix[i, j - 1]:
+                    i -= 1
+                elif matrix[i, j - 1] >= matrix[i - 1, j]:
+                    j -= 1
+            longest_subseqs.add("".join(temp[::-1]))
+        return list(longest_subseqs)
+
+class LongestCommonSubstring(_LocalBase):
+    def __init__(self):
+        self.match_score = 1
+
+
+    def __call__(self, query_sequence: str, subject_sequence: str):
+        qs, ss = [""], [""]
+        qs.extend([x.upper() for x in query_sequence])
+        ss.extend([x.upper() for x in subject_sequence])
+        qs_len = len(qs)
+        ss_len = len(ss)
+
+        # matrix initialisation
+        alignment_matrix = numpy.zeros((qs_len, ss_len))
+        for i in range(1, qs_len):
+            for j in range(1, ss_len):
+                if qs[i] == ss[j]:
+                    match = alignment_matrix[i - 1][j - 1] + self.match_score
+                else:
+                    match = 0
+                alignment_matrix[i][j] = match
+        return alignment_matrix
+
+    def distance(self, query_sequence: str, subject_sequence: str) -> float:
+        qs, ss = query_sequence, subject_sequence
+        return len(max([qs, ss], key=len)) - self.similarity(qs, ss)
+
+    def similarity(self, query_sequence: str, subject_sequence: str) -> float:
+        return super().similarity(query_sequence, subject_sequence)
+
+    def normalized_distance(self, query_sequence: str, subject_sequence: str) -> float:
+        return super().normalized_distance(query_sequence, subject_sequence)
+
+    def normalized_similarity(
+        self, query_sequence: str, subject_sequence: str
+    ) -> float:
+        return super().normalized_similarity(query_sequence, subject_sequence)
+
+    def matrix(self, query_sequence: str, subject_sequence: str) -> NDArray:
+        return super().matrix(query_sequence, subject_sequence)
+
+    def align(self, query_sequence, subject_sequence):
+        matrix = self(query_sequence, subject_sequence)
+
+        longest_match = numpy.max(matrix)
+        if longest_match <= 1:
+            return []
+
+        longest_substrings = set()
+        positions = numpy.argwhere(matrix == longest_match)
+        for position in positions:
+            temp = []
+            i, j = position
+            while matrix[i][j] != 0:
+                temp.append(query_sequence[i-1])
+                i-=1
+                j-=1
+            longest_substrings.add("".join(temp[::-1]))
+        return list(longest_substrings)
 
 
 class ShortestCommonSupersequence:
@@ -1446,6 +1512,7 @@ jaro = Jaro()
 jaro_winkler = JaroWinkler()
 lowrance_wagner = LowranceWagner()
 longest_common_subsequence = LongestCommonSubsequence()
+longest_common_substring = LongestCommonSubstring()
 shortest_common_supersequence = ShortestCommonSupersequence()
 gotoh = Gotoh()
 gotoh_local = GotohLocal()

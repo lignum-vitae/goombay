@@ -135,12 +135,14 @@ The Hamming distance has two additional methods called `.binary_distance_array` 
 
 - [Longest Common Subsequence](https://en.wikipedia.org/wiki/Longest_common_subsequence) -
   The Longest Common Subsequence algorithm generates an alignment by only allowing deletes while not changing the relative order of the characters.
-  This will display all of the shared characters between the sequences.
+  There may be more than one longest subsequence, in which case, all longest
+  subsequences will be shown in a list. Only matches with a length greater than 1 will be shown.
 
 - [Longest Common Substring](https://en.wikipedia.org/wiki/Longest_common_substring) -
   The Longest Common Substring algorithm generates an alignment by finding the longest string that is present in all given sequences.
   Insertions and deletions are not allowed within these strings. There may be
   more than one longest substring, in which case all longest substrings will be shown in a list.
+  Only matches with a length greater than 1 will be shown.
 
 - [Shortest Common Supersequence](https://en.wikipedia.org/wiki/Shortest_common_supersequence) -
   The Shortest Common Supersequence is the shortest combination of the two sequences that contains all the characters within both sequences
