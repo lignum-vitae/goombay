@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "goombay"
-version = "0.17.0"
+version = "0.18.0"
 authors = [{ name = "Andrew Hennis", email = "andrew.mr.hennis@gmail.com" }]
 description = "Python implementation of several sequence alignment algorithms such as Waterman-Smith-Beyer, Gotoh, and Needleman-Wunsch intended to calculate distance, show alignment, and display the underlying matrices."
 readme = "README.md"

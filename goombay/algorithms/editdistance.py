@@ -1,3 +1,6 @@
+# built-ins
+import math
+
 # internal dependencies
 from goombay.algorithms.base import GlobalBase as _GlobalBase, LocalBase as _LocalBase
 
@@ -701,51 +704,18 @@ class GotohLocal(_LocalBase):
 
         return D, P, Q
 
-    def _init_alignment_matrices(
-        self, rows: int, cols: int
-    ) -> tuple[NDArray, NDArray, NDArray]:
-        """Initialize three matrices for Gotoh alignment."""
-        return (
-            numpy.zeros((rows + 1, cols + 1)),  # D matrix
-            numpy.zeros((rows + 1, cols + 1)),  # P matrix
-            numpy.zeros((rows + 1, cols + 1)),  # Q matrix
-        )
-
-    def _fill_cell(
-        self,
-        matrices: tuple[NDArray, NDArray, NDArray],
-        i: int,
-        j: int,
-        char1: str,
-        char2: str,
-    ) -> None:
-        """Fill cell in Gotoh matrices."""
-        D, P, Q = matrices
-        score = (
-            self.match_score
-            if char1.upper() == char2.upper()
-            else -self.mismatch_penalty
-        )
-
-        P[i, j] = max(
-            D[i - 1, j] - self.new_gap_penalty, P[i - 1, j] - self.continue_gap_penalty
-        )
-        Q[i, j] = max(
-            D[i, j - 1] - self.new_gap_penalty, Q[i, j - 1] - self.continue_gap_penalty
-        )
-        D[i, j] = max(0, D[i - 1, j - 1] + score, P[i, j], Q[i, j])
-
-    def _get_max_scores(
-        self,
-        matrices_A: tuple[NDArray, NDArray, NDArray],
-        matrices_B: tuple[NDArray, NDArray, NDArray],
-        matrices_AB: tuple[NDArray, NDArray, NDArray],
-    ) -> tuple[float, float, float]:
-        """Get maximum scores from Gotoh matrices."""
-        return matrices_A[0].max(), matrices_B[0].max(), matrices_AB[0].max()
-
     def distance(self, query_sequence: str, subject_sequence: str) -> float:
-        return super().distance(query_sequence, subject_sequence)
+        query_length = len(query_sequence)
+        subject_length = len(subject_sequence)
+        if not query_sequence and not subject_sequence:
+            return 0.0
+        if not query_sequence or not subject_sequence:
+            return max(query_length, subject_length)
+
+        matrix, _, _ = self(query_sequence, subject_sequence)
+        sim_AB = matrix.max()
+        max_score = self.match_score * max(query_length, subject_length)
+        return max_score - sim_AB
 
     def similarity(self, query_sequence: str, subject_sequence: str) -> float:
         if not query_sequence and not subject_sequence:
@@ -759,7 +729,16 @@ class GotohLocal(_LocalBase):
     def normalized_similarity(
         self, query_sequence: str, subject_sequence: str
     ) -> float:
-        return super().normalized_similarity(query_sequence, subject_sequence)
+        """Calculate normalized similarity between 0 and 1"""
+        if not query_sequence and not subject_sequence:
+            return 1.0
+        if not query_sequence or not subject_sequence:
+            return 0.0
+        matrix, _, _ = self(query_sequence, subject_sequence)
+        score = matrix.max()
+        return score / (
+            min(len(query_sequence), len(subject_sequence)) * self.match_score
+        )
 
     def matrix(
         self, query_sequence: str, subject_sequence: str
@@ -773,7 +752,7 @@ class GotohLocal(_LocalBase):
         qs = [x.upper() for x in query_sequence]
         ss = [x.upper() for x in subject_sequence]
         if matrix.max() == 0:
-            return "There is no local alignment!"
+            return ""
 
         # finds the largest value closest to bottom right of matrix
         i, j = numpy.unravel_index(matrix.argmax(), matrix.shape)
@@ -1296,8 +1275,7 @@ class LongestCommonSubsequence(_LocalBase):
         return self.alignment_score
 
     def distance(self, query_sequence: str, subject_sequence: str) -> float:
-        qs, ss = query_sequence, subject_sequence
-        return len(max([qs, ss], key=len)) - self.similarity(qs, ss)
+        return super().distance(query_sequence, subject_sequence)
 
     def similarity(self, query_sequence: str, subject_sequence: str) -> float:
         return super().similarity(query_sequence, subject_sequence)
@@ -1340,10 +1318,10 @@ class LongestCommonSubsequence(_LocalBase):
             longest_subseqs.add("".join(temp[::-1]))
         return list(longest_subseqs)
 
+
 class LongestCommonSubstring(_LocalBase):
     def __init__(self):
         self.match_score = 1
-
 
     def __call__(self, query_sequence: str, subject_sequence: str):
         qs, ss = [""], [""]
@@ -1364,8 +1342,7 @@ class LongestCommonSubstring(_LocalBase):
         return alignment_matrix
 
     def distance(self, query_sequence: str, subject_sequence: str) -> float:
-        qs, ss = query_sequence, subject_sequence
-        return len(max([qs, ss], key=len)) - self.similarity(qs, ss)
+        return super().distance(query_sequence, subject_sequence)
 
     def similarity(self, query_sequence: str, subject_sequence: str) -> float:
         return super().similarity(query_sequence, subject_sequence)
@@ -1386,7 +1363,7 @@ class LongestCommonSubstring(_LocalBase):
 
         longest_match = numpy.max(matrix)
         if longest_match <= 1:
-            return []
+            return [""]
 
         longest_substrings = set()
         positions = numpy.argwhere(matrix == longest_match)
@@ -1394,9 +1371,9 @@ class LongestCommonSubstring(_LocalBase):
             temp = []
             i, j = position
             while matrix[i][j] != 0:
-                temp.append(query_sequence[i-1])
-                i-=1
-                j-=1
+                temp.append(query_sequence[i - 1])
+                i -= 1
+                j -= 1
             longest_substrings.add("".join(temp[::-1]))
         return list(longest_substrings)
 

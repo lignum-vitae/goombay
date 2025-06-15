@@ -68,6 +68,7 @@ The Hamming distance has two additional methods called `.binary_distance_array` 
 |Jaro                           |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Jaro                        | jaro                          |
 |Jaro Winkler                   |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | JaroWinkler                 | jaro_winkler                  |
 |Longest Common Subsequence     |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | LongestCommonSubsequence    | longest_common_subsequence    |
+|Longest Common Substring       |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | LongestCommonSubstringMSA   | longest_common_substring_msa  |
 |Longest Common Substring (MSA) |<ul><li> [x] </li></ul>|<ul><li> [ ] </li></ul>|     <ul><li> [x] </li></ul>     | LongestCommonSubstringMSA   | longest_common_substring_msa  |
 |Shortest Common Supersequence  |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | ShortestCommonSupersequence | shortest_common_supersequence |
 
@@ -142,7 +143,8 @@ The Hamming distance has two additional methods called `.binary_distance_array` 
   The Longest Common Substring algorithm generates an alignment by finding the longest string that is present in all given sequences.
   Insertions and deletions are not allowed within these strings. There may be
   more than one longest substring, in which case all longest substrings will be shown in a list.
-  Only matches with a length greater than 1 will be shown.
+  Only matches with a length greater than 1 will be shown when aligned.
+  Matches less than or equal to 1 will return a similarity and distance score of 0.
 
 - [Shortest Common Supersequence](https://en.wikipedia.org/wiki/Shortest_common_supersequence) -
   The Shortest Common Supersequence is the shortest combination of the two sequences that contains all the characters within both sequences

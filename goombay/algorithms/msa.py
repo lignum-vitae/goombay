@@ -118,6 +118,8 @@ class LongestCommonSubstringMSA:
         if len(sequences) < 2:
             raise ValueError("Provide at least two sequences")
 
+        sequences = [seq.upper() for seq in sequences]
+
         # Generate substrings from first and last strings
         motifs = self._common_substrings([sequences[0], sequences[-1]])
         if not motifs:
@@ -134,7 +136,13 @@ class LongestCommonSubstringMSA:
         return self(sequences)
 
     def distance(self, sequences: list[str]) -> int:
-        return len(max(sequences, key=len)) - self.similarity(sequences)
+        shared = self(sequences)
+        max_match = len(max(sequences, key=len))
+        if any(not seq for seq in sequences):
+            return max_match
+        if max_match <= 1 and all(sequences[0] in seq for seq in sequences):
+            return 0
+        return max_match - self.similarity(sequences)
 
     def similarity(self, sequences: list[str]) -> int:
         lcsub = self(sequences)
@@ -146,10 +154,14 @@ class LongestCommonSubstringMSA:
         return 1 - self.normalized_similarity(sequences)
 
     def normalized_similarity(self, sequences: list[str]) -> float:
+        if len(max(sequences, key=len)) == 1 and all(
+            sequences[0] in seq for seq in sequences
+        ):
+            return 1.0
         lcsub = self(sequences)
         if not lcsub:
-            return 0
-        return len(lcsub[0]) / len(max(sequences, key=len))
+            return 0.0
+        return len(lcsub[0]) / len(min(sequences, key=len))
 
 
 feng_doolittle = FengDoolittle()
