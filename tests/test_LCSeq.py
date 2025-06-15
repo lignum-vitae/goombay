@@ -13,7 +13,7 @@ class TestLCS(unittest.TestCase):
     def test_identical_sequences(self):
         """Test behavior with identical sequences"""
         # Test alignment
-        self.assertEqual(self.algorithm.align("ACTG", "ACTG"), "ACTG")
+        self.assertEqual(self.algorithm.align("ACTG", "ACTG"), ["ACTG"])
 
         # Test matrix values
         matrix = self.algorithm("ACTG", "ACTG")
@@ -26,9 +26,7 @@ class TestLCS(unittest.TestCase):
     def test_completely_different(self):
         """Test behavior with completely different sequences"""
         # Test alignment
-        self.assertEqual(
-            self.algorithm.align("AAAA", "TTTT"), "There is no common subsequence!"
-        )
+        self.assertEqual(self.algorithm.align("AAAA", "TTTT"), [])
 
         # Test matrix values
         matrix = self.algorithm("AAAA", "TTTT")
@@ -50,7 +48,7 @@ class TestLCS(unittest.TestCase):
             with self.subTest(query=query, subject=subject):
                 self.assertEqual(
                     self.algorithm.align(query, subject),
-                    "There is no common subsequence!",
+                    [],
                 )
                 self.assertEqual(self.algorithm.similarity(query, subject), 0)
                 self.assertEqual(self.algorithm.distance(query, subject), dist)
@@ -60,14 +58,12 @@ class TestLCS(unittest.TestCase):
     def test_single_character(self):
         """Test behavior with single character sequences"""
         # Test match
-        self.assertEqual(self.algorithm.align("A", "A"), "A")
+        self.assertEqual(self.algorithm.align("A", "A"), [])
         matrix = self.algorithm("A", "A")
         self.assertEqual(matrix[-1, -1], 1)
 
         # Test mismatch
-        self.assertEqual(
-            self.algorithm.align("A", "T"), "There is no common subsequence!"
-        )
+        self.assertEqual(self.algorithm.align("A", "T"), [])
         matrix = self.algorithm("A", "T")
         self.assertEqual(matrix[-1, -1], 0)
 
@@ -101,10 +97,10 @@ class TestLCS(unittest.TestCase):
     def test_different_lengths(self):
         """Test behavior with sequences of different lengths"""
         test_cases = [
-            ("ACTG", "ACT", "ACT"),  # Longer query
-            ("ACT", "ACTG", "ACT"),  # Longer subject
-            ("ABCDE", "ACE", "ACE"),  # Internal gaps
-            ("HUMAN", "CHIMPANZEE", "HMAN"),  # Complex case
+            ("ACTG", "ACT", ["ACT"]),  # Longer query
+            ("ACT", "ACTG", ["ACT"]),  # Longer subject
+            ("ABCDE", "ACE", ["ACE"]),  # Internal gaps
+            ("HUMAN", "CHIMPANZEE", ["HMAN"]),  # Complex case
         ]
 
         for query, subject, expected in test_cases:
@@ -114,9 +110,9 @@ class TestLCS(unittest.TestCase):
     def test_repeated_characters(self):
         """Test behavior with repeated characters"""
         test_cases = [
-            ("AAAAAA", "AAA", "AAA"),
-            ("ABABAB", "ABAB", "ABAB"),
-            ("AAAAAA", "TTTTTT", "There is no common subsequence!"),
+            ("AAAAAA", "AAA", ["AAA"]),
+            ("ABABAB", "ABAB", ["ABAB"]),
+            ("AAAAAA", "TTTTTT", []),
         ]
 
         for query, subject, expected in test_cases:

@@ -1,3 +1,6 @@
+# built-ins
+import math
+
 # internal dependencies
 from goombay.algorithms.base import GlobalBase as _GlobalBase, LocalBase as _LocalBase
 
@@ -20,14 +23,16 @@ def main():
         print()
     print(waterman_smith_beyer.matrix("TRATE", "TRACE"))
     """
-    query = "AGCT"
-    subject = "TACG"
-    print(needleman_wunsch.distance(query, subject))
-    print(needleman_wunsch.similarity(query, subject))
-    print(needleman_wunsch.normalized_similarity(query, subject))
-    print(needleman_wunsch.normalized_distance(query, subject))
-    print(needleman_wunsch.matrix(query, subject))
-    print(needleman_wunsch.align(query, subject))
+    query = "AGTC"
+    subject = "AGGCAT"
+    print(longest_common_substring.distance(query, subject))
+    print(longest_common_subsequence.distance(query, subject))
+    print(longest_common_substring.similarity(query, subject))
+    print(longest_common_substring.normalized_similarity(query, subject))
+    print(longest_common_substring.normalized_distance(query, subject))
+    print(longest_common_subsequence.matrix(query, subject))
+    print(longest_common_substring.align(query, subject))
+    print(longest_common_subsequence.align(query, subject))
 
 
 class WagnerFischer(_GlobalBase):  # Levenshtein Distance
@@ -64,9 +69,8 @@ class WagnerFischer(_GlobalBase):  # Levenshtein Distance
                 tmin = min(match, lgap, ugap)
 
                 self.alignment_score[i][j] = tmin  # lowest value is best choice
-                if (
-                    match == tmin
-                ):  # matrix for traceback based on results from scoring matrix
+                # matrix for traceback based on results from scoring matrix
+                if match == tmin:
                     self.pointer[i, j] += 2
                 if ugap == tmin:
                     self.pointer[i, j] += 3
@@ -111,9 +115,8 @@ class WagnerFischer(_GlobalBase):  # Levenshtein Distance
         ]
         i, j = len(qs), len(ss)
         query_align, subject_align = [], []
-        while (
-            i > 0 or j > 0
-        ):  # looks for match/mismatch/gap starting from bottom right of matrix
+        # looks for match/mismatch/gap starting from bottom right of matrix
+        while i > 0 or j > 0:
             if pointer_matrix[i, j] in [2, 5, 6, 10, 9, 13, 14, 17]:
                 # appends match/mismatch then moves to the cell diagonally up and to the left
                 query_align.append(qs[i - 1])
@@ -177,9 +180,8 @@ class LowranceWagner(_GlobalBase):  # Damerau-Levenshtein distance
                 tmin = min(match, lgap, ugap, trans)
 
                 self.alignment_score[i][j] = tmin  # lowest value is best choice
-                if (
-                    match == tmin
-                ):  # matrix for traceback based on results from scoring matrix
+                # matrix for traceback based on results from scoring matrix
+                if match == tmin:
                     self.pointer[i, j] += 2
                 if ugap == tmin:
                     self.pointer[i, j] += 3
@@ -233,9 +235,8 @@ class LowranceWagner(_GlobalBase):  # Damerau-Levenshtein distance
         ]
         i, j = len(qs), len(ss)
         query_align, subject_align = [], []
-        while (
-            i > 0 or j > 0
-        ):  # looks for match/mismatch/gap starting from bottom right of matrix
+        # looks for match/mismatch/gap starting from bottom right of matrix
+        while i > 0 or j > 0:
             if pointer_matrix[i, j] in [2, 5, 6, 10, 9, 13, 14, 17]:
                 # appends match/mismatch then moves to the cell diagonally up and to the left
                 query_align.append(qs[i - 1])
@@ -291,9 +292,8 @@ class Hamming:
             qs = qs.zfill(max_len)
             ss = ss.zfill(max_len)
         else:
-            qs, ss = [x.upper() for x in query_sequence], [
-                x.upper() for x in subject_sequence
-            ]
+            qs = [x.upper() for x in query_sequence]
+            ss = [x.upper() for x in subject_sequence]
 
         if len(qs) == 1 and len(ss) == 1:
             dist = 1 if qs != ss else 0
@@ -320,9 +320,8 @@ class Hamming:
             return bin(qs ^ ss).count("1")
         if len(query_sequence) == len(subject_sequence) == 0:
             return 0
-        qs, ss = [x.upper() for x in query_sequence], [
-            x.upper() for x in subject_sequence
-        ]
+        qs = [x.upper() for x in query_sequence]
+        ss = [x.upper() for x in subject_sequence]
         query = set([(x, y) for (x, y) in enumerate(qs)])
         subject = set([(x, y) for (x, y) in enumerate(ss)])
         qs, sq = query - subject, subject - query
@@ -336,9 +335,8 @@ class Hamming:
             return bin(qs & ss).count("1")
         if len(query_sequence) == len(subject_sequence) == 0:
             return 1
-        qs, ss = [x.upper() for x in query_sequence], [
-            x.upper() for x in subject_sequence
-        ]
+        qs = [x.upper() for x in query_sequence]
+        ss = [x.upper() for x in subject_sequence]
         query = set([(x, y) for (x, y) in enumerate(qs)])
         subject = set([(x, y) for (x, y) in enumerate(ss)])
         qs, sq = query - subject, subject - query
@@ -417,9 +415,8 @@ class NeedlemanWunsch(_GlobalBase):
                 tmax = max(match, lgap, ugap)
 
                 self.alignment_score[i][j] = tmax  # highest value is best choice
-                if (
-                    match == tmax
-                ):  # matrix for traceback based on results from scoring matrix
+                # matrix for traceback based on results from scoring matrix
+                if match == tmax:
                     self.pointer[i, j] += 2
                 if ugap == tmax:
                     self.pointer[i, j] += 3
@@ -598,9 +595,8 @@ class Gotoh(_GlobalBase):
                     self.Q[i, j - 1] - self.continue_gap_penalty,
                 )
                 self.D[i, j] = max(match, self.P[i, j], self.Q[i, j])
-                if (
-                    self.D[i, j] == match
-                ):  # matrix for traceback based on results from scoring matrix
+                # matrix for traceback based on results from scoring matrix
+                if self.D[i, j] == match:
                     self.pointer[i, j] += 2
                 if self.D[i, j] == self.P[i, j]:
                     self.pointer[i, j] += 3
@@ -641,9 +637,8 @@ class Gotoh(_GlobalBase):
         i, j = len(qs), len(ss)
         query_align, subject_align = [], []
 
-        while (
-            i > 0 or j > 0
-        ):  # looks for match/mismatch/gap starting from bottom right of matrix
+        # looks for match/mismatch/gap starting from bottom right of matrix
+        while i > 0 or j > 0:
             if pointer_matrix[i, j] in [3, 5, 7, 9]:
                 # appends gap and accompanying nucleotide, then moves to the cell above
                 subject_align.append("-")
@@ -709,51 +704,18 @@ class GotohLocal(_LocalBase):
 
         return D, P, Q
 
-    def _init_alignment_matrices(
-        self, rows: int, cols: int
-    ) -> tuple[NDArray, NDArray, NDArray]:
-        """Initialize three matrices for Gotoh alignment."""
-        return (
-            numpy.zeros((rows + 1, cols + 1)),  # D matrix
-            numpy.zeros((rows + 1, cols + 1)),  # P matrix
-            numpy.zeros((rows + 1, cols + 1)),  # Q matrix
-        )
-
-    def _fill_cell(
-        self,
-        matrices: tuple[NDArray, NDArray, NDArray],
-        i: int,
-        j: int,
-        char1: str,
-        char2: str,
-    ) -> None:
-        """Fill cell in Gotoh matrices."""
-        D, P, Q = matrices
-        score = (
-            self.match_score
-            if char1.upper() == char2.upper()
-            else -self.mismatch_penalty
-        )
-
-        P[i, j] = max(
-            D[i - 1, j] - self.new_gap_penalty, P[i - 1, j] - self.continue_gap_penalty
-        )
-        Q[i, j] = max(
-            D[i, j - 1] - self.new_gap_penalty, Q[i, j - 1] - self.continue_gap_penalty
-        )
-        D[i, j] = max(0, D[i - 1, j - 1] + score, P[i, j], Q[i, j])
-
-    def _get_max_scores(
-        self,
-        matrices_A: tuple[NDArray, NDArray, NDArray],
-        matrices_B: tuple[NDArray, NDArray, NDArray],
-        matrices_AB: tuple[NDArray, NDArray, NDArray],
-    ) -> tuple[float, float, float]:
-        """Get maximum scores from Gotoh matrices."""
-        return matrices_A[0].max(), matrices_B[0].max(), matrices_AB[0].max()
-
     def distance(self, query_sequence: str, subject_sequence: str) -> float:
-        return super().distance(query_sequence, subject_sequence)
+        query_length = len(query_sequence)
+        subject_length = len(subject_sequence)
+        if not query_sequence and not subject_sequence:
+            return 0.0
+        if not query_sequence or not subject_sequence:
+            return max(query_length, subject_length)
+
+        matrix, _, _ = self(query_sequence, subject_sequence)
+        sim_AB = matrix.max()
+        max_score = self.match_score * max(query_length, subject_length)
+        return max_score - sim_AB
 
     def similarity(self, query_sequence: str, subject_sequence: str) -> float:
         if not query_sequence and not subject_sequence:
@@ -767,7 +729,16 @@ class GotohLocal(_LocalBase):
     def normalized_similarity(
         self, query_sequence: str, subject_sequence: str
     ) -> float:
-        return super().normalized_similarity(query_sequence, subject_sequence)
+        """Calculate normalized similarity between 0 and 1"""
+        if not query_sequence and not subject_sequence:
+            return 1.0
+        if not query_sequence or not subject_sequence:
+            return 0.0
+        matrix, _, _ = self(query_sequence, subject_sequence)
+        score = matrix.max()
+        return score / (
+            min(len(query_sequence), len(subject_sequence)) * self.match_score
+        )
 
     def matrix(
         self, query_sequence: str, subject_sequence: str
@@ -778,11 +749,10 @@ class GotohLocal(_LocalBase):
     def align(self, query_sequence: str, subject_sequence: str) -> str:
         matrix, _, _ = self(query_sequence, subject_sequence)
 
-        qs, ss = [x.upper() for x in query_sequence], [
-            x.upper() for x in subject_sequence
-        ]
+        qs = [x.upper() for x in query_sequence]
+        ss = [x.upper() for x in subject_sequence]
         if matrix.max() == 0:
-            return "There is no local alignment!"
+            return ""
 
         # finds the largest value closest to bottom right of matrix
         i, j = numpy.unravel_index(matrix.argmax(), matrix.shape)
@@ -1120,9 +1090,8 @@ class Jaro:
 
     def align(self, query_sequence: str, subject_sequence: str) -> str:
         """Return aligned sequences showing matches."""
-        qs, ss = [x.upper() for x in query_sequence], [
-            x.upper() for x in subject_sequence
-        ]
+        qs = [x.upper() for x in query_sequence]
+        ss = [x.upper() for x in subject_sequence]
         if qs == ss:
             return f"{''.join(qs)}\n{''.join(ss)}"
 
@@ -1188,7 +1157,7 @@ class JaroWinkler(Jaro):
     def __init__(self, scaling_factor=0.1):
         self.match_score = 1
         self.winkler = True
-        # p should not exceed 0.25 else similarity could be larger than 1
+        # scaling factor should not exceed 0.25 else similarity could be larger than 1
         self.scaling_factor = scaling_factor
 
 
@@ -1255,9 +1224,8 @@ class SmithWaterman:
     def align(self, query_sequence: str, subject_sequence: str) -> str:
         matrix = self(query_sequence, subject_sequence)
 
-        qs, ss = [x.upper() for x in query_sequence], [
-            x.upper() for x in subject_sequence
-        ]
+        qs = [x.upper() for x in query_sequence]
+        ss = [x.upper() for x in subject_sequence]
         if matrix.max() == 0:
             return "There is no local alignment!"
 
@@ -1328,24 +1296,86 @@ class LongestCommonSubsequence(_LocalBase):
 
         qs = [x.upper() for x in query_sequence]
         ss = [x.upper() for x in subject_sequence]
-        if matrix.max() == 0:
-            return "There is no common subsequence!"
 
-        i, j = len(query_sequence), len(subject_sequence)
-        common_sub_align = []
-        while matrix[i, j] > 0:
-            if i == 0 and j == 0:
-                break
-            if qs[i - 1] == ss[j - 1]:
-                common_sub_align.append(qs[i - 1])
+        longest_match = numpy.max(matrix)
+        if longest_match <= 1:
+            return []
+
+        longest_subseqs = set()
+        positions = numpy.argwhere(matrix == longest_match)
+        for position in positions:
+            temp = []
+            i, j = position
+            while i != 0 and j != 0:
+                if qs[i - 1] == ss[j - 1]:
+                    temp.append(qs[i - 1])
+                    i -= 1
+                    j -= 1
+                elif matrix[i - 1, j] >= matrix[i, j - 1]:
+                    i -= 1
+                elif matrix[i, j - 1] >= matrix[i - 1, j]:
+                    j -= 1
+            longest_subseqs.add("".join(temp[::-1]))
+        return list(longest_subseqs)
+
+
+class LongestCommonSubstring(_LocalBase):
+    def __init__(self):
+        self.match_score = 1
+
+    def __call__(self, query_sequence: str, subject_sequence: str):
+        qs, ss = [""], [""]
+        qs.extend([x.upper() for x in query_sequence])
+        ss.extend([x.upper() for x in subject_sequence])
+        qs_len = len(qs)
+        ss_len = len(ss)
+
+        # matrix initialisation
+        alignment_matrix = numpy.zeros((qs_len, ss_len))
+        for i in range(1, qs_len):
+            for j in range(1, ss_len):
+                if qs[i] == ss[j]:
+                    match = alignment_matrix[i - 1][j - 1] + self.match_score
+                else:
+                    match = 0
+                alignment_matrix[i][j] = match
+        return alignment_matrix
+
+    def distance(self, query_sequence: str, subject_sequence: str) -> float:
+        return super().distance(query_sequence, subject_sequence)
+
+    def similarity(self, query_sequence: str, subject_sequence: str) -> float:
+        return super().similarity(query_sequence, subject_sequence)
+
+    def normalized_distance(self, query_sequence: str, subject_sequence: str) -> float:
+        return super().normalized_distance(query_sequence, subject_sequence)
+
+    def normalized_similarity(
+        self, query_sequence: str, subject_sequence: str
+    ) -> float:
+        return super().normalized_similarity(query_sequence, subject_sequence)
+
+    def matrix(self, query_sequence: str, subject_sequence: str) -> NDArray:
+        return super().matrix(query_sequence, subject_sequence)
+
+    def align(self, query_sequence, subject_sequence):
+        matrix = self(query_sequence, subject_sequence)
+
+        longest_match = numpy.max(matrix)
+        if longest_match <= 1:
+            return [""]
+
+        longest_substrings = set()
+        positions = numpy.argwhere(matrix == longest_match)
+        for position in positions:
+            temp = []
+            i, j = position
+            while matrix[i][j] != 0:
+                temp.append(query_sequence[i - 1])
                 i -= 1
                 j -= 1
-            elif matrix[i - 1, j] >= matrix[i, j - 1]:
-                i -= 1
-            elif matrix[i, j - 1] >= matrix[i - 1, j]:
-                j -= 1
-        common_sub_align = "".join(common_sub_align[::-1])
-        return f"{common_sub_align}"
+            longest_substrings.add("".join(temp[::-1]))
+        return list(longest_substrings)
 
 
 class ShortestCommonSupersequence:
@@ -1459,6 +1489,7 @@ jaro = Jaro()
 jaro_winkler = JaroWinkler()
 lowrance_wagner = LowranceWagner()
 longest_common_subsequence = LongestCommonSubsequence()
+longest_common_substring = LongestCommonSubstring()
 shortest_common_supersequence = ShortestCommonSupersequence()
 gotoh = Gotoh()
 gotoh_local = GotohLocal()

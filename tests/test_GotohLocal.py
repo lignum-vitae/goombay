@@ -27,12 +27,11 @@ class TestGotohLocal(unittest.TestCase):
     def test_completely_different(self):
         """Test behavior with completely different sequences"""
         # Test alignment
-        self.assertEqual(
-            self.algorithm.align("AAAA", "TTTT"), "There is no local alignment!"
-        )
+        self.assertEqual(self.algorithm.align("AAAA", "TTTT"), "")
 
         # Test scoring
         self.assertEqual(self.algorithm.similarity("AAAA", "TTTT"), 0.0)
+        self.assertEqual(self.algorithm.distance("AAAA", "TTTT"), 8.0)
 
         # Test normalization
         self.assertEqual(self.algorithm.normalized_similarity("AAAA", "TTTT"), 0.0)
@@ -48,9 +47,7 @@ class TestGotohLocal(unittest.TestCase):
 
         for query, subject, dist, norm_dist, sim, norm_sim in test_cases:
             with self.subTest(query=query, subject=subject):
-                self.assertEqual(
-                    self.algorithm.align(query, subject), "There is no local alignment!"
-                )
+                self.assertEqual(self.algorithm.align(query, subject), "")
                 self.assertEqual(self.algorithm.similarity(query, subject), sim)
                 self.assertEqual(
                     self.algorithm.normalized_similarity(query, subject), norm_sim
@@ -70,10 +67,11 @@ class TestGotohLocal(unittest.TestCase):
         self.assertEqual(self.algorithm.distance("A", "A"), 0.0)
 
         # Test mismatch
-        self.assertEqual(self.algorithm.align("A", "T"), "There is no local alignment!")
+        self.assertEqual(self.algorithm.align("A", "T"), "")
         self.assertEqual(self.algorithm.similarity("A", "T"), 0.0)
         self.assertEqual(
-            self.algorithm.distance("A", "T"), 1 * self.algorithm.mismatch_penalty
+            self.algorithm.distance("A", "T"),
+            2,
         )
 
     def test_case_sensitivity(self):
@@ -88,6 +86,12 @@ class TestGotohLocal(unittest.TestCase):
                     4 * self.algorithm.match_score,
                 )
                 self.assertEqual(self.algorithm.distance(query, subject), 0.0)
+                self.assertEqual(
+                    self.algorithm.normalized_similarity(query, subject), 1.0
+                )
+                self.assertEqual(
+                    self.algorithm.normalized_distance(query, subject), 0.0
+                )
 
     def test_matrix_shape(self):
         """Test matrix dimensions"""
