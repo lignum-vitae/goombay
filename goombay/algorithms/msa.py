@@ -24,11 +24,11 @@ def main():
     seq2 = "HOUSECARDFALLDOWN"
     seq3 = "FALLDOWN"
 
-    print(longest_common_substring.align([seq2, seq1, seq3]))
-    print(longest_common_substring.distance([seq2, seq1, seq3]))
-    print(longest_common_substring.normalized_distance([seq2, seq1, seq3]))
-    print(longest_common_substring.similarity([seq2, seq1, seq3]))
-    print(longest_common_substring.normalized_similarity([seq2, seq1, seq3]))
+    print(longest_common_substring_msa.align([seq2, seq1, seq3]))
+    print(longest_common_substring_msa.distance([seq2, seq1, seq3]))
+    print(longest_common_substring_msa.normalized_distance([seq2, seq1, seq3]))
+    print(longest_common_substring_msa.similarity([seq2, seq1, seq3]))
+    print(longest_common_substring_msa.normalized_similarity([seq2, seq1, seq3]))
 
 
 class FengDoolittle:
@@ -114,7 +114,7 @@ class LongestCommonSubstringMSA:
         if (
             not isinstance(sequences, list) and not isinstance(sequences, tuple)
         ) or not all(isinstance(s, str) for s in sequences):
-            raise TypeError("longest_common_substring expects a list of strings")
+            raise TypeError("longest_common_substring_msa expects a list of strings")
         if len(sequences) < 2:
             raise ValueError("Provide at least two sequences")
 
