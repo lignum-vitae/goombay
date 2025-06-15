@@ -17,7 +17,7 @@ class TestGotoh(unittest.TestCase):
 
         # Test scoring
         self.assertEqual(
-            self.algorithm.similarity("ACTG", "ACTG"), 4 * self.algorithm.match_score
+            self.algorithm.similarity("ACTG", "ACTG"), 4 * self.algorithm.match
         )
         self.assertEqual(self.algorithm.distance("ACTG", "ACTG"), 0.0)
 
@@ -31,9 +31,7 @@ class TestGotoh(unittest.TestCase):
         self.assertEqual(self.algorithm.align("AAAA", "TTTT"), "AAAA\nTTTT")
 
         # Test scoring
-        expected_score = -(
-            4 * self.algorithm.mismatch_penalty
-        )  # All positions are mismatches
+        expected_score = -(4 * self.algorithm.mismatch)  # All positions are mismatches
         self.assertEqual(self.algorithm.similarity("AAAA", "TTTT"), expected_score)
 
         # Test normalization
@@ -54,7 +52,7 @@ class TestGotoh(unittest.TestCase):
                     self.assertEqual(self.algorithm.align(query, subject), "\n")
                     self.assertEqual(
                         self.algorithm.similarity(query, subject),
-                        self.algorithm.match_score,
+                        self.algorithm.match,
                     )
                     self.assertEqual(self.algorithm.distance(query, subject), 0.0)
                 else:
@@ -65,8 +63,8 @@ class TestGotoh(unittest.TestCase):
                         f"{expected_gaps if not query else query}\n{expected_gaps if not subject else subject}",
                     )
                     expected_score = -(
-                        self.algorithm.new_gap_penalty
-                        + len(non_empty) * self.algorithm.continue_gap_penalty
+                        self.algorithm.new_gap
+                        + len(non_empty) * self.algorithm.continued_gap
                     )
                     self.assertEqual(
                         self.algorithm.similarity(query, subject), expected_score
@@ -76,14 +74,12 @@ class TestGotoh(unittest.TestCase):
         """Test behavior with single character sequences"""
         # Test match
         self.assertEqual(self.algorithm.align("A", "A"), "A\nA")
-        self.assertEqual(
-            self.algorithm.similarity("A", "A"), self.algorithm.match_score
-        )
+        self.assertEqual(self.algorithm.similarity("A", "A"), self.algorithm.match)
         self.assertEqual(self.algorithm.distance("A", "A"), 0.0)
 
         # Test mismatch
         self.assertEqual(self.algorithm.align("A", "T"), "A\nT")
-        expected_score = -self.algorithm.mismatch_penalty
+        expected_score = -self.algorithm.mismatch
         self.assertEqual(self.algorithm.similarity("A", "T"), expected_score)
 
     def test_case_sensitivity(self):
@@ -131,9 +127,7 @@ class TestGotoh(unittest.TestCase):
 
     def test_scoring_parameters(self):
         """Test behavior with different scoring parameters"""
-        custom_algorithm = Gotoh(
-            match_score=1, mismatch_penalty=2, new_gap_penalty=3, continue_gap_penalty=1
-        )
+        custom_algorithm = Gotoh(match=1, mismatch=2, new_gap=3, continued_gap=1)
 
         # Test alignment
         self.assertEqual(custom_algorithm.align("ACGT", "AGT"), "ACGT\nA-GT")
@@ -142,10 +136,8 @@ class TestGotoh(unittest.TestCase):
         query = "ACGT"
         subject = "AT"
         D, _, _, _ = custom_algorithm(query, subject)
-        expected_penalty = (
-            custom_algorithm.new_gap_penalty + 2 * custom_algorithm.continue_gap_penalty
-        )
-        expected_matches = 2 * custom_algorithm.match_score
+        expected_penalty = custom_algorithm.new_gap + 2 * custom_algorithm.continued_gap
+        expected_matches = 2 * custom_algorithm.match
         self.assertEqual(D[-1, -1], expected_matches - expected_penalty)
 
     def test_matrix_values(self):

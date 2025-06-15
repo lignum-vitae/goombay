@@ -1,48 +1,49 @@
 import math
+from abc import ABC, abstractmethod
 from numpy.typing import NDArray
 
 
-class GlobalBase:
-    def matrix(self, query_sequence: str, subject_sequence: str) -> list[list[float]]:
-        matrix, _ = self(query_sequence, subject_sequence)
+class GlobalBase(ABC):
+    @abstractmethod
+    def __call__(self, query_seq: str, subject_seq: str):
+        pass
+
+    def matrix(self, query_seq: str, subject_seq: str) -> list[list[float]]:
+        matrix, _ = self(query_seq, subject_seq)
         return matrix
 
-    def distance(self, query_sequence: str, subject_sequence: str) -> float:
-        if not query_sequence and not subject_sequence:
+    def distance(self, query_seq: str, subject_seq: str) -> float:
+        if not query_seq and not subject_seq:
             return 0.0
-        if not query_sequence or not subject_sequence:
-            return float(len(query_sequence or subject_sequence)) * self.gap_penalty
+        if not query_seq or not subject_seq:
+            return float(len(query_seq or subject_seq)) * self.gap
 
-        raw_sim = self.similarity(query_sequence, subject_sequence)
-        max_possible = (
-            max(len(query_sequence), len(subject_sequence)) * self.match_score
-        )
+        raw_sim = self.similarity(query_seq, subject_seq)
+        max_possible = max(len(query_seq), len(subject_seq)) * self.match
         return max_possible - abs(raw_sim)
 
-    def similarity(self, query_sequence: str, subject_sequence: str) -> float:
-        if not query_sequence and not subject_sequence:
+    def similarity(self, query_seq: str, subject_seq: str) -> float:
+        if not query_seq and not subject_seq:
             return 1.0
-        matrix, _ = self(query_sequence, subject_sequence)
+        matrix, _ = self(query_seq, subject_seq)
         return matrix[matrix.shape[0] - 1, matrix.shape[1] - 1]
 
-    def normalized_distance(self, query_sequence: str, subject_sequence: str) -> float:
-        return 1 - self.normalized_similarity(query_sequence, subject_sequence)
+    def normalized_distance(self, query_seq: str, subject_seq: str) -> float:
+        return 1 - self.normalized_similarity(query_seq, subject_seq)
 
-    def normalized_similarity(
-        self, query_sequence: str, subject_sequence: str
-    ) -> float:
-        raw_score = self.similarity(query_sequence, subject_sequence)
-        max_len = len(max(query_sequence, subject_sequence, key=len))
-        max_possible = max_len * self.match_score
-        min_possible = -max_len * self.mismatch_penalty
+    def normalized_similarity(self, query_seq: str, subject_seq: str) -> float:
+        raw_score = self.similarity(query_seq, subject_seq)
+        max_len = len(max(query_seq, subject_seq, key=len))
+        max_possible = max_len * self.match
+        min_possible = -max_len * self.mismatch
         score_range = max_possible - min_possible
         return (raw_score - min_possible) / score_range
 
-    def align(self, query_sequence: str, subject_sequence: str) -> str:
-        _, pointer_matrix = self(query_sequence, subject_sequence)
+    def align(self, query_seq: str, subject_seq: str) -> str:
+        _, pointer_matrix = self(query_seq, subject_seq)
 
-        qs = [x.upper() for x in query_sequence]
-        ss = [x.upper() for x in subject_sequence]
+        qs = [x.upper() for x in query_seq]
+        ss = [x.upper() for x in subject_seq]
         i, j = len(qs), len(ss)
         query_align, subject_align = [], []
 
@@ -71,55 +72,57 @@ class GlobalBase:
         return f"{query_align}\n{subject_align}"
 
 
-class LocalBase:
-    def matrix(self, query_sequence: str, subject_sequence: str) -> NDArray:
+class LocalBase(ABC):
+    @abstractmethod
+    def __call__(self, query_seq: str, subject_seq: str):
+        pass
+
+    def matrix(self, query_seq: str, subject_seq: str) -> NDArray:
         """Return alignment matrix"""
-        matrix = self(query_sequence, subject_sequence)
+        matrix = self(query_seq, subject_seq)
         return matrix
 
-    def similarity(self, query_sequence: str, subject_sequence: str) -> float:
+    def similarity(self, query_seq: str, subject_seq: str) -> float:
         """Calculate similarity score"""
-        matrix = self(query_sequence, subject_sequence)
+        matrix = self(query_seq, subject_seq)
         return matrix.max() if matrix.max() > 1 else 0.0
 
-    def distance(self, query_sequence: str, subject_sequence: str) -> float:
+    def distance(self, query_seq: str, subject_seq: str) -> float:
         """Calculate a proper metric distance based on local alignment score.
 
         Uses the formula: d(x,y) = -ln(sim_AB / sqrt(sim_A * sim_B))
         This ensures the triangle inequality property.
         """
-        query_length = len(query_sequence)
-        subject_length = len(subject_sequence)
-        if not query_sequence and not subject_sequence:
+        query_length = len(query_seq)
+        subject_length = len(subject_seq)
+        if not query_seq and not subject_seq:
             return 0.0
-        if not query_sequence or not subject_sequence:
+        if not query_seq or not subject_seq:
             return max(query_length, subject_length)
 
         sim_A = query_length
         sim_B = subject_length
-        matrix = self(query_sequence, subject_sequence)
+        matrix = self(query_seq, subject_seq)
         sim_AB = matrix.max()
 
         if sim_AB == 0:
             return max(query_length, subject_length)
         return -math.log(sim_AB / math.sqrt(sim_A * sim_B))
 
-    def normalized_similarity(
-        self, query_sequence: str, subject_sequence: str
-    ) -> float:
+    def normalized_similarity(self, query_seq: str, subject_seq: str) -> float:
         """Calculate normalized similarity between 0 and 1"""
-        if not query_sequence and not subject_sequence:
+        if not query_seq and not subject_seq:
             return 1.0
-        if not query_sequence or not subject_sequence:
+        if not query_seq or not subject_seq:
             return 0.0
-        matrix = self(query_sequence, subject_sequence)
+        matrix = self(query_seq, subject_seq)
         best_score = matrix.max()
-        return best_score / min(len(query_sequence), len(subject_sequence))
+        return best_score / min(len(query_seq), len(subject_seq))
 
-    def normalized_distance(self, query_sequence: str, subject_sequence: str) -> float:
+    def normalized_distance(self, query_seq: str, subject_seq: str) -> float:
         """Calculate normalized distance between 0 and 1"""
-        if not query_sequence and not subject_sequence:
+        if not query_seq and not subject_seq:
             return 0.0
-        if not query_sequence or not subject_sequence:
+        if not query_seq or not subject_seq:
             return 1.0
-        return 1.0 - self.normalized_similarity(query_sequence, subject_sequence)
+        return 1.0 - self.normalized_similarity(query_seq, subject_seq)

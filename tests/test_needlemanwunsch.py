@@ -17,7 +17,7 @@ class TestNeedlemanWunsch(unittest.TestCase):
 
         # Test scoring
         self.assertEqual(
-            self.algorithm.similarity("ACTG", "ACTG"), 4 * self.algorithm.match_score
+            self.algorithm.similarity("ACTG", "ACTG"), 4 * self.algorithm.match
         )
         self.assertEqual(self.algorithm.distance("ACTG", "ACTG"), 0.0)
 
@@ -33,10 +33,10 @@ class TestNeedlemanWunsch(unittest.TestCase):
         # Test scoring
         self.assertEqual(
             self.algorithm.similarity("AAAA", "TTTT"),
-            -4 * self.algorithm.mismatch_penalty,
+            -4 * self.algorithm.mismatch,
         )
         self.assertEqual(
-            self.algorithm.distance("AAAA", "TTTT"), 4 * self.algorithm.mismatch_penalty
+            self.algorithm.distance("AAAA", "TTTT"), 4 * self.algorithm.mismatch
         )
 
         # Test normalization
@@ -75,19 +75,13 @@ class TestNeedlemanWunsch(unittest.TestCase):
         """Test behavior with single character sequences"""
         # Test match
         self.assertEqual(self.algorithm.align("A", "A"), "A\nA")
-        self.assertEqual(
-            self.algorithm.similarity("A", "A"), self.algorithm.match_score
-        )
+        self.assertEqual(self.algorithm.similarity("A", "A"), self.algorithm.match)
         self.assertEqual(self.algorithm.distance("A", "A"), 0.0)
 
         # Test mismatch
         self.assertEqual(self.algorithm.align("A", "T"), "A\nT")
-        self.assertEqual(
-            self.algorithm.similarity("A", "T"), -self.algorithm.mismatch_penalty
-        )
-        self.assertEqual(
-            self.algorithm.distance("A", "T"), self.algorithm.mismatch_penalty
-        )
+        self.assertEqual(self.algorithm.similarity("A", "T"), -self.algorithm.mismatch)
+        self.assertEqual(self.algorithm.distance("A", "T"), self.algorithm.mismatch)
 
     def test_case_sensitivity(self):
         """Test that matching is case-insensitive"""
@@ -138,9 +132,7 @@ class TestNeedlemanWunsch(unittest.TestCase):
 
     def test_scoring_parameters(self):
         """Test behavior with different scoring parameters"""
-        custom_algorithm = NeedlemanWunsch(
-            match_score=1, mismatch_penalty=2, gap_penalty=3
-        )
+        custom_algorithm = NeedlemanWunsch(match=1, mismatch=2, gap=3)
 
         # Test alignment
         self.assertEqual(custom_algorithm.align("ACGT", "AGT"), "ACGT\nA-GT")
