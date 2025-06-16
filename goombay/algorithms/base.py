@@ -1,4 +1,3 @@
-import math
 from abc import ABC, abstractmethod
 from numpy.typing import NDArray
 
@@ -45,31 +44,31 @@ class GlobalBase(ABC):
         qs = [x.upper() for x in query_seq]
         ss = [x.upper() for x in subject_seq]
         i, j = len(qs), len(ss)
-        query_align, subject_align = [], []
+        qs_align, ss_align = [], []
 
         # looks for match/mismatch/gap starting from bottom right of matrix
         while i > 0 or j > 0:
             if pointer_matrix[i, j] in [2, 5, 6, 9]:
                 # appends match/mismatch then moves to the cell diagonally up and to the left
-                query_align.append(qs[i - 1])
-                subject_align.append(ss[j - 1])
+                qs_align.append(qs[i - 1])
+                ss_align.append(ss[j - 1])
                 i -= 1
                 j -= 1
             elif pointer_matrix[i, j] in [3, 5, 7, 9]:
                 # appends gap and accompanying nucleotide, then moves to the cell above
-                subject_align.append("-")
-                query_align.append(qs[i - 1])
+                ss_align.append("-")
+                qs_align.append(qs[i - 1])
                 i -= 1
             elif pointer_matrix[i, j] in [4, 6, 7, 9]:
                 # appends gap and accompanying nucleotide, then moves to the cell to the left
-                subject_align.append(ss[j - 1])
-                query_align.append("-")
+                ss_align.append(ss[j - 1])
+                qs_align.append("-")
                 j -= 1
 
-        query_align = "".join(query_align[::-1])
-        subject_align = "".join(subject_align[::-1])
+        qs_align = "".join(qs_align[::-1])
+        ss_align = "".join(ss_align[::-1])
 
-        return f"{query_align}\n{subject_align}"
+        return f"{qs_align}\n{ss_align}"
 
 
 class LocalBase(ABC):
@@ -79,20 +78,20 @@ class LocalBase(ABC):
 
     def matrix(self, query_seq: str, subject_seq: str) -> NDArray:
         """Return alignment matrix"""
-        matrix = self(query_seq, subject_seq)
-        return matrix
+        return self(query_seq, subject_seq)
 
     def similarity(self, query_seq: str, subject_seq: str) -> float:
         """Calculate similarity score"""
+        if not query_seq and not subject_seq:
+            return 1.0
+        if not query_seq or not subject_seq:
+            return 0.0
+        if len(query_seq) == 1 and len(subject_seq) == 1 and query_seq == subject_seq:
+            return 1.0
         matrix = self(query_seq, subject_seq)
         return matrix.max() if matrix.max() > 1 else 0.0
 
     def distance(self, query_seq: str, subject_seq: str) -> float:
-        """Calculate a proper metric distance based on local alignment score.
-
-        Uses the formula: d(x,y) = -ln(sim_AB / sqrt(sim_A * sim_B))
-        This ensures the triangle inequality property.
-        """
         query_length = len(query_seq)
         subject_length = len(subject_seq)
         if not query_seq and not subject_seq:
@@ -100,14 +99,10 @@ class LocalBase(ABC):
         if not query_seq or not subject_seq:
             return max(query_length, subject_length)
 
-        sim_A = query_length
-        sim_B = subject_length
         matrix = self(query_seq, subject_seq)
         sim_AB = matrix.max()
-
-        if sim_AB == 0:
-            return max(query_length, subject_length)
-        return -math.log(sim_AB / math.sqrt(sim_A * sim_B))
+        max_score = self.match * max(query_length, subject_length)
+        return max_score - sim_AB
 
     def normalized_similarity(self, query_seq: str, subject_seq: str) -> float:
         """Calculate normalized similarity between 0 and 1"""
@@ -115,6 +110,8 @@ class LocalBase(ABC):
             return 1.0
         if not query_seq or not subject_seq:
             return 0.0
+        if len(query_seq) == 1 and len(subject_seq) == 1 and query_seq == subject_seq:
+            return 1.0
         matrix = self(query_seq, subject_seq)
         best_score = matrix.max()
         return best_score / min(len(query_seq), len(subject_seq))

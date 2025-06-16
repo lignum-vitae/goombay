@@ -34,6 +34,7 @@ class TestSmithWaterman(unittest.TestCase):
 
         # Test scoring
         self.assertEqual(self.algorithm.similarity("AAAA", "TTTT"), 0.0)
+        self.assertEqual(self.algorithm.distance("AAAA", "TTTT"), 4.0)
 
         # Test normalization
         self.assertEqual(self.algorithm.normalized_similarity("AAAA", "TTTT"), 0.0)
@@ -86,6 +87,10 @@ class TestSmithWaterman(unittest.TestCase):
                 self.assertEqual(
                     self.algorithm.similarity(query, subject),
                     self.algorithm.similarity(query.upper(), subject.upper()),
+                )
+                self.assertEqual(
+                    self.algorithm.distance(query, subject),
+                    self.algorithm.distance(query.upper(), subject.upper()),
                 )
 
     def test_matrix_shape(self):

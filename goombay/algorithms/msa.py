@@ -148,6 +148,10 @@ class LongestCommonSubstringMSA:
         lcsub = self(sequences)
         if not lcsub:
             return 0
+        if all(len(seq) == 0 for seq in sequences) or all(
+            sequences[0] == seq for seq in sequences
+        ):
+            return len(sequences[0]) if len(sequences[0]) >= 1 else 1.0
         return len(lcsub[0])
 
     def normalized_distance(self, sequences: list[str]) -> float:

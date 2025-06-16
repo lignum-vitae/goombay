@@ -1,6 +1,3 @@
-# built-ins
-import math
-
 # internal dependencies
 from goombay.algorithms.base import GlobalBase as _GlobalBase, LocalBase as _LocalBase
 
@@ -25,14 +22,9 @@ def main():
     """
     query = "AGTC"
     subject = "AGGCAT"
-    print(longest_common_substring.distance(query, subject))
-    print(longest_common_subsequence.distance(query, subject))
-    print(longest_common_substring.similarity(query, subject))
-    print(longest_common_substring.normalized_similarity(query, subject))
-    print(longest_common_substring.normalized_distance(query, subject))
-    print(longest_common_subsequence.matrix(query, subject))
-    print(longest_common_substring.align(query, subject))
-    print(longest_common_subsequence.align(query, subject))
+    print(gotoh_local.align(query, subject))
+    print(gotoh_local.similarity(query, subject))
+    print(gotoh_local.distance(query, subject))
 
 
 class WagnerFischer(_GlobalBase):  # Levenshtein Distance
@@ -110,29 +102,29 @@ class WagnerFischer(_GlobalBase):  # Levenshtein Distance
 
         qs, ss = [x.upper() for x in query_seq], [x.upper() for x in subject_seq]
         i, j = len(qs), len(ss)
-        query_align, subject_align = [], []
+        qs_align, ss_align = [], []
         # looks for match/mismatch/gap starting from bottom right of matrix
         while i > 0 or j > 0:
             if pointer_matrix[i, j] in [2, 5, 6, 10, 9, 13, 14, 17]:
                 # appends match/mismatch then moves to the cell diagonally up and to the left
-                query_align.append(qs[i - 1])
-                subject_align.append(ss[j - 1])
+                qs_align.append(qs[i - 1])
+                ss_align.append(ss[j - 1])
                 i -= 1
                 j -= 1
             elif pointer_matrix[i, j] in [3, 5, 7, 11, 9, 13, 15, 17]:
                 # appends gap and accompanying nucleotide, then moves to the cell above
-                subject_align.append("-")
-                query_align.append(qs[i - 1])
+                ss_align.append("-")
+                qs_align.append(qs[i - 1])
                 i -= 1
             elif pointer_matrix[i, j] in [4, 6, 7, 12, 9, 14, 15, 17]:
                 # appends gap and accompanying nucleotide, then moves to the cell to the left
-                subject_align.append(ss[j - 1])
-                query_align.append("-")
+                ss_align.append(ss[j - 1])
+                qs_align.append("-")
                 j -= 1
 
-        query_align = "".join(query_align[::-1])
-        subject_align = "".join(subject_align[::-1])
-        return f"{query_align}\n{subject_align}"
+        qs_align = "".join(qs_align[::-1])
+        ss_align = "".join(ss_align[::-1])
+        return f"{qs_align}\n{ss_align}"
 
 
 class LowranceWagner(_GlobalBase):  # Damerau-Levenshtein distance
@@ -226,34 +218,34 @@ class LowranceWagner(_GlobalBase):  # Damerau-Levenshtein distance
 
         qs, ss = [x.upper() for x in query_seq], [x.upper() for x in subject_seq]
         i, j = len(qs), len(ss)
-        query_align, subject_align = [], []
+        qs_align, ss_align = [], []
         # looks for match/mismatch/gap starting from bottom right of matrix
         while i > 0 or j > 0:
             if pointer_matrix[i, j] in [2, 5, 6, 10, 9, 13, 14, 17]:
                 # appends match/mismatch then moves to the cell diagonally up and to the left
-                query_align.append(qs[i - 1])
-                subject_align.append(ss[j - 1])
+                qs_align.append(qs[i - 1])
+                ss_align.append(ss[j - 1])
                 i -= 1
                 j -= 1
             elif pointer_matrix[i, j] in [8, 10, 11, 12, 13, 14, 15, 17]:
-                query_align.extend([qs[i - 1], qs[i - 2]])
-                subject_align.extend([ss[j - 1], ss[j - 2]])
+                qs_align.extend([qs[i - 1], qs[i - 2]])
+                ss_align.extend([ss[j - 1], ss[j - 2]])
                 i -= 2
                 j -= 2
             elif pointer_matrix[i, j] in [3, 5, 7, 11, 9, 13, 15, 17]:
                 # appends gap and accompanying nucleotide, then moves to the cell above
-                subject_align.append("-")
-                query_align.append(qs[i - 1])
+                ss_align.append("-")
+                qs_align.append(qs[i - 1])
                 i -= 1
             elif pointer_matrix[i, j] in [4, 6, 7, 12, 9, 14, 15, 17]:
                 # appends gap and accompanying nucleotide, then moves to the cell to the left
-                subject_align.append(ss[j - 1])
-                query_align.append("-")
+                ss_align.append(ss[j - 1])
+                qs_align.append("-")
                 j -= 1
 
-        query_align = "".join(query_align[::-1])
-        subject_align = "".join(subject_align[::-1])
-        return f"{query_align}\n{subject_align}"
+        qs_align = "".join(qs_align[::-1])
+        ss_align = "".join(ss_align[::-1])
+        return f"{qs_align}\n{ss_align}"
 
 
 class Hamming:
@@ -601,31 +593,31 @@ class Gotoh(_GlobalBase):
 
         qs, ss = [x.upper() for x in query_seq], [x.upper() for x in subject_seq]
         i, j = len(qs), len(ss)
-        query_align, subject_align = [], []
+        qs_align, ss_align = [], []
 
         # looks for match/mismatch/gap starting from bottom right of matrix
         while i > 0 or j > 0:
             if pointer_matrix[i, j] in [3, 5, 7, 9]:
                 # appends gap and accompanying nucleotide, then moves to the cell above
-                subject_align.append("-")
-                query_align.append(qs[i - 1])
+                ss_align.append("-")
+                qs_align.append(qs[i - 1])
                 i -= 1
             elif pointer_matrix[i, j] in [4, 6, 7, 9]:
                 # appends gap and accompanying nucleotide, then moves to the cell to the left
-                subject_align.append(ss[j - 1])
-                query_align.append("-")
+                ss_align.append(ss[j - 1])
+                qs_align.append("-")
                 j -= 1
             elif pointer_matrix[i, j] in [2, 5, 6, 9]:
                 # appends match/mismatch then moves to the cell diagonally up and to the left
-                query_align.append(qs[i - 1])
-                subject_align.append(ss[j - 1])
+                qs_align.append(qs[i - 1])
+                ss_align.append(ss[j - 1])
                 i -= 1
                 j -= 1
 
-        query_align = "".join(query_align[::-1])
-        subject_align = "".join(subject_align[::-1])
+        qs_align = "".join(qs_align[::-1])
+        ss_align = "".join(ss_align[::-1])
 
-        return f"{query_align}\n{subject_align}"
+        return f"{qs_align}\n{ss_align}"
 
 
 class GotohLocal(_LocalBase):
@@ -719,20 +711,20 @@ class GotohLocal(_LocalBase):
         # finds the largest value closest to bottom right of matrix
         i, j = numpy.unravel_index(matrix.argmax(), matrix.shape)
 
-        subject_align = []
-        query_align = []
+        ss_align = []
+        qs_align = []
         score = matrix.max()
         while score > 0:
             score = matrix[i][j]
             if score == 0:
                 break
-            query_align.append(qs[i - 1])
-            subject_align.append(ss[j - 1])
+            qs_align.append(qs[i - 1])
+            ss_align.append(ss[j - 1])
             i -= 1
             j -= 1
-        query_align = "".join(query_align[::-1])
-        subject_align = "".join(subject_align[::-1])
-        return f"{query_align}\n{subject_align}"
+        qs_align = "".join(qs_align[::-1])
+        ss_align = "".join(ss_align[::-1])
+        return f"{qs_align}\n{ss_align}"
 
 
 class Hirschberg:
@@ -826,24 +818,24 @@ class Hirschberg:
 
         # Traceback
         i, j = len(qs), len(ss)
-        query_align, subject_align = [], []
+        qs_align, ss_align = [], []
 
         while i > 0 or j > 0:
             if i > 0 and j > 0 and pointer[i, j] == 3:
-                query_align.append(qs[i - 1])
-                subject_align.append(ss[j - 1])
+                qs_align.append(qs[i - 1])
+                ss_align.append(ss[j - 1])
                 i -= 1
                 j -= 1
             elif i > 0 and pointer[i, j] == 1:
-                query_align.append(qs[i - 1])
-                subject_align.append("-")
+                qs_align.append(qs[i - 1])
+                ss_align.append("-")
                 i -= 1
             else:
-                query_align.append("-")
-                subject_align.append(ss[j - 1])
+                qs_align.append("-")
+                ss_align.append(ss[j - 1])
                 j -= 1
 
-        return f"{''.join(query_align[::-1])}\n{''.join(subject_align[::-1])}"
+        return f"{''.join(qs_align[::-1])}\n{''.join(ss_align[::-1])}"
 
     def distance(self, query_seq: str, subject_seq: str) -> float:
         """Calculate edit distance between sequences"""
@@ -855,10 +847,10 @@ class Hirschberg:
             return self.gap * len(query_seq)
 
         alignment = self(query_seq, subject_seq)
-        query_align, subject_align = alignment.split("\n")
+        qs_align, ss_align = alignment.split("\n")
 
         dist = 0.0
-        for q, s in zip(query_align, subject_align):
+        for q, s in zip(qs_align, ss_align):
             if q == "-" or s == "-":
                 dist += self.gap
             elif q != s:
@@ -873,10 +865,10 @@ class Hirschberg:
         if not query_seq or not subject_seq:
             return 0.0
         alignment = self(query_seq, subject_seq)
-        query_align, subject_align = alignment.split("\n")
+        qs_align, ss_align = alignment.split("\n")
 
         score = 0.0
-        for q, s in zip(query_align, subject_align):
+        for q, s in zip(qs_align, ss_align):
             if q == s and q != "-":
                 score += self.match
             elif q == "-" or s == "-":
@@ -1055,7 +1047,7 @@ class Jaro:
                     break
 
         # Build global alignment
-        query_align, subject_align = [], []
+        qs_align, ss_align = [], []
         i = j = 0
 
         while i < len(qs) or j < len(ss):
@@ -1067,35 +1059,35 @@ class Jaro:
                 and qs[i] == ss[j]
             ):
                 # Add match
-                query_align.append(qs[i])
-                subject_align.append(ss[j])
+                qs_align.append(qs[i])
+                ss_align.append(ss[j])
                 i += 1
                 j += 1
             elif i < len(qs) and not array_qs[i]:
                 # Add unmatched query character
-                query_align.append(qs[i])
-                subject_align.append("-")
+                qs_align.append(qs[i])
+                ss_align.append("-")
                 i += 1
             elif j < len(ss) and not array_ss[j]:
                 # Add unmatched subject character
-                query_align.append("-")
-                subject_align.append(ss[j])
+                qs_align.append("-")
+                ss_align.append(ss[j])
                 j += 1
             elif i < len(qs) and j < len(ss):
-                query_align.append(qs[i])
-                subject_align.append(ss[j])
+                qs_align.append(qs[i])
+                ss_align.append(ss[j])
                 i += 1
                 j += 1
             elif i < len(qs):  # Remaining query characters
-                query_align.append(qs[i])
-                subject_align.append("-")
+                qs_align.append(qs[i])
+                ss_align.append("-")
                 i += 1
             elif j < len(ss):  # Remaining subject characters
-                query_align.append("-")
-                subject_align.append(ss[j])
+                qs_align.append("-")
+                ss_align.append(ss[j])
                 j += 1
 
-        return f"{''.join(query_align)}\n{''.join(subject_align)}"
+        return f"{''.join(qs_align)}\n{''.join(ss_align)}"
 
 
 class JaroWinkler(Jaro):
@@ -1106,7 +1098,7 @@ class JaroWinkler(Jaro):
         self.scaling_factor = scaling_factor
 
 
-class SmithWaterman:
+class SmithWaterman(_LocalBase):
     def __init__(self, match: int = 1, mismatch: int = 1, gap: int = 2) -> None:
         self.match = match
         self.mismatch = mismatch
@@ -1134,33 +1126,19 @@ class SmithWaterman:
         return self.score
 
     def distance(self, query_seq: str, subject_seq: str) -> float:
-        if not query_seq and not subject_seq:
-            return 0
-        return max(map(len, [query_seq, subject_seq])) - self.similarity(
-            query_seq, subject_seq
-        )
+        return super().distance(query_seq, subject_seq)
 
     def similarity(self, query_seq: str, subject_seq: str) -> float:
-        if not query_seq and not subject_seq:
-            return 1.0
-        matrix = self(query_seq, subject_seq)
-        return matrix.max()
+        return super().similarity(query_seq, subject_seq)
 
     def normalized_distance(self, query_seq: str, subject_seq: str) -> float:
-        if not query_seq and not subject_seq:
-            return 0
-        dist = self.distance(query_seq, subject_seq)
-        return dist / max(map(len, [query_seq, subject_seq]))
+        return super().normalized_distance(query_seq, subject_seq)
 
     def normalized_similarity(self, query_seq: str, subject_seq: str) -> float:
-        if not query_seq and not subject_seq:
-            return 1
-        similarity = self.similarity(query_seq, subject_seq)
-        return similarity / max(map(len, [query_seq, subject_seq]))
+        return super().normalized_similarity(query_seq, subject_seq)
 
     def matrix(self, query_seq: str, subject_seq: str) -> NDArray[float64]:
-        matrix = self(query_seq, subject_seq)
-        return matrix
+        return super().matrix(query_seq, subject_seq)
 
     def align(self, query_seq: str, subject_seq: str) -> str:
         matrix = self(query_seq, subject_seq)
@@ -1174,20 +1152,20 @@ class SmithWaterman:
         i, j = list(numpy.where(matrix == matrix.max()))
         i, j = i[-1], j[-1]
 
-        subject_align = []
-        query_align = []
+        ss_align = []
+        qs_align = []
         score = matrix.max()
         while score > 0:
             score = matrix[i][j]
             if score == 0:
                 break
-            query_align.append(qs[i - 1])
-            subject_align.append(ss[j - 1])
+            qs_align.append(qs[i - 1])
+            ss_align.append(ss[j - 1])
             i -= 1
             j -= 1
-        query_align = "".join(query_align[::-1])
-        subject_align = "".join(subject_align[::-1])
-        return f"{query_align}\n{subject_align}"
+        qs_align = "".join(qs_align[::-1])
+        ss_align = "".join(ss_align[::-1])
+        return f"{qs_align}\n{ss_align}"
 
 
 class LongestCommonSubsequence(_LocalBase):
