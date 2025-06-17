@@ -20,11 +20,14 @@ def main():
         print()
     print(waterman_smith_beyer.matrix("TRATE", "TRACE"))
     """
-    query = "AGTC"
-    subject = "AGGCAT"
-    print(gotoh_local.align(query, subject))
-    print(gotoh_local.similarity(query, subject))
-    print(gotoh_local.distance(query, subject))
+    query = "Tomato"
+    subject = "Tamato"
+    print(lipns(query, subject))
+    print(lipns.similarity(query, subject))
+    print(lipns.distance(query, subject))
+    print(mlipns(query, subject))
+    print(mlipns.similarity(query, subject))
+    print(mlipns.distance(query, subject))
 
 
 class WagnerFischer(_GlobalBase):  # Levenshtein Distance
@@ -1389,11 +1392,120 @@ class ShortestCommonSupersequence:
 
         return "".join(reversed(result))
 
+class LIPNS:
+    # Language-Independent Product Name Search
+    def __init__(self, threshold: float = 0.25):
+        self.match = 1
+        self.threshold = threshold
+
+    def __call__(self, query_seq: str, subject_seq: str):
+        qs, ss = [], []
+        qs.extend([x.upper() for x in query_seq])
+        ss.extend([x.upper() for x in subject_seq])
+        qs_len = len(qs)
+        ss_len = len(ss)
+
+        # Matrix initialization with correct shape
+        score = numpy.zeros((qs_len, ss_len), dtype=float64)
+
+        for i in range(min(qs_len, ss_len)):
+            if qs[i] == ss[i]:
+                score[i, i] = self.match
+        return score
+
+    def distance(self, query_seq: str, subject_seq: str) -> float:
+        sim = self.similarity(query_seq, subject_seq)
+        return 1 - sim
+
+    def similarity(self, query_seq: str, subject_seq: str) -> float:
+        matrix = self(query_seq, subject_seq)
+        sim = numpy.sum(matrix)
+        sim_score = 1 - (sim/max(len(query_seq), len(subject_seq)))
+        return sim_score
+
+    def normalized_distance(self, query_seq: str, subject_seq: str) -> float:
+        return self.distance(query_seq, subject_seq)
+
+    def normalized_similarity(self, query_seq: str, subject_seq: str) -> float:
+        return self.similarity(query_seq, subject_seq)
+
+    def matrix(self, query_seq: str, subject_seq: str):
+        return self(query_seq, subject_seq)
+
+    def align(self, query_seq: str, subject_seq: str) -> str:
+        return f"{query_seq}\n{subject_seq}"
+
+    def is_similar(self, query_seq: str, subject_seq: str) -> int:
+        sim_score = self.similarity(query_seq, subject_seq)
+        is_sim = 0
+        if sim_score <= self.threshold:
+            is_sim = 1
+        return is_sim
+
+
+class MLIPNS(LIPNS):
+    # Modified Language-Independent Product Name Search
+    def __init__(self, threshold: float = 0.25, max_mismatch: int = 2):
+        self.match = 1
+        self.threshold = threshold
+        self.max_mismatch = max_mismatch
+
+    def __call__(self, query_seq: str, subject_seq: str, mismatch: int = 0):
+        qs, ss = [], []
+        qs.extend([x.upper() for x in query_seq])
+        ss.extend([x.upper() for x in subject_seq])
+        qs_len = len(qs)
+        ss_len = len(ss)
+
+        # Matrix initialization with correct shape
+        score = numpy.zeros((qs_len, ss_len), dtype=float64)
+
+        if abs(qs_len - ss_len) > self.max_mismatch or mismatch > self.max_mismatch:
+            return score
+        i = 0
+        max_len = min(qs_len, ss_len)
+
+        while i < max_len:
+            if qs[i] != ss[i]:
+                break
+            score[i, i] = self.match
+            i += 1
+
+        if i < max_len:
+            qs.pop(i)
+            ss.pop(i)
+            score = self(qs, ss, mismatch+1)
+        return score
+
+    def distance(self, query_seq: str, subject_seq: str) -> float:
+        return super().distance(query_seq, subject_seq)
+
+    def similarity(self, query_seq: str, subject_seq: str) -> float:
+        return super().similarity(query_seq, subject_seq)
+
+    def normalized_distance(self, query_seq: str, subject_seq: str) -> float:
+        return super().normalized_distance(query_seq, subject_seq)
+
+    def normalized_similarity(self, query_seq: str, subject_seq: str) -> float:
+        return super().normalized_similarity(query_seq, subject_seq)
+
+    def align(self, query_seq: str, subject_seq: str) -> str:
+        return super().align(query_seq, subject_seq)
+
+    def is_similar(self, query_seq: str, subject_seq: str) -> int:
+        matrix = self(query_seq, subject_seq)
+        if numpy.sum(matrix) > 0:
+            return 1
+        return 0
+
+
 
 hamming = Hamming()
 wagner_fischer = WagnerFischer()
 needleman_wunsch = NeedlemanWunsch()
 waterman_smith_beyer = WatermanSmithBeyer()
+gotoh = Gotoh()
+gotoh_local = GotohLocal()
 smith_waterman = SmithWaterman()
 hirschberg = Hirschberg()
 jaro = Jaro()
@@ -1402,8 +1514,8 @@ lowrance_wagner = LowranceWagner()
 longest_common_subsequence = LongestCommonSubsequence()
 longest_common_substring = LongestCommonSubstring()
 shortest_common_supersequence = ShortestCommonSupersequence()
-gotoh = Gotoh()
-gotoh_local = GotohLocal()
+lipns = LIPNS()
+mlipns = MLIPNS()
 
 if __name__ == "__main__":
     main()
