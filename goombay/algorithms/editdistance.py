@@ -25,9 +25,11 @@ def main():
     print(lipns(query, subject))
     print(lipns.similarity(query, subject))
     print(lipns.distance(query, subject))
+    print(lipns.align(query, subject))
     print(mlipns(query, subject))
     print(mlipns.similarity(query, subject))
     print(mlipns.distance(query, subject))
+    print(mlipns.align(query, subject))
 
 
 class WagnerFischer(_GlobalBase):  # Levenshtein Distance
@@ -1392,6 +1394,7 @@ class ShortestCommonSupersequence:
 
         return "".join(reversed(result))
 
+
 class LIPNS:
     # Language-Independent Product Name Search
     def __init__(self, threshold: float = 0.25):
@@ -1418,9 +1421,11 @@ class LIPNS:
         return 1 - sim
 
     def similarity(self, query_seq: str, subject_seq: str) -> float:
+        if not query_seq and not subject_seq:
+            return 0
         matrix = self(query_seq, subject_seq)
         sim = numpy.sum(matrix)
-        sim_score = 1 - (sim/max(len(query_seq), len(subject_seq)))
+        sim_score = 1 - (sim / max(len(query_seq), len(subject_seq)))
         return sim_score
 
     def normalized_distance(self, query_seq: str, subject_seq: str) -> float:
@@ -1437,10 +1442,7 @@ class LIPNS:
 
     def is_similar(self, query_seq: str, subject_seq: str) -> int:
         sim_score = self.similarity(query_seq, subject_seq)
-        is_sim = 0
-        if sim_score <= self.threshold:
-            is_sim = 1
-        return is_sim
+        return sim_score <= self.threshold
 
 
 class MLIPNS(LIPNS):
@@ -1450,7 +1452,7 @@ class MLIPNS(LIPNS):
         self.threshold = threshold
         self.max_mismatch = max_mismatch
 
-    def __call__(self, query_seq: str, subject_seq: str, mismatch: int = 0):
+    def __call__(self, query_seq: str, subject_seq: str):
         qs, ss = [], []
         qs.extend([x.upper() for x in query_seq])
         ss.extend([x.upper() for x in subject_seq])
@@ -1460,21 +1462,21 @@ class MLIPNS(LIPNS):
         # Matrix initialization with correct shape
         score = numpy.zeros((qs_len, ss_len), dtype=float64)
 
-        if abs(qs_len - ss_len) > self.max_mismatch or mismatch > self.max_mismatch:
+        if abs(qs_len - ss_len) > self.max_mismatch:
             return score
+
         i = 0
         max_len = min(qs_len, ss_len)
+        mismatch = 0
 
         while i < max_len:
             if qs[i] != ss[i]:
-                break
-            score[i, i] = self.match
+                mismatch += 1
+                if mismatch > self.max_mismatch:
+                    return numpy.zeros((qs_len, ss_len), dtype=float64)
+            score[i, i] = self.match if qs[i] == ss[i] else 0
             i += 1
 
-        if i < max_len:
-            qs.pop(i)
-            ss.pop(i)
-            score = self(qs, ss, mismatch+1)
         return score
 
     def distance(self, query_seq: str, subject_seq: str) -> float:
@@ -1490,14 +1492,23 @@ class MLIPNS(LIPNS):
         return super().normalized_similarity(query_seq, subject_seq)
 
     def align(self, query_seq: str, subject_seq: str) -> str:
-        return super().align(query_seq, subject_seq)
+        matrix = self(query_seq, subject_seq)
+        if numpy.sum(matrix) == 0:
+            return "\n"
+        aligned = []
+        for i in range(len(query_seq)):
+            if matrix[i, i] == 1:
+                aligned.append(query_seq[i])
+        aligned = "".join(aligned)
+        return f"{aligned}\n{aligned}"
 
     def is_similar(self, query_seq: str, subject_seq: str) -> int:
+        if not query_seq and not subject_seq:
+            return True
         matrix = self(query_seq, subject_seq)
         if numpy.sum(matrix) > 0:
-            return 1
-        return 0
-
+            return True
+        return False
 
 
 hamming = Hamming()
