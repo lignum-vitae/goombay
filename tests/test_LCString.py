@@ -50,27 +50,27 @@ class TestLCSub(unittest.TestCase):
     def test_empty_sequences(self):
         """Test behavior with empty sequences"""
         test_cases = [
-            (["", "ACTG"], 4),
-            (["ACTG", ""], 4),
-            (["", ""], 0),
+            (["", "ACTG"], 0, 4),
+            (["ACTG", ""], 0, 4),
+            (["", ""], 1, 0),
         ]
-        for seqs, dist in test_cases:
+        for seqs, sim, dist in test_cases:
             with self.subTest(seqs=seqs):
                 # Pairwise
                 self.assertEqual(self.algorithm.align(seqs[0], seqs[1]), [""])
-                self.assertEqual(self.algorithm.similarity(seqs[0], seqs[1]), 0)
+                self.assertEqual(self.algorithm.similarity(seqs[0], seqs[1]), sim)
                 self.assertEqual(self.algorithm.distance(seqs[0], seqs[1]), dist)
 
                 # MSA
                 self.assertEqual(self.msa_algorithm.align(seqs), [""])
-                self.assertEqual(self.msa_algorithm.similarity(seqs), 0)
+                self.assertEqual(self.msa_algorithm.similarity(seqs), sim)
                 self.assertEqual(self.msa_algorithm.distance(seqs), dist)
 
     def test_single_character_sequences(self):
         """Test behavior with single character sequences"""
         # Pairwise
         self.assertEqual(self.algorithm.align("A", "A"), [""])
-        self.assertEqual(self.algorithm.similarity("A", "A"), 0)
+        self.assertEqual(self.algorithm.similarity("A", "A"), 1)
         self.assertEqual(self.algorithm.normalized_similarity("A", "A"), 1)
         self.assertEqual(self.algorithm.distance("A", "A"), 0)
         self.assertEqual(self.algorithm.normalized_distance("A", "A"), 0)
@@ -83,7 +83,7 @@ class TestLCSub(unittest.TestCase):
 
         # MSA
         self.assertEqual(self.msa_algorithm.align(["A", "A"]), [""])
-        self.assertEqual(self.msa_algorithm.similarity(["A", "A"]), 0)
+        self.assertEqual(self.msa_algorithm.similarity(["A", "A"]), 1)
         self.assertEqual(self.msa_algorithm.normalized_similarity(["A", "A"]), 1)
         self.assertEqual(self.msa_algorithm.distance(["A", "A"]), 0)
         self.assertEqual(self.msa_algorithm.normalized_distance(["A", "A"]), 0)

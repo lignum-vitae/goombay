@@ -17,7 +17,7 @@ class TestGotohLocal(unittest.TestCase):
 
         # Test scoring
         self.assertEqual(
-            self.algorithm.similarity("ACTG", "ACTG"), 4 * self.algorithm.match_score
+            self.algorithm.similarity("ACTG", "ACTG"), 4 * self.algorithm.match
         )
 
         # Test normalization
@@ -61,9 +61,7 @@ class TestGotohLocal(unittest.TestCase):
         """Test behavior with single character sequences"""
         # Test match
         self.assertEqual(self.algorithm.align("A", "A"), "A\nA")
-        self.assertEqual(
-            self.algorithm.similarity("A", "A"), 1 * self.algorithm.match_score
-        )
+        self.assertEqual(self.algorithm.similarity("A", "A"), 1 * self.algorithm.match)
         self.assertEqual(self.algorithm.distance("A", "A"), 0.0)
 
         # Test mismatch
@@ -83,7 +81,7 @@ class TestGotohLocal(unittest.TestCase):
                 self.assertEqual(self.algorithm.align(query, subject), "ACTG\nACTG")
                 self.assertEqual(
                     self.algorithm.similarity(query, subject),
-                    4 * self.algorithm.match_score,
+                    4 * self.algorithm.match,
                 )
                 self.assertEqual(self.algorithm.distance(query, subject), 0.0)
                 self.assertEqual(
@@ -131,9 +129,7 @@ class TestGotohLocal(unittest.TestCase):
 
     def test_scoring_parameters(self):
         """Test behavior with different scoring parameters"""
-        custom_algorithm = GotohLocal(
-            match_score=2, mismatch_penalty=1, new_gap_penalty=2, continue_gap_penalty=1
-        )
+        custom_algorithm = GotohLocal(match=2, mismatch=1, new_gap=2, continued_gap=1)
 
         # Test alignment
         self.assertEqual(custom_algorithm.align("ACGT", "AGT"), "GT\nGT")

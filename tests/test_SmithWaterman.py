@@ -17,7 +17,7 @@ class TestSmithWaterman(unittest.TestCase):
 
         # Test scoring
         self.assertEqual(
-            self.algorithm.similarity("ACTG", "ACTG"), 4 * self.algorithm.match_score
+            self.algorithm.similarity("ACTG", "ACTG"), 4 * self.algorithm.match
         )
         self.assertEqual(self.algorithm.distance("ACTG", "ACTG"), 0)
 
@@ -34,6 +34,7 @@ class TestSmithWaterman(unittest.TestCase):
 
         # Test scoring
         self.assertEqual(self.algorithm.similarity("AAAA", "TTTT"), 0.0)
+        self.assertEqual(self.algorithm.distance("AAAA", "TTTT"), 4.0)
 
         # Test normalization
         self.assertEqual(self.algorithm.normalized_similarity("AAAA", "TTTT"), 0.0)
@@ -87,6 +88,10 @@ class TestSmithWaterman(unittest.TestCase):
                     self.algorithm.similarity(query, subject),
                     self.algorithm.similarity(query.upper(), subject.upper()),
                 )
+                self.assertEqual(
+                    self.algorithm.distance(query, subject),
+                    self.algorithm.distance(query.upper(), subject.upper()),
+                )
 
     def test_matrix_shape(self):
         """Test matrix dimensions"""
@@ -119,9 +124,7 @@ class TestSmithWaterman(unittest.TestCase):
 
     def test_scoring_parameters(self):
         """Test behavior with different scoring parameters"""
-        custom_algorithm = SmithWaterman(
-            match_score=1, mismatch_penalty=2, gap_penalty=3
-        )
+        custom_algorithm = SmithWaterman(match=1, mismatch=2, gap=3)
 
         # Test alignment
         self.assertEqual(custom_algorithm.align("ACGT", "AGT"), "GT\nGT")

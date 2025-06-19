@@ -91,13 +91,13 @@ class FengDoolittle:
 
 
 class LongestCommonSubstringMSA:
-    def _common_substrings(self, sequences: list[str]) -> list[str]:
-        if not isinstance(sequences, list):
+    def _common_substrings(self, seqs: list[str]) -> list[str]:
+        if not isinstance(seqs, list):
             raise TypeError("common_substrings expects a list of strings")
-        if len(sequences) != 2:
+        if len(seqs) != 2:
             raise ValueError("common_substrings requires exactly two strings")
 
-        s1, s2 = sequences
+        s1, s2 = seqs
         common = set()
         s2_length = len(s2)
 
@@ -110,58 +110,62 @@ class LongestCommonSubstringMSA:
 
         return list(common)
 
-    def __call__(self, sequences: list[str]) -> list[str]:
-        if (
-            not isinstance(sequences, list) and not isinstance(sequences, tuple)
-        ) or not all(isinstance(s, str) for s in sequences):
+    def __call__(self, seqs: list[str]) -> list[str]:
+        if (not isinstance(seqs, list) and not isinstance(seqs, tuple)) or not all(
+            isinstance(s, str) for s in seqs
+        ):
             raise TypeError("longest_common_substring_msa expects a list of strings")
-        if len(sequences) < 2:
-            raise ValueError("Provide at least two sequences")
+        if len(seqs) < 2:
+            raise ValueError("Provide at least two seqs")
 
-        sequences = [seq.upper() for seq in sequences]
+        seqs = [seq.upper() for seq in seqs]
 
         # Generate substrings from first and last strings
-        motifs = self._common_substrings([sequences[0], sequences[-1]])
+        motifs = self._common_substrings([seqs[0], seqs[-1]])
         if not motifs:
             return [""]
 
-        shared = [motif for motif in motifs if all(motif in seq for seq in sequences)]
-        if not shared:
-            return [""]
+        longest = []
+        longest_len = -1
+        motifs.sort(key=len, reverse=True)
+        for motif in motifs:
+            motif_len = len(motif)
+            if all(motif in seq for seq in seqs) and motif_len >= longest_len:
+                longest.append(motif)
+                longest_len = motif_len
+            if motif_len < longest_len:
+                break
+        return longest
 
-        max_len = len(max(shared, key=len))
-        return [m for m in shared if len(m) == max_len]
+    def align(self, seqs: list[str]) -> list[str]:
+        return self(seqs)
 
-    def align(self, sequences: list[str]) -> list[str]:
-        return self(sequences)
-
-    def distance(self, sequences: list[str]) -> int:
-        shared = self(sequences)
-        max_match = len(max(sequences, key=len))
-        if any(not seq for seq in sequences):
+    def distance(self, seqs: list[str]) -> int:
+        max_match = len(max(seqs, key=len))
+        if any(not seq for seq in seqs):
             return max_match
-        if max_match <= 1 and all(sequences[0] in seq for seq in sequences):
+        if max_match <= 1 and all(seqs[0] in seq for seq in seqs):
             return 0
-        return max_match - self.similarity(sequences)
+        return max_match - self.similarity(seqs)
 
-    def similarity(self, sequences: list[str]) -> int:
-        lcsub = self(sequences)
+    def similarity(self, seqs: list[str]) -> int:
+        lcsub = self(seqs)
         if not lcsub:
             return 0
+        if all(len(seq) == 0 for seq in seqs) or all(seqs[0] == seq for seq in seqs):
+            return len(seqs[0]) if len(seqs[0]) >= 1 else 1
         return len(lcsub[0])
 
-    def normalized_distance(self, sequences: list[str]) -> float:
-        return 1 - self.normalized_similarity(sequences)
+    def normalized_distance(self, seqs: list[str]) -> float:
+        return 1 - self.normalized_similarity(seqs)
 
-    def normalized_similarity(self, sequences: list[str]) -> float:
-        if len(max(sequences, key=len)) == 1 and all(
-            sequences[0] in seq for seq in sequences
-        ):
+    def normalized_similarity(self, seqs: list[str]) -> float:
+        if len(max(seqs, key=len)) == 1 and all(seqs[0] in seq for seq in seqs):
             return 1.0
-        lcsub = self(sequences)
+        lcsub = self(seqs)
         if not lcsub:
             return 0.0
-        return len(lcsub[0]) / len(min(sequences, key=len))
+        return len(lcsub[0]) / len(min(seqs, key=len))
 
 
 feng_doolittle = FengDoolittle()

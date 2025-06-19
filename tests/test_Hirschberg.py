@@ -16,7 +16,7 @@ class TestHirschberg(unittest.TestCase):
         # Test basic metrics
         self.assertEqual(self.algorithm.distance(query, subject), 0.0)
         self.assertEqual(
-            self.algorithm.similarity(query, subject), 4 * self.algorithm.match_score
+            self.algorithm.similarity(query, subject), 4 * self.algorithm.match
         )
 
         # Test normalization
@@ -32,7 +32,7 @@ class TestHirschberg(unittest.TestCase):
         subject = "FHYU"
         # Test basic metrics
         self.assertEqual(
-            self.algorithm.distance(query, subject), 4 * self.algorithm.mismatch_penalty
+            self.algorithm.distance(query, subject), 4 * self.algorithm.mismatch
         )
         self.assertEqual(self.algorithm.similarity(query, subject), 0.0)
 
@@ -64,24 +64,20 @@ class TestHirschberg(unittest.TestCase):
                     self.assertEqual(self.algorithm.similarity(query, subject), 0.0)
                     self.assertEqual(
                         self.algorithm.distance(query, subject),
-                        self.algorithm.gap_penalty * len(query or subject),
+                        self.algorithm.gap * len(query or subject),
                     )
 
     def test_single_character(self):
         """Test behavior with single character sequences"""
         # Test match
         self.assertEqual(self.algorithm.align("A", "A"), "A\nA")
-        self.assertEqual(
-            self.algorithm.similarity("A", "A"), 1 * self.algorithm.match_score
-        )
+        self.assertEqual(self.algorithm.similarity("A", "A"), 1 * self.algorithm.match)
         self.assertEqual(self.algorithm.distance("A", "A"), 0.0)
 
         # Test mismatch
         self.assertEqual(self.algorithm.align("A", "T"), "A\nT")
         self.assertEqual(self.algorithm.similarity("A", "T"), 0.0)
-        self.assertEqual(
-            self.algorithm.distance("A", "T"), 1 * self.algorithm.mismatch_penalty
-        )
+        self.assertEqual(self.algorithm.distance("A", "T"), 1 * self.algorithm.mismatch)
 
     def test_case_sensitivity(self):
         """Test that matching is case-insensitive"""

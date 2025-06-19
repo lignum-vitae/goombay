@@ -39,18 +39,18 @@ class TestLCS(unittest.TestCase):
     def test_empty_sequences(self):
         """Test behavior with empty sequences"""
         test_cases = [
-            ("", "ACTG", 4),  # Empty query
-            ("ACTG", "", 4),  # Empty subject
-            ("", "", 0),  # Both empty
+            ("", "ACTG", 0, 4),  # Empty query
+            ("ACTG", "", 0, 4),  # Empty subject
+            ("", "", 1, 0),  # Both empty
         ]
 
-        for query, subject, dist in test_cases:
+        for query, subject, sim, dist in test_cases:
             with self.subTest(query=query, subject=subject):
                 self.assertEqual(
                     self.algorithm.align(query, subject),
                     [],
                 )
-                self.assertEqual(self.algorithm.similarity(query, subject), 0)
+                self.assertEqual(self.algorithm.similarity(query, subject), sim)
                 self.assertEqual(self.algorithm.distance(query, subject), dist)
                 matrix = self.algorithm(query, subject)
                 self.assertEqual(matrix[-1, -1], 0)

@@ -14,7 +14,7 @@ class TestWatermanSmithBeyer(unittest.TestCase):
         """Test behavior with identical sequences"""
         score, pointer = self.algorithm("ACTG", "ACTG")
         # Test scoring
-        self.assertEqual(score[-1][-1], 4 * self.algorithm.match_score)
+        self.assertEqual(score[-1][-1], 4 * self.algorithm.match)
         self.assertEqual(pointer[-1][-1], 2)  # All diagonal moves
 
         # Test normalization
@@ -25,9 +25,7 @@ class TestWatermanSmithBeyer(unittest.TestCase):
         """Test behavior with completely different sequences"""
         score, pointer = self.algorithm("AAAA", "TTTT")
         # Test scoring
-        self.assertEqual(
-            score[-1][-1], -4 * self.algorithm.mismatch_penalty
-        )  # All mismatches
+        self.assertEqual(score[-1][-1], -4 * self.algorithm.mismatch)  # All mismatches
         self.assertTrue(numpy.all(pointer[1:, 1:] == 2))  # All diagonal moves
 
         # Test normalization
@@ -57,12 +55,12 @@ class TestWatermanSmithBeyer(unittest.TestCase):
         """Test behavior with single character sequences"""
         # Test match
         score, pointer = self.algorithm("A", "A")
-        self.assertEqual(score[-1][-1], self.algorithm.match_score)
+        self.assertEqual(score[-1][-1], self.algorithm.match)
         self.assertEqual(pointer[-1][-1], 2)  # Diagonal move
 
         # Test mismatch
         score, pointer = self.algorithm("A", "T")
-        self.assertEqual(score[-1][-1], -self.algorithm.mismatch_penalty)
+        self.assertEqual(score[-1][-1], -self.algorithm.mismatch)
         self.assertEqual(pointer[-1][-1], 2)  # Diagonal move
 
     def test_case_sensitivity(self):
@@ -130,7 +128,7 @@ class TestWatermanSmithBeyer(unittest.TestCase):
     def test_scoring_parameters(self):
         """Test behavior with different scoring parameters"""
         custom_algorithm = WatermanSmithBeyer(
-            match_score=1, mismatch_penalty=2, new_gap_penalty=3, continue_gap_penalty=1
+            match=1, mismatch=2, new_gap=3, continued_gap=1
         )
 
         score, _ = custom_algorithm("AC", "AT")
