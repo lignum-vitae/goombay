@@ -71,6 +71,9 @@ The Hamming distance has two additional methods called `.binary_distance_array` 
 |Longest Common Substring       |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | LongestCommonSubstringMSA   | longest_common_substring_msa  |
 |Longest Common Substring (MSA) |<ul><li> [x] </li></ul>|<ul><li> [ ] </li></ul>|     <ul><li> [x] </li></ul>     | LongestCommonSubstringMSA   | longest_common_substring_msa  |
 |Shortest Common Supersequence  |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | ShortestCommonSupersequence | shortest_common_supersequence |
+|LIPNS                          |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | LIPNS                       | lipns                         |
+|MLIPNS                         |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | MLIPNS                      | mlipns                        |
+
 
 ## Algorithms Explained
 - [Hamming](https://en.wikipedia.org/wiki/Hamming_distance) -
@@ -149,6 +152,16 @@ The Hamming distance has two additional methods called `.binary_distance_array` 
 - [Shortest Common Supersequence](https://en.wikipedia.org/wiki/Shortest_common_supersequence) -
   The Shortest Common Supersequence is the shortest combination of the two sequences that contains all the characters within both sequences
   and does not change the relative order of the characters.
+
+- [Language Independent Product Name Search](http://www.sial.iias.spb.su/files/386-386-1-PB.pdf) -
+  LIPNS is an algorithm that determines the similarity between two strings.
+  The "is similar" method returns the intended output of the algorithm,
+  either True or False (1 or 0 respectively).
+  - The keyword argument for LIPNS is `threshold = 0.25`
+  MLIPNS is a modification to this algorithm that takes into account the number
+  of deletions necessary to get from one word to another. A maximum number of deletions
+  is allowed before the words are considered to be not similar to each other.
+  - The keyword argument for MLIPNS is `max_mismatch = 2`
 
 # Code Examples
 

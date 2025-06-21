@@ -2,47 +2,52 @@
 from goombay.algorithms.base import GlobalBase, LocalBase
 
 # Algorithms module
-from goombay.algorithms import editdistance
-from goombay.algorithms import msa
+from goombay.algorithms import edit
+from goombay.algorithms import overlap
+from goombay.algorithms import overlap_msa
 
-# Variables from pairwise file
-hamming = editdistance.hamming
-jaro = editdistance.jaro
-jaro_winkler = editdistance.jaro_winkler
-hirschberg = editdistance.hirschberg
-lowrance_wagner = editdistance.lowrance_wagner
-needleman_wunsch = editdistance.needleman_wunsch
-gotoh = editdistance.gotoh
-gotoh_local = editdistance.gotoh_local
-smith_waterman = editdistance.smith_waterman
-wagner_fischer = editdistance.wagner_fischer
-waterman_smith_beyer = editdistance.waterman_smith_beyer
-longest_common_subsequence = editdistance.longest_common_subsequence
-longest_common_substring = editdistance.longest_common_substring
-shortest_common_supersequence = editdistance.shortest_common_supersequence
-lipns = editdistance.lipns
-mlipns = editdistance.mlipns
+# Variables from edit-based file
+hamming = edit.hamming
+jaro = edit.jaro
+jaro_winkler = edit.jaro_winkler
+hirschberg = edit.hirschberg
+lowrance_wagner = edit.lowrance_wagner
+needleman_wunsch = edit.needleman_wunsch
+gotoh = edit.gotoh
+gotoh_local = edit.gotoh_local
+smith_waterman = edit.smith_waterman
+wagner_fischer = edit.wagner_fischer
+waterman_smith_beyer = edit.waterman_smith_beyer
+
+# variables from overlap-based file
+longest_common_subsequence = overlap.longest_common_subsequence
+longest_common_substring = overlap.longest_common_substring
+shortest_common_supersequence = overlap.shortest_common_supersequence
+lipns = overlap.lipns
+mlipns = overlap.mlipns
 
 # Variables from multiple sequence alignment file
-longest_common_substring_msa = msa.longest_common_substring_msa
+longest_common_substring_msa = overlap_msa.longest_common_substring_msa
 
-# Classes from pairwise file
-Hamming = editdistance.Hamming
-Jaro = editdistance.Jaro
-JaroWinkler = editdistance.JaroWinkler
-Hirschberg = editdistance.Hirschberg
-LowranceWagner = editdistance.LowranceWagner
-NeedlemanWunsch = editdistance.NeedlemanWunsch
-Gotoh = editdistance.Gotoh
-GotohLocal = editdistance.GotohLocal
-SmithWaterman = editdistance.SmithWaterman
-WagnerFischer = editdistance.WagnerFischer
-WatermanSmithBeyer = editdistance.WatermanSmithBeyer
-LongestCommonSubsequence = editdistance.LongestCommonSubsequence
-LongestCommonSubstring = editdistance.LongestCommonSubstring
-ShortestCommonSupersequence = editdistance.ShortestCommonSupersequence
-LIPNS = editdistance.LIPNS
-MLIPNS = editdistance.MLIPNS
+# Classes from edit-based file
+Hamming = edit.Hamming
+Jaro = edit.Jaro
+JaroWinkler = edit.JaroWinkler
+Hirschberg = edit.Hirschberg
+LowranceWagner = edit.LowranceWagner
+NeedlemanWunsch = edit.NeedlemanWunsch
+Gotoh = edit.Gotoh
+GotohLocal = edit.GotohLocal
+SmithWaterman = edit.SmithWaterman
+WagnerFischer = edit.WagnerFischer
+WatermanSmithBeyer = edit.WatermanSmithBeyer
+
+# Classes from overlap-based file
+LongestCommonSubsequence = overlap.LongestCommonSubsequence
+LongestCommonSubstring = overlap.LongestCommonSubstring
+ShortestCommonSupersequence = overlap.ShortestCommonSupersequence
+LIPNS = overlap.LIPNS
+MLIPNS = overlap.MLIPNS
 
 # Classes from multiple sequence alignment file
-LongestCommonSubstringMSA = msa.LongestCommonSubstringMSA
+LongestCommonSubstringMSA = overlap_msa.LongestCommonSubstringMSA

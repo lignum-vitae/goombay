@@ -1,4 +1,7 @@
+# standard library
 from abc import ABC, abstractmethod
+
+# external dependencies
 from numpy.typing import NDArray
 
 
