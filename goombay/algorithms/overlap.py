@@ -1,6 +1,3 @@
-# standard library
-from itertools import takewhile
-
 try:
     # external dependencies
     import numpy
@@ -15,10 +12,12 @@ from goombay.algorithms.edit import hamming
 
 
 def main():
-    print(length_ratio("AAA", "BBB"))
-    print(length_ratio("AAA", "AAA"))
-    print(length_ratio("", ""))
-    print(length_ratio("Hoot", "Holler"))
+    query = "REALCIVILENGINEER"
+    subject = "REALASTRONEER"
+    print(prefix.similarity(query, subject))
+    print(prefix.align(query, subject))
+    print(postfix.similarity(query, subject))
+    print(postfix.align(query, subject))
 
 
 class LongestCommonSubsequence(_LocalBase):
@@ -481,11 +480,99 @@ class SimpleMatchingCoefficient:
 
 
 class Prefix:
-    pass
+    def __call__(self, query_seq: str, subject_seq: str):
+        query_seq = query_seq.upper()
+        subject_seq = subject_seq.upper()
+
+        query_len = len(query_seq)
+        subject_len = len(subject_seq)
+        matrix = numpy.zeros((query_len, subject_len))
+        for i in range(min(query_len, subject_len)):
+            if query_seq[i] != subject_seq[i]:
+                break
+            matrix[i, i] = 1
+        return matrix
+
+    def similarity(self, query_seq: str, subject_seq: str) -> int:
+        query_seq = query_seq.upper()
+        subject_seq = subject_seq.upper()
+        sim = 0
+        for i in range(min(len(query_seq), len(subject_seq))):
+            if query_seq[i] != subject_seq[i]:
+                break
+            sim += 1
+        return sim
+
+    def distance(self, query_seq: str, subject_seq: str) -> int:
+        max_length = max(len(query_seq), len(subject_seq))
+        return max_length - self.similarity(query_seq, subject_seq)
+
+    def normalized_similarity(self, query_seq: str, subject_seq: str) -> float:
+        max_length = max(len(query_seq), len(subject_seq))
+        return self.similarity(query_seq, subject_seq) / max_length
+
+    def normalized_distance(self, query_seq: str, subject_seq: str) -> float:
+        max_length = max(len(query_seq), len(subject_seq))
+        return self.distance(query_seq, subject_seq) / max_length
+
+    def matrix(self, query_seq: str, subject_seq: str):
+        return self(query_seq, subject_seq)
+
+    def align(self, query_seq: str, subject_seq: str):
+        matrix = self(query_seq, subject_seq)
+        alignment = []
+        for i in range(min(len(query_seq), len(subject_seq))):
+            if matrix[i, i] != 1:
+                break
+            alignment.append(query_seq[i])
+        return "".join(alignment)
 
 
 class Postfix:
-    pass
+    def __init__(self) -> None:
+        self.pre = Prefix()
+
+    def __call__(self, query_seq: str, subject_seq: str):
+        query_seq = query_seq.upper()[::-1]
+        subject_seq = subject_seq.upper()[::-1]
+
+        query_len = len(query_seq)
+        subject_len = len(subject_seq)
+        matrix = numpy.zeros((query_len, subject_len))
+        for i in range(min(query_len, subject_len)):
+            if query_seq[i] != subject_seq[i]:
+                break
+            matrix[i, i] = 1
+        return matrix
+
+    def similarity(self, query_seq: str, subject_seq: str) -> int:
+        query_seq = query_seq[::-1]
+        subject_seq = subject_seq[::-1]
+        return self.pre.similarity(query_seq, subject_seq)
+
+    def distance(self, query_seq: str, subject_seq: str) -> int:
+        max_length = max(len(query_seq), len(subject_seq))
+        return max_length - self.similarity(query_seq, subject_seq)
+
+    def normalized_similarity(self, query_seq: str, subject_seq: str) -> float:
+        max_length = max(len(query_seq), len(subject_seq))
+        return self.similarity(query_seq, subject_seq) / max_length
+
+    def normalized_distance(self, query_seq: str, subject_seq: str) -> float:
+        max_length = max(len(query_seq), len(subject_seq))
+        return self.distance(query_seq, subject_seq) / max_length
+
+    def matrix(self, query_seq: str, subject_seq: str):
+        return self(query_seq, subject_seq)
+
+    def align(self, query_seq: str, subject_seq: str):
+        matrix = self(query_seq, subject_seq)
+        alignment = []
+        for i in range(min(len(query_seq), len(subject_seq))):
+            if matrix[i, i] != 1:
+                break
+            alignment.append(query_seq[-i - 1])
+        return "".join(alignment[::-1])
 
 
 longest_common_subsequence = LongestCommonSubsequence()
@@ -496,6 +583,8 @@ mlipns = MLIPNS()
 length_ratio = LengthRatio()
 hamann = Hamann()
 simple_matching_coefficient = SimpleMatchingCoefficient()
+prefix = Prefix()
+postfix = Postfix()
 
 if __name__ == "__main__":
     main()
