@@ -10,6 +10,29 @@ except ImportError:
 from goombay.algorithms.base import LocalBase as _LocalBase
 from goombay.algorithms.edit import hamming
 
+__all__ = [
+    "LongestCommonSubsequence",
+    "longest_common_subsequence",
+    "LongestCommonSubstring",
+    "longest_common_substring",
+    "ShortestCommonSupersequence",
+    "shortest_common_supersequence",
+    "LIPNS",
+    "lipns",
+    "MLIPNS",
+    "mlipns",
+    "LengthRatio",
+    "length_ratio",
+    "Hamann",
+    "hamann",
+    "SimpleMatchingCoefficient",
+    "simple_matching_coefficient",
+    "Prefix",
+    "prefix",
+    "Postfix",
+    "postfix",
+]
+
 
 def main():
     query = "REALCIVILENGINEER"
@@ -390,7 +413,7 @@ class LengthRatio:
         matrix = numpy.zeros((query_len, subject_len))
         for i in range(query_len):
             for j in range(subject_len):
-                if query_seq[i] == subject_seq[j]:
+                if query_seq[i].upper() == subject_seq[j].upper():
                     matrix[i, j] = 1
         return matrix
 
@@ -410,23 +433,23 @@ class Hamann:
         if binary:
             matrix = numpy.zeros((2, 2))
             for i in range(len(query_seq)):
-                if query_seq[i] == 1 and subject_seq[i] == 1:
+                if query_seq[i] == "1" and subject_seq[i] == "1":
                     matrix[0, 0] += 1
-                elif query_seq[i] == 1 and subject_seq[i] == 0:
+                elif query_seq[i] == "1" and subject_seq[i] == "0":
                     matrix[1, 0] += 1
-                elif query_seq[i] == 0 and subject_seq[i] == 1:
+                elif query_seq[i] == "0" and subject_seq[i] == "1":
                     matrix[0, 1] += 1
-                elif query_seq[i] == 0 and subject_seq[i] == 0:
+                elif query_seq[i] == "0" and subject_seq[i] == "0":
                     matrix[1, 1] += 1
         else:
             query_seq = query_seq.upper()
             subject_seq = subject_seq.upper()
-            matrix = numpy.zeros((1, 1))
+            matrix = numpy.zeros((2))
             for i in range(len(query_seq)):
                 if query_seq[i] == subject_seq[i]:
-                    matrix[0, 0] += 1
+                    matrix[0] += 1
                 else:
-                    matrix[0, 1] += 1
+                    matrix[1] += 1
         return matrix
 
     def similarity(self, query_seq: str, subject_seq: str) -> float:

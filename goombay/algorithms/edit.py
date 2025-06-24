@@ -9,6 +9,31 @@ except ImportError:
 # internal dependencies
 from goombay.algorithms.base import GlobalBase as _GlobalBase, LocalBase as _LocalBase
 
+__all__ = [
+    "WagnerFischer",
+    "wagner_fischer",
+    "LowranceWagner",
+    "lowrance_wagner",
+    "Hamming",
+    "hamming",
+    "NeedlemanWunsch",
+    "needleman_wunsch",
+    "WatermanSmithBeyer",
+    "waterman_smith_beyer",
+    "Gotoh",
+    "gotoh",
+    "GotohLocal",
+    "gotoh_local",
+    "Hirschberg",
+    "hirschberg",
+    "Jaro",
+    "jaro",
+    "JaroWinkler",
+    "jaro_winkler",
+    "SmithWaterman",
+    "smith_waterman",
+]
+
 
 def main():
     """

@@ -26,14 +26,58 @@ class TestLIPNS(unittest.TestCase):
         self.assertEqual(self.algorithm.is_similar("AAA", "BBB"), 0)
 
     def test_empty_sequences(self):
-        self.assertEqual(self.algorithm.similarity("", ""), 0.0)
-        self.assertEqual(self.algorithm.distance("", ""), 1.0)
-        self.assertEqual(self.algorithm.is_similar("", ""), True)
+        test_cases = [
+            ("", "ACTG", 1, 0, False),
+            ("ACTG", "", 1, 0, False),
+            ("", "", 0, 1, True),
+        ]
+        for query, subject, sim, dist, is_sim in test_cases:
+            with self.subTest(query=query, subject=subject):
+                self.assertEqual(self.algorithm.similarity(query, subject), sim)
+                self.assertEqual(self.algorithm.distance(query, subject), dist)
+                self.assertEqual(self.algorithm.is_similar(query, subject), is_sim)
+
+    def test_single_character(self):
+        """Test behavior with single character sequences"""
+        # Test match
+        self.assertEqual(self.algorithm.similarity("A", "A"), 0)
+        self.assertEqual(self.algorithm.distance("A", "A"), 1)
+        self.assertEqual(self.algorithm.is_similar("A", "A"), True)
+
+        # Test mismatch
+        self.assertEqual(self.algorithm.similarity("A", "T"), 1)
+        self.assertEqual(self.algorithm.distance("A", "T"), 0)
+        self.assertEqual(self.algorithm.is_similar("A", "T"), False)
+
+    def test_case_sensitivity(self):
+        """Test that matching is case-insensitive"""
+        test_cases = [("ACTG", "actg"), ("AcTg", "aCtG"), ("actg", "ACTG")]
+
+        for query, subject in test_cases:
+            with self.subTest(query=query, subject=subject):
+                self.assertEqual(
+                    self.algorithm.similarity(query, subject),
+                    self.algorithm.similarity(query.upper(), subject.upper()),
+                )
+                self.assertEqual(
+                    self.algorithm.distance(query, subject),
+                    self.algorithm.distance(query.upper(), subject.upper()),
+                )
 
     def test_known_solution(self):
         self.assertAlmostEqual(
             self.algorithm.similarity("Tomato", "Tamato"), 0.16, delta=0.01
         )
+
+    def test_symmetry(self):
+        """Checks that algorithm is symmetric"""
+        pairs = [("abc", "cab"), ("Tomato", "Tamato"), ("ABCD", "AXYZ")]
+        for query, subject in pairs:
+            with self.subTest(query=query, subject=subject):
+                self.assertEqual(
+                    self.algorithm.similarity(query, subject),
+                    self.algorithm.similarity(subject, query),
+                )
 
     def test_threshold_behavior(self):
         """Check is_similar behavior under different threshold settings"""

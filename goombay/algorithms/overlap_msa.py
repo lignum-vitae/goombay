@@ -9,6 +9,9 @@ def main():
     print(longest_common_substring_msa.normalized_similarity([seq2, seq1, seq3]))
 
 
+__all__ = ["LongestCommonSubstringMSA", "longest_common_substring_msa"]
+
+
 class LongestCommonSubstringMSA:
     def _common_substrings(self, seqs: list[str]) -> list[str]:
         if not isinstance(seqs, list):

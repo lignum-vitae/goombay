@@ -25,6 +25,8 @@ longest_common_substring = overlap.longest_common_substring
 shortest_common_supersequence = overlap.shortest_common_supersequence
 lipns = overlap.lipns
 mlipns = overlap.mlipns
+length_ratio = overlap.length_ratio
+hamann = overlap.hamann
 
 # Variables from multiple sequence alignment file
 longest_common_substring_msa = overlap_msa.longest_common_substring_msa
@@ -48,6 +50,8 @@ LongestCommonSubstring = overlap.LongestCommonSubstring
 ShortestCommonSupersequence = overlap.ShortestCommonSupersequence
 LIPNS = overlap.LIPNS
 MLIPNS = overlap.MLIPNS
+LengthRatio = overlap.LengthRatio
+Hamann = overlap.Hamann
 
 # Classes from multiple sequence alignment file
 LongestCommonSubstringMSA = overlap_msa.LongestCommonSubstringMSA
