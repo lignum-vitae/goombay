@@ -53,9 +53,9 @@ class TestHamming(unittest.TestCase):
 
         for query, subject in test_cases:
             with self.subTest(query=query, subject=subject):
-                with self.assertRaises(ValueError):
+                with self.assertRaises(IndexError):
                     self.algorithm.distance(query, subject)
-                with self.assertRaises(ValueError):
+                with self.assertRaises(IndexError):
                     self.algorithm.similarity(query, subject)
 
     def test_empty_sequences(self):
@@ -68,9 +68,9 @@ class TestHamming(unittest.TestCase):
                     self.assertEqual(self.algorithm.distance(query, subject), 0)
                     self.assertEqual(self.algorithm.similarity(query, subject), 1)
                 else:
-                    with self.assertRaises(ValueError):
+                    with self.assertRaises(IndexError):
                         self.algorithm.distance(query, subject)
-                    with self.assertRaises(ValueError):
+                    with self.assertRaises(IndexError):
                         self.algorithm.similarity(query, subject)
 
     def test_case_sensitivity(self):

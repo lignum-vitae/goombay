@@ -283,7 +283,7 @@ class Hamming:
         if len(str(query_seq)) != len(str(subject_seq)) and not isinstance(
             query_seq, int
         ):
-            raise ValueError("Sequences must be of equal length")
+            raise IndexError("Sequences must be of equal length")
 
     def __call__(
         self, query_seq: str | int, subject_seq: str | int

@@ -63,7 +63,7 @@ class TestHamann(unittest.TestCase):
         """Should raise errors on invalid input types or unequal lengths"""
         with self.assertRaises(TypeError):
             self.algorithm.similarity(["A", "C"], "AC")
-        with self.assertRaises(ValueError):
+        with self.assertRaises(IndexError):
             self.algorithm.similarity("AC", "ACGT")
 
     def test_symmetry(self):

@@ -27,6 +27,9 @@ lipns = overlap.lipns
 mlipns = overlap.mlipns
 length_ratio = overlap.length_ratio
 hamann = overlap.hamann
+simple_matching_coefficient = overlap.simple_matching_coefficient
+prefix = overlap.prefix
+postfix = overlap.postfix
 
 # Variables from multiple sequence alignment file
 longest_common_substring_msa = overlap_msa.longest_common_substring_msa
@@ -52,6 +55,9 @@ LIPNS = overlap.LIPNS
 MLIPNS = overlap.MLIPNS
 LengthRatio = overlap.LengthRatio
 Hamann = overlap.Hamann
+SimpleMatchingCoefficient = overlap.SimpleMatchingCoefficient
+Prefix = overlap.Prefix
+Postfix = overlap.Postfix
 
 # Classes from multiple sequence alignment file
 LongestCommonSubstringMSA = overlap_msa.LongestCommonSubstringMSA

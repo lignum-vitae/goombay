@@ -485,10 +485,14 @@ class SimpleMatchingCoefficient:
         return matrix
 
     def similarity(self, query_seq: str, subject_seq: str) -> float:
+        if not query_seq or not subject_seq:
+            raise ValueError("Strings can not be empty")
         sim = hamming.similarity(query_seq, subject_seq)
         return sim / len(query_seq)
 
     def distance(self, query_seq: str, subject_seq: str) -> float:
+        if not query_seq or not subject_seq:
+            raise ValueError("Strings can not be empty")
         dist = hamming.distance(query_seq, subject_seq)
         return dist / len(query_seq)
 
@@ -500,6 +504,9 @@ class SimpleMatchingCoefficient:
 
     def matrix(self, query_seq: str, subject_seq: str):
         return self(query_seq, subject_seq)
+
+    def align(self, query_seq: str, subject_seq: str) -> str:
+        return f"{query_seq}\n{subject_seq}"
 
 
 class Prefix:
@@ -531,10 +538,14 @@ class Prefix:
         return max_length - self.similarity(query_seq, subject_seq)
 
     def normalized_similarity(self, query_seq: str, subject_seq: str) -> float:
+        if not query_seq or not subject_seq:
+            raise ValueError("Both strings must be non-empty")
         max_length = max(len(query_seq), len(subject_seq))
         return self.similarity(query_seq, subject_seq) / max_length
 
     def normalized_distance(self, query_seq: str, subject_seq: str) -> float:
+        if not query_seq or not subject_seq:
+            raise ValueError("Both strings must be non-empty")
         max_length = max(len(query_seq), len(subject_seq))
         return self.distance(query_seq, subject_seq) / max_length
 
@@ -547,7 +558,7 @@ class Prefix:
         for i in range(min(len(query_seq), len(subject_seq))):
             if matrix[i, i] != 1:
                 break
-            alignment.append(query_seq[i])
+            alignment.append(query_seq[i].upper())
         return "".join(alignment)
 
 
@@ -578,10 +589,14 @@ class Postfix:
         return max_length - self.similarity(query_seq, subject_seq)
 
     def normalized_similarity(self, query_seq: str, subject_seq: str) -> float:
+        if not query_seq or not subject_seq:
+            raise ValueError("Both strings must be non-empty")
         max_length = max(len(query_seq), len(subject_seq))
         return self.similarity(query_seq, subject_seq) / max_length
 
     def normalized_distance(self, query_seq: str, subject_seq: str) -> float:
+        if not query_seq or not subject_seq:
+            raise ValueError("Both strings must be non-empty")
         max_length = max(len(query_seq), len(subject_seq))
         return self.distance(query_seq, subject_seq) / max_length
 
@@ -594,7 +609,7 @@ class Postfix:
         for i in range(min(len(query_seq), len(subject_seq))):
             if matrix[i, i] != 1:
                 break
-            alignment.append(query_seq[-i - 1])
+            alignment.append(query_seq[-i - 1].upper())
         return "".join(alignment[::-1])
 
 
