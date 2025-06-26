@@ -55,7 +55,7 @@ class TestPostfix(unittest.TestCase):
         self.assertEqual(self.algorithm.align("A", "A"), "A")
         self.assertEqual(self.algorithm.align("A", "T"), "")
 
-    def test_case_insensitivity(self):
+    def test_case_sensitivity(self):
         """Suffix matching should be case-insensitive"""
         self.assertEqual(self.algorithm.similarity("actg", "TACTG"), 4)
         self.assertEqual(self.algorithm.align("aCtG", "TACTG"), "ACTG")

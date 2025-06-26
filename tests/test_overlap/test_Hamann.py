@@ -37,6 +37,27 @@ class TestHamann(unittest.TestCase):
         self.assertAlmostEqual(self.algorithm.distance(query, subject), 1.0)
         self.assertAlmostEqual(self.algorithm.normalized_distance(query, subject), 1.0)
 
+    def test_empty_sequences(self):
+        """Edge cases with empty input"""
+        with self.assertRaises(ValueError):
+            self.algorithm.similarity("", "")
+        with self.assertRaises(ValueError):
+            self.algorithm.distance("", "")
+        with self.assertRaises(ValueError):
+            self.algorithm.normalized_similarity("", "")
+        with self.assertRaises(ValueError):
+            self.algorithm.normalized_distance("", "")
+        self.assertEqual(self.algorithm.align("", ""), "\n")
+
+    def test_single_character(self):
+        """Test with one-character sequences"""
+        self.assertEqual(self.algorithm.similarity("A", "A"), 1)
+        self.assertEqual(self.algorithm.normalized_similarity("A", "A"), 1)
+        self.assertEqual(self.algorithm.similarity("A", "T"), -1)
+        self.assertEqual(self.algorithm.normalized_similarity("A", "T"), 0)
+        self.assertEqual(self.algorithm.align("A", "A"), "A\nA")
+        self.assertEqual(self.algorithm.align("A", "T"), "A\nT")
+
     def test_binary(self):
         """Check binary co-occurrence matrix"""
         query = "1010"

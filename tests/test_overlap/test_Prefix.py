@@ -56,7 +56,7 @@ class TestPrefix(unittest.TestCase):
         self.assertEqual(self.algorithm.align("A", "A"), "A")
         self.assertEqual(self.algorithm.align("A", "T"), "")
 
-    def test_case_insensitivity(self):
+    def test_case_sensitivity(self):
         """Prefix matching should be case-insensitive"""
         self.assertEqual(self.algorithm.similarity("actg", "ACTG"), 4)
         self.assertEqual(self.algorithm.similarity("aCt", "ACT"), 3)

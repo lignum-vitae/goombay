@@ -453,6 +453,8 @@ class Hamann:
         return matrix
 
     def similarity(self, query_seq: str, subject_seq: str) -> float:
+        if not query_seq or not subject_seq:
+            raise ValueError("Sequences must be non-empty")
         matching = hamming.similarity(query_seq, subject_seq)
         non_matching = len(query_seq) - matching
         return (matching - non_matching) / len(query_seq)
@@ -470,6 +472,9 @@ class Hamann:
 
     def matrix(self, query_seq: str, subject_seq: str, binary: bool):
         return self(query_seq, subject_seq, binary)
+
+    def align(self, query_seq: str, subject_seq: str) -> str:
+        return f"{query_seq}\n{subject_seq}"
 
 
 class SimpleMatchingCoefficient:
