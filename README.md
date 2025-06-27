@@ -6,12 +6,14 @@
 [![GitHub branch check runs](https://img.shields.io/github/check-runs/lignum-vitae/goombay/master)](https://github.com/lignum-vitae/goombay)
 
 # Goombay
-This Python project contains several sequence alignment algorithms that can also produce scoring matrices for Needleman-Wunsch, Gotoh, Smith-Waterman, Wagner-Fischer, Waterman-Smith-Beyer, 
-Lowrance-Wagner, Longest Common Subsequence, and Shortest Common Supersequence algorithms. 
+
+This Python project contains several sequence alignment algorithms that can also produce scoring matrices for Needleman-Wunsch, Gotoh, Smith-Waterman, Wagner-Fischer, Waterman-Smith-Beyer,
+Lowrance-Wagner, Longest Common Subsequence, and Shortest Common Supersequence algorithms.
 
 ***This project depends on NumPy. Please ensure that it is installed.***
 
 # Installation and Usage
+
 > [!IMPORTANT]
 > Not every algorithm uses every method.
 > Please refer to implementation table to see which methods each algorithm can perform.
@@ -23,11 +25,12 @@ py -m pip install goombay
 python -m pip install goombay
 python3 -m pip install goombay
 ```
-#### To run all tests from command line, run one of the following commands
+#### To run all tests from command line, run one of the following commands from the root
 ```
 py -m unittest discover tests
 python -m unittest discover tests
 python3 -m unittest discover tests
+pytest tests\
 ```
 
 All algorithms have a class with customizable parameters and a class instance with default parameters.
@@ -71,6 +74,14 @@ The Hamming distance has two additional methods called `.binary_distance_array` 
 |Longest Common Substring       |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | LongestCommonSubstringMSA   | longest_common_substring_msa  |
 |Longest Common Substring (MSA) |<ul><li> [x] </li></ul>|<ul><li> [ ] </li></ul>|     <ul><li> [x] </li></ul>     | LongestCommonSubstringMSA   | longest_common_substring_msa  |
 |Shortest Common Supersequence  |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | ShortestCommonSupersequence | shortest_common_supersequence |
+|LIPNS                          |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | LIPNS                       | lipns                         |
+|MLIPNS                         |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | MLIPNS                      | mlipns                        |
+|Hamann                         |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Hamann                      | hamann                        |
+|Simple Matching Coefficient    |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | SimpleMatchingCoefficient   | simple_matching_coefficient   |
+|Length Ratio                   |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | LengthRatio                 | length_ratio                  |
+|Prefix                         |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Prefix                      | prefix                        |
+|Postfix                        |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Postfix                     | postfix                       |
+
 
 ## Algorithms Explained
 - [Hamming](https://en.wikipedia.org/wiki/Hamming_distance) -
@@ -150,9 +161,41 @@ The Hamming distance has two additional methods called `.binary_distance_array` 
   The Shortest Common Supersequence is the shortest combination of the two sequences that contains all the characters within both sequences
   and does not change the relative order of the characters.
 
+- [Language Independent Product Name Search](http://www.sial.iias.spb.su/files/386-386-1-PB.pdf) -
+  LIPNS is an algorithm that determines the similarity between two strings.
+  The "is similar" method returns the intended output of the algorithm,
+  either True or False (1 or 0 respectively).
+  - The keyword argument for LIPNS is `threshold = 0.25`
+
+- [Modfied Language Independent Product Name Search](http://www.sial.iias.spb.su/files/386-386-1-PB.pdf) -
+  MLIPNS is a modification to this algorithm that takes into account the number
+  of deletions necessary to get from one word to another. A maximum number of deletions
+  is allowed before the words are considered to be not similar to each other.
+  - The keyword argument for MLIPNS is `max_mismatch = 2`
+
+- [Hamann](https://modbase.compbio.ucsf.edu/pibase/suppinfo/supplementary_info.pdf) -
+  The Hamann algorithm is similar to the SMC algorithm, but also takes into account
+  mismatches when calculating its score.
+
+- [Simple Matching Coefficient](https://en.wikipedia.org/wiki/Simple_matching_coefficient) -
+  The simple matching coefficient is the number of matching attributes divided by
+  the total number of attributes. The SMC is also equal to the Hamann similarity
+  plus 1 divided by two.
+
+- **Length Ratio** -
+  The length ratio algorithm is a simple algorithm that compares the length of the
+  shorter sequence to the length of the longer sequence.
+
+- **Prefix** -
+  The prefix algorithm measures the number of contiguous matches from the beginning of a string.
+
+- **Postfix** -
+  The Postfix algorithm measures the number of contiguous matches from the end of a string.
+
 # Code Examples
 
 **Hamming Distance**
+
 ```python
 from goombay import hamming
 
@@ -174,6 +217,7 @@ print(hamming.normalized_similarity(qs, ss))
 ```
 
 **Needleman-Wunsch**
+
 ```python
 from goombay import needleman_wunsch
 
@@ -199,16 +243,19 @@ print(needleman_wunsch.matrix("AFTG","ACTG"))
  [6. 4. 3. 1. 3.]
  [8. 6. 5. 3. 1.]]
  ```
+
 # Contributions
+
 Interested in contributing to Goombay? Please review our [Contribution Guidelines](https://github.com/lignum-vitae/goombay/blob/master/docs/CONTRIBUTING.md) for detailed instructions on how to get involved.
 
 # Caveats
+
 > [!CAUTION]
 > There are some issues with alignment to be tackled in later releases.
 
-Note that due to the fact that the Hamming distance does not allow for insertions or deletions, the "aligned sequence" that is returned is just the original sequences in a formatted string. 
-This is due to the fact that actually aligning the two sequences using this algorithm would just lead to two lines of the query sequence. 
-It should also be noted that the Hamming distance is intended to only be used with sequences of the same length. 
+Note that due to the fact that the Hamming distance does not allow for insertions or deletions, the "aligned sequence" that is returned is just the original sequences in a formatted string.
+This is due to the fact that actually aligning the two sequences using this algorithm would just lead to two lines of the query sequence.
+It should also be noted that the Hamming distance is intended to only be used with sequences of the same length.
 
 At the beginning of this project, I thought that the Levenshtein distance was an algorithm, but it is the end result that is being calculated with an approach such as Wagner-Fischer which uses Needleman-Wunsch-esque matrices to calculate the Levenshtein distance.
 Thus, the Levenshtein distance implementation has been switched to the Wagner-Fischer algorithm.
