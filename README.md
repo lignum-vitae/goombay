@@ -182,14 +182,14 @@ The Hamming distance has two additional methods called `.binary_distance_array` 
   the total number of attributes. The SMC is also equal to the Hamann similarity
   plus 1 divided by two.
 
-- [Length Ratio]
+- **Length Ratio** -
   The length ratio algorithm is a simple algorithm that compares the length of the
   shorter sequence to the length of the longer sequence.
 
-- [Prefix]
+- **Prefix** -
   The prefix algorithm measures the number of contiguous matches from the beginning of a string.
 
-- [Postfix]
+- **Postfix** -
   The Postfix algorithm measures the number of contiguous matches from the end of a string.
 
 # Code Examples
