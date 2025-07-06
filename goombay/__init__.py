@@ -30,6 +30,7 @@ hamann = overlap.hamann
 simple_matching_coefficient = overlap.simple_matching_coefficient
 prefix = overlap.prefix
 postfix = overlap.postfix
+ratcliff_obershelp = overlap.ratcliff_obershelp
 
 # Variables from multiple sequence alignment file
 longest_common_substring_msa = overlap_msa.longest_common_substring_msa
@@ -58,6 +59,7 @@ Hamann = overlap.Hamann
 SimpleMatchingCoefficient = overlap.SimpleMatchingCoefficient
 Prefix = overlap.Prefix
 Postfix = overlap.Postfix
+RatcliffObershelp = overlap.RatcliffObershelp
 
 # Classes from multiple sequence alignment file
 LongestCommonSubstringMSA = overlap_msa.LongestCommonSubstringMSA
