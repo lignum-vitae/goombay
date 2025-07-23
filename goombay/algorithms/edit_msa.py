@@ -1,16 +1,13 @@
-#built-in
-from __future__ import annotations
-
 #internal dependencies
-from goombay.algorithms.editdistance import (
-        Needleman_Wunsch, 
-        Lowrance_Wagner, 
-        Wagner_Fischer,
-        Waterman_Smith_Beyer,
+from goombay.algorithms.edit import (
+        NeedlemanWunsch, 
+        LowranceWagner, 
+        WagnerFischer,
+        WatermanSmithBeyer,
         Gotoh,
         Hirschberg,
         Jaro,
-        Jaro_Winkler)
+        JaroWinkler)
 
 try:
     # external dependencies
@@ -37,14 +34,14 @@ def main():
 
 class Feng_Doolittle():
     supported_pairwise = {
-        "needleman_wunsch"    : Needleman_Wunsch,
+        "needleman_wunsch"    : NeedlemanWunsch,
         "jaro"                : Jaro,
-        "jaro_winkler"        : Jaro_Winkler,
+        "jaro_winkler"        : JaroWinkler,
         "gotoh"               : Gotoh,
-        "wagner_fischer"      : Wagner_Fischer,
-        "waterman_smith_beyer": Waterman_Smith_Beyer,
+        "wagner_fischer"      : WagnerFischer,
+        "waterman_smith_beyer": WatermanSmithBeyer,
         "hirschberg"          : Hirschberg,
-        "lowrance_wagner"     : Lowrance_Wagner
+        "lowrance_wagner"     : LowranceWagner
     }
 
     abbreviations = {
@@ -72,6 +69,46 @@ class Feng_Doolittle():
     def supported_pairwise_algs(cls):
         return list(cls.supported_pairwise)
 
+    def __call__(self, verbose: bool = False):
+        """"""
+        # This sets the unnormalized sequence distance
+        seq_dist_matrix = numpy.zeros((len(self.seqs),len(self.seqs)), dtype=float64)
+        profile_dict = {}
+        aligned_map = {}
+        #print(seq_dist_matrix)
+        for i in range(len(self.seqs)):
+            i_seq = self.seqs[i]
+            profile_dict[str(i)] = [self.seqs[i]] #storing lists instead of strings
+            for j in range(len(self.seqs)):
+                if seq_dist_matrix[i][j] == 0:
+                    if j != i:
+                        j_seq = self.seqs[j]
+                        alignment = self.pairwise
+                        #score_matrix, pointer = alignment(i_seq, j_seq)
+                        aligned_qs, aligned_ss = self.align(i_seq, j_seq)
+                        aligned_map[i_seq+"-"+j_seq] = (aligned_qs, aligned_ss)
+                        print(aligned_map)
+                        alignment_score = self.pairwise.distance(i_seq, j_seq)
+                        seq_dist_matrix[i][j] = alignment_score
+                        seq_dist_matrix[j][i] = alignment_score
+                        #print(traceback)
+        # adding functionality for different clustering algorithms
+        nw = NewickFormatter(self.cluster(seq_dist_matrix)).generate_newick() # neighborjoining for example will be included in here!
+        newick_tree = NewickFormatter.parse_newick(nw)
+        
+        if verbose:
+                print(newick_tree)
+
+        #print("Trace of merges:", alignment_trace)
+        keys = list(profile_dict.keys())
+        aligned_seqs = profile_dict[keys[-1]]
+        if verbose:
+                print(aligned_seqs)
+        rtn_str = []
+        for i in range(len(aligned_seqs)):
+                rtn_str.append(aligned_seqs[i])
+        return ''.join(rtn_str)
+
     # helper functions
     def parse_newick(self, newick):
         """takes a newick string and converts it into a simple binary tree with Biopythons phylo module"""
@@ -84,8 +121,9 @@ class Feng_Doolittle():
         rep2 = profile2[0]
 
         # Align the two representative sequences
-        score_matrix, pointer = self.pairwise(rep1, rep2) # Andrew Dahik: Score matrix is here if one wanted to see it.
-        aligned_rep1, aligned_rep2 = self.traceback(rep1, rep2, pointer)
+        # score_matrix, pointer = self.pairwise(rep1, rep2) # Andrew Dahik: Score matrix is here if one wanted to see it.
+        # aligned_rep1, aligned_rep2 = self.traceback(rep1, rep2, pointer)
+        aligned_rep1, aligned_rep2 = self.pairwise.align(rep1, rep2).split('\n')
 
         # Helper: apply gaps to all sequences in a profile
         def apply_gaps(profile, aligned_rep):
@@ -107,71 +145,8 @@ class Feng_Doolittle():
 
         return aligned_profile1 + aligned_profile2
     
-    def traceback(self, query_seq: list[str], subject_seq: list[str], pointer) -> tuple[str, str]:
-        aligned_qs = []
-        aligned_ss = []
-        i = len(query_seq) - 1
-        j = len(subject_seq) - 1
-        while i > 0 or j > 0:
-            direction = pointer[i][j]
-            if direction == 2: # diagnonal (match/mismatch)
-                aligned_qs.append(query_seq[i])
-                aligned_ss.append(subject_seq[j])
-                i -= 1
-                j -= 1
-            elif direction == 3: # up (gap in subject)
-                aligned_qs.append(query_seq[i])
-                aligned_ss.append("-")
-                i -= 1
-            elif direction == 4: # left (gap in query)
-                aligned_qs.append("-")
-                aligned_ss.append(query_seq[j])
-                j -= 1
-            elif direction >= 5 and direction < 8:  # diagonal + up
-                aligned_qs.append(query_seq[i])
-                aligned_ss.append(subject_seq[j])
-                i -= 1
-                j -= 1
-            else:
-                break  # Should not happen
-
-        # Append remaining character (the 0th one) if missed
-        if i == 0 and j == 0:
-            aligned_qs.append(query_seq[0])
-            aligned_ss.append(subject_seq[0])
-        elif i == 0:
-            aligned_qs.append(query_seq[0])
-            aligned_ss.append("-")
-        elif j == 0:
-            aligned_qs.append("-")
-            aligned_ss.append(subject_seq[0])
-        return ''.join(reversed(aligned_qs)), ''.join(reversed(aligned_ss))
-    
-    def __call__(self):
-        """"""
-        # This sets the unnormalized sequence distance
-        seq_dist_matrix = numpy.zeros((len(self.seqs),len(self.seqs)), dtype=float64)
-        profile_dict = {}
-        aligned_map = {}
-        #print(seq_dist_matrix)
-        for i in range(len(self.seqs)):
-            i_seq = self.seqs[i]
-            profile_dict[str(i)] = [self.seqs[i]] #storing lists instead of strings
-            for j in range(len(self.seqs)):
-                if seq_dist_matrix[i][j] == 0:
-                    if j != i:
-                        j_seq = self.seqs[j]
-                        alignment = self.pairwise
-                        score_matrix, pointer = alignment(i_seq, j_seq)
-                        aligned_qs, aligned_ss = self.traceback(i_seq, j_seq, pointer)
-                        aligned_map[i_seq+"-"+j_seq] = (aligned_qs, aligned_ss)
-                        print(aligned_map)
-                        alignment_score = score_matrix[-1][-1]
-                        seq_dist_matrix[i][j] = alignment_score
-                        seq_dist_matrix[j][i] = alignment_score
-                        #print(traceback)
-        newick_tree = self.parse_newick(NeighborJoining(seq_dist_matrix).generateNJNewick())
-        for clade in newick_tree.get_nonterminals(order='postorder'):
+    def align(self, newick_tree, profile_dict):
+         for clade in newick_tree.get_nonterminals(order='postorder'):
            
             left, right = clade.clades
             print(left, right)
@@ -190,20 +165,7 @@ class Feng_Doolittle():
 
                 # Optionally track who was merged
                 #alignment_trace.append((left.name, right.name, clade.name))
-        print(newick_tree)
 
-        #print("Trace of merges:", alignment_trace)
-        keys = list(profile_dict.keys())
-        aligned_seqs = profile_dict[keys[-1]]
-        print(aligned_seqs)
-        rtn_str = ''
-        for i in range(len(aligned_seqs)):
-            if i != len(aligned_seqs) - 1:
-                rtn_str = rtn_str + aligned_seqs[i] + "\n"
-            else:
-                rtn_str = rtn_str + aligned_seqs[i]
-        return rtn_str
-    
 class NeighborJoining():
     def __init__(self, matrix):
         self.matrix = matrix
@@ -298,18 +260,18 @@ class NeighborJoining():
                 if Val < minVal:
                     minVal = Val
                     #store node indices
-                    I = i
-                    J = j        
+                    min_i = i
+                    min_j = j        
         #merge node I and node J together
         #grab distances of other nodes
-        new_limbs = self._limbLength(I, J, divergences)
+        new_limbs = self._limbLength(min_i, min_j, divergences)
         #these limbs are for tree construction
         new_limb_MI, new_limb_MJ = new_limbs[0], new_limbs[1]
         #styling choice for tree
-        tree[f"({nodes[J]}<>{nodes[I]})"] = {nodes[I]: new_limb_MI, nodes[J]: new_limb_MJ}
-        nodes.insert(nodes.index(nodes[I]), f"({nodes[J]}<>{nodes[I]})")
-        nodes.remove(str(nodes[I+1]))
-        nodes.remove(str(nodes[J]))
+        tree[f"({nodes[min_j]}<>{nodes[min_i]})"] = {nodes[min_i]: new_limb_MI, nodes[min_j]: new_limb_MJ}
+        nodes.insert(nodes.index(nodes[min_i]), f"({nodes[min_j]}<>{nodes[min_i]})")
+        nodes.remove(str(nodes[min_i+1]))
+        nodes.remove(str(nodes[min_j]))
 
         # calculate new distances for new node to remaining nodes
         # construct a new distance matrix
@@ -325,11 +287,13 @@ class NeighborJoining():
         for i in range(len(new_node_distances)):
             saved_matrices_values.append(new_node_distances[i])        
         for k in range(L):
-            if k != I and k != J:
-                for m in range(L-1):
-                    if m != I and m != J:
-                        if self.matrix[k][m] != 0:
-                            saved_matrices_values.append(self.matrix[k][m])
+            if k == min_i or k == min_j:
+                continue
+            for m in range(L-1):
+                if m == min_i or m == min_j:
+                    continue
+                if self.matrix[k][m] != 0:
+                    saved_matrices_values.append(self.matrix[k][m])
         if L - 1 > 2:    
             # Fill in newDistanceMatrix based on conditions
             count = len(saved_matrices_values) - 1
@@ -350,7 +314,7 @@ class NeighborJoining():
         #print(new_distance_matrix)
         return new_distance_matrix, tree, nodes
     # place holder NJ algorithm formatting to Newick
-    def generateNJNewick(self):
+    def generate_newick(self):
         #distance matrix and n x n dimensions, respectfully
         dist_matrix = self.matrix
         tree = {}
@@ -378,8 +342,57 @@ class NeighborJoining():
         #print(fitFM(final_tree, backup_nj_nodes))
         return self._toNewick(final_tree)
 
-    
-#feng_doolittle = Feng_Doolittle()
+# takes a matrix from a clustering algorithm and outputs a newick tree, can also parse newicks?
+class NewickFormatter():
+        def __init__(self, dist_matrix):
+                self.dist_matrix = dist_matrix
+        
+        # in order for parse to work there needs to have been a tree object that is inserted into the class
+        def parse_newick(self, newick):
+            """takes a newick string and converts it into a simple binary tree with Biopythons phylo module"""
+            tree = Phylo.read(StringIO(newick), "newick")
+            return tree
 
-if __name__ == "__main__":
-    main()
+            # place holder NJ algorithm formatting to Newick
+        def generate_newick(self):
+            #distance matrix and n x n dimensions, respectfully
+            #dist_matrix = self.matrix
+            tree = {}
+            nj_nodes = [str(i) for i in range(len(self.dist_matrix))]
+            while len(self.dist_matrix) != 2:
+                self.dist_matrix, tree, nj_nodes = self._clusterNJ(tree, nj_nodes)
+                #merge remaining nodes in 2x2
+            # perform merge on final 2 nodes
+            node_a, node_b = nj_nodes[0], nj_nodes[1]
+            dist = self.dist_matrix[0][1]
+            limb_length = dist / 2
+
+            # Make sure internal node is formatted correctly
+            last_key = f"{node_a}<>{node_b}"
+            tree[last_key] = {node_a: limb_length, node_b: limb_length}
+            #clean up tree so nodes reflect <> notation
+            final_tree = {}
+            for key in tree:
+                if key[0] == "[":
+                    final_tree[key[1:len(key)-1]] = tree[key]
+                else:
+                    final_tree[key] = tree[key]
+            #print(final_tree)
+            #newick_tree = toNewick(final_tree)
+            #print(fitFM(final_tree, backup_nj_nodes))
+            return self._toNewick(final_tree)
+        
+        def _toNewick(self, tree):
+            def recurse(node):
+                if isinstance(tree[node], dict):
+                    children = []
+                    for child, dist in tree[node].items():
+                        if child in tree:
+                            children.append(f"{recurse(child)}:{dist}")
+                        else:
+                            children.append(f"{child}:{dist}")
+                    return f"({','.join(children)})"
+                return node
+            # Get the topmost node (root)
+            root = list(tree.keys())[-1]
+            return recurse(root) + ";"
