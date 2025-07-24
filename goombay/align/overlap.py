@@ -31,16 +31,22 @@ __all__ = [
     "prefix",
     "Postfix",
     "postfix",
+    "RatcliffObershelp",
+    "ratcliff_obershelp",
 ]
 
 
 def main():
-    query = "REALCIVILENGINEER"
-    subject = "REALASTRONEER"
-    print(prefix.similarity(query, subject))
-    print(prefix.align(query, subject))
-    print(postfix.similarity(query, subject))
-    print(postfix.align(query, subject))
+    # query = ["WIKIMEDIA", "GESTALT PATTERN MATCHING"]
+    # subject = ["WIKIMANIA", "GESTALT PRACTICE"]
+    """
+    for qs, ss in zip(query, subject):
+        print(ratcliff_obershelp.align(qs, ss))
+        print(ratcliff_obershelp.similarity(qs, ss))
+    """
+    query = "HUMAN"
+    subject = "CHIMPANZEE"
+    print(ratcliff_obershelp(query, subject))
 
 
 class LongestCommonSubsequence(_LocalBase):
@@ -146,14 +152,14 @@ class LongestCommonSubstring(_LocalBase):
     def matrix(self, query_seq: str, subject_seq: str) -> NDArray:
         return super().matrix(query_seq, subject_seq)
 
-    def align(self, query_seq, subject_seq) -> list[str]:
+    def align(self, query_seq: str, subject_seq: str, min_match: int = 2) -> list[str]:
         matrix = self(query_seq, subject_seq)
 
         longest_match = numpy.max(matrix)
-        if longest_match <= 1:
+        if longest_match < min_match or longest_match == 0 or min_match <= 0:
             return [""]
 
-        longest_substrings = set()
+        longest_substrings = []
         positions = numpy.argwhere(matrix == longest_match)
         for position in positions:
             temp = []
@@ -162,8 +168,8 @@ class LongestCommonSubstring(_LocalBase):
                 temp.append(query_seq[i - 1])
                 i -= 1
                 j -= 1
-            longest_substrings.add("".join(temp[::-1]))
-        return list(longest_substrings)
+            longest_substrings.append("".join(temp[::-1]))
+        return longest_substrings
 
 
 class ShortestCommonSupersequence:
@@ -618,6 +624,56 @@ class Postfix:
         return "".join(alignment[::-1])
 
 
+class RatcliffObershelp:
+    def __call__(self, query_seq: str, subject_seq: str):
+        matched = []
+        stack = [(query_seq.upper(), subject_seq.upper())]
+        while len(stack) >= 1:
+            # Get remaining characters
+            remaining = stack.pop()
+            qs = remaining[0]
+            ss = remaining[1]
+
+            # Find LSString
+            matches = longest_common_substring.align(qs, ss, min_match=1)
+            if matches == [""]:
+                continue
+            # Save matches and add remaining back to stack
+            q_idx = qs.find(matches[0])
+            s_idx = ss.find(matches[0])
+            left = (qs[:q_idx], ss[:s_idx])
+            right = (qs[q_idx + len(matches[0]) :], ss[s_idx + len(matches[0]) :])
+            stack.extend([left, right])
+            matched.append(matches[0])
+        return matched
+
+    def distance(self, query_seq: str, subject_seq: str) -> float:
+        return 1 - self.similarity(query_seq, subject_seq)
+
+    def similarity(self, query_seq: str, subject_seq: str) -> float:
+        if not query_seq and not subject_seq:
+            return 1.0
+        if not query_seq or not subject_seq:
+            return 0.0
+
+        sim = self.align(query_seq, subject_seq)
+        matches = sum(len(s) for s in sim)
+        return (2 * matches) / (len(query_seq) + len(subject_seq))
+
+    def normalized_distance(self, query_seq: str, subject_seq: str) -> float:
+        return self.distance(query_seq, subject_seq)
+
+    def normalized_similarity(self, query_seq: str, subject_seq: str) -> float:
+        return self.similarity(query_seq, subject_seq)
+
+    def align(self, query_seq: str, subject_seq: str) -> list[str]:
+        forward = self(query_seq, subject_seq)
+        reverse = self(subject_seq, query_seq)
+        forward_len = sum(len(f) for f in forward)
+        reverse_len = sum(len(r) for r in reverse)
+        return forward if forward_len > reverse_len else reverse
+
+
 longest_common_subsequence = LongestCommonSubsequence()
 longest_common_substring = LongestCommonSubstring()
 shortest_common_supersequence = ShortestCommonSupersequence()
@@ -628,6 +684,7 @@ hamann = Hamann()
 simple_matching_coefficient = SimpleMatchingCoefficient()
 prefix = Prefix()
 postfix = Postfix()
+ratcliff_obershelp = RatcliffObershelp()
 
 if __name__ == "__main__":
     main()

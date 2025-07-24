@@ -26,6 +26,8 @@ from goombay.align.edit import (
 
 from goombay.cluster.phylo import NeighborJoining, NewickFormatter
 
+__all__ = ["FengDoolittle", "feng_doolittle"]
+
 
 def main():
     seq1 = "HOUSEOFCARDSFALLDOWN"

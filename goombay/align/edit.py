@@ -45,8 +45,12 @@ def main():
         print()
     print(waterman_smith_beyer.matrix("TRATE", "TRACE"))
     """
-    query = "Tomato"
-    subject = "Tamato"
+    query = "CGCAAATGGGCGGTAGGCGTG"
+    subject = "CTTTATCCAGCCCTCAC"
+
+    print(needleman_wunsch.distance(query, subject))
+    print(needleman_wunsch.normalized_distance(query, subject))
+    print(smith_waterman.align(query, subject))
 
 
 class WagnerFischer(_GlobalBase):  # Levenshtein Distance
