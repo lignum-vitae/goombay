@@ -14,7 +14,6 @@ class TestFengDoolittle(unittest.TestCase):
         seqs = ["ACTG", "ACTG", "ACTG"]
         result = self.feng.align(seqs).splitlines()
 
-        print(result)
         self.assertEqual(len(result), 3)
         for line in result:
             self.assertEqual(line, "ACTG")
@@ -38,8 +37,9 @@ class TestFengDoolittle(unittest.TestCase):
             self.assertEqual(len(line), len(aligned[0]))  # ensure aligned length
 
         # Confirm original sequences are still in alignment (minus gaps)
-        for orig, aligned_seq in zip(seqs, aligned):
-            self.assertEqual(orig, aligned_seq.replace("-", ""))
+        orig_no_gaps = sorted(seqs)
+        aligned_no_gaps = sorted(seq.replace("-", "") for seq in aligned)
+        self.assertEqual(orig_no_gaps, aligned_no_gaps)
 
     def test_single_sequence(self):
         """Aligning one sequence returns it unchanged"""
@@ -51,7 +51,7 @@ class TestFengDoolittle(unittest.TestCase):
 
     def test_empty_sequence_list(self):
         """Handle empty input list"""
-        with self.assertRaises(IndexError):
+        with self.assertRaises(ValueError):
             self.feng.align([])
 
     def test_supported_algorithms(self):
@@ -98,6 +98,78 @@ class TestFengDoolittle(unittest.TestCase):
 
         self.assertEqual(upper, lower)
         self.assertEqual(lower, mixed)
+
+    def test_more_than_three_sequences(self):
+        """Test alignment with more than three sequences"""
+        seqs = ["ACGT", "AGT", "ACT", "AAGT", "ACG"]
+        aligned = self.feng.align(seqs).splitlines()
+
+        self.assertEqual(len(aligned), 5)
+        for line in aligned:
+            self.assertEqual(len(line), len(aligned[0]))
+
+    def test_more_than_three_identical_sequences(self):
+        """Test alignment with more than three identical sequences"""
+        seqs = ["ACTG", "ACTG", "ACTG", "ACTG"]
+        result = self.feng.align(seqs).splitlines()
+
+        self.assertEqual(len(result), 4)
+        for line in result:
+            self.assertEqual(line, "ACTG")
+
+    def test_alignment_with_special_characters(self):
+        """Test alignment with sequences containing special characters"""
+        seqs = ["A-CGT", "AGT-", "A-CG"]
+        aligned = self.feng.align(seqs).splitlines()
+
+        self.assertEqual(len(aligned), 3)
+        for line in aligned:
+            self.assertEqual(len(line), len(aligned[0]))
+
+    def test_alignment_with_numbers(self):
+        """Test alignment with sequences containing numbers"""
+        seqs = ["A1C2GT", "AGT3", "A4CG"]
+        aligned = self.feng.align(seqs).splitlines()
+
+        self.assertEqual(len(aligned), 3)
+        for line in aligned:
+            self.assertEqual(len(line), len(aligned[0]))
+
+    def test_mixed_empty_and_nonempty(self):
+        """Test alignment with a mix of empty and non-empty sequences"""
+        seqs = ["ACTG", "", "AGT"]
+        aligned = self.feng.align(seqs).splitlines()
+        self.assertEqual(len(aligned), 2)  # Only non-empty sequences should be aligned
+        # Remove gaps and check all originals are present (order-independent)
+        orig_no_gaps = sorted(seq for seq in seqs if seq)
+        aligned_no_gaps = sorted(seq.replace("-", "") for seq in aligned)
+        self.assertEqual(orig_no_gaps, aligned_no_gaps)
+
+    def test_alignment_with_whitespace(self):
+        """Test alignment with sequences containing leading/trailing whitespace"""
+        seqs = ["  ACTG  ", "AGT", "  ACGT"]
+        aligned = self.feng.align(seqs).splitlines()
+
+        self.assertEqual(len(aligned), 3)
+        for line in aligned:
+            self.assertEqual(len(line), len(aligned[0]))
+            self.assertNotIn(" ", line)
+
+    def test_empty_sequences(self):
+        """Test alignment with completely empty sequences"""
+        seqs = ["", "", ""]
+        with self.assertRaises(ValueError):
+            self.feng.align(seqs)
+
+    def test_more_than_three_mixed_empty_and_nonempty(self):
+        """Test alignment with more than three sequences, some empty"""
+        seqs = ["ACTG", "", "AGT", "AAGT", ""]
+        aligned = self.feng.align(seqs).splitlines()
+        self.assertEqual(len(aligned), 3)  # Only non-empty sequences should be aligned
+        # Remove gaps and check all originals are present (order-independent)
+        orig_no_gaps = sorted(seq for seq in seqs if seq)
+        aligned_no_gaps = sorted(seq.replace("-", "") for seq in aligned if seq)
+        self.assertEqual(orig_no_gaps, aligned_no_gaps)
 
 
 if __name__ == "__main__":

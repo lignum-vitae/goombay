@@ -10,6 +10,7 @@ try:
 except ImportError:
     raise ImportError("Please pip install all dependencies from requirements.txt!")
 
+
 # internal dependencies
 from goombay.align.edit import (
     NeedlemanWunsch,
@@ -21,6 +22,7 @@ from goombay.align.edit import (
     Jaro,
     JaroWinkler,
 )
+
 
 from goombay.cluster.phylo import NeighborJoining, NewickFormatter
 
@@ -129,7 +131,16 @@ class FengDoolittle:
                 profile_dict[clade.name] = merged_profile
 
     def align(self, seqs: list[str], verbose: bool = False):
-        seqs = [seq.upper() for seq in seqs]
+        if not isinstance(seqs, list):
+            raise TypeError("Input must be a list of sequences.")
+
+        if not all(isinstance(seq, str) for seq in seqs):
+            raise TypeError("All elements in the input list must be strings.")
+        seqs = [seq.strip().upper() for seq in seqs if seq.strip()]
+        if not seqs:
+            raise ValueError("Input list is empty or contains only whitespace strings.")
+        if len(seqs) == 1:
+            return seqs[0]
         profile_dict, dist_matrix = self(seqs)
         # adding functionality for different clustering algorithms
         nw = self.cluster(dist_matrix).generate_newick()
@@ -140,8 +151,7 @@ class FengDoolittle:
             print(nw)
             print(newick_tree)
 
-        keys = list(profile_dict.keys())
-        aligned_seqs = profile_dict[keys[-1]]
+        aligned_seqs = max(profile_dict.values(), key=len)
         rtn_str = []
         for i in range(len(aligned_seqs)):
             rtn_str.append(aligned_seqs[i])
@@ -185,6 +195,7 @@ class FengDoolittle:
 
 
 feng_doolittle = FengDoolittle()
+
 
 if __name__ == "__main__":
     main()

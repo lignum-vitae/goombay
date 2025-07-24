@@ -89,81 +89,61 @@ class NeighborJoining:
     def _cluster_NJ(self, tree, nodes):
         mat_len = len(self.dist_matrix)
         if mat_len == 2:
-            return self.dist_matrix
+            return self.dist_matrix, tree, nodes
         divergences = self._total_row_distances()
         adj_distance_matrix = self._adjusted_distance(divergences)
         min_val = float("inf")
         min_i, min_j = 0, 0
-        # looking for neighboring nodes,  based on minimum value, node i and node j
-        # will be neighbors
+        # Find the pair with the minimum adjusted distance
         for i in range(mat_len):
             for j in range(mat_len):
-                val = adj_distance_matrix[i][j]
-                if val < min_val:
-                    min_val = val
-                    # store node indices
-                    min_i = i
-                    min_j = j
-        # merge node I and node J together
-        # grab distances of other nodes
+                if i != j:
+                    val = adj_distance_matrix[i][j]
+                    if val < min_val:
+                        min_val = val
+                        min_i = i
+                        min_j = j
+        # Calculate limb lengths for the new node
         new_limbs = self._limb_length(min_i, min_j, divergences)
-        # these limbs are for tree construction
         new_limb_MI, new_limb_MJ = new_limbs[0], new_limbs[1]
-        # styling choice for tree
-        tree[f"({nodes[min_j]}<>{nodes[min_i]})"] = {
+        # Create new node label
+        new_node = f"({nodes[min_j]}<>{nodes[min_i]})"
+        # Add new node to tree
+        tree[new_node] = {
             nodes[min_i]: new_limb_MI,
             nodes[min_j]: new_limb_MJ,
         }
-        """
-        NEED TO FIX THIS LINE BEFORE MERGING
-        currently feng_doolittle only works with 2 or 3 sequences
-        single sequences or >3 sequences have index error
-        """
-        nodes.insert(nodes.index(nodes[min_i]), f"({nodes[min_j]}<>{nodes[min_i]})")
-        nodes.remove(str(nodes[min_i + 1]))
-        nodes.remove(str(nodes[min_j]))
-
-        # calculate new distances for new node to remaining nodes
-        # construct a new distance matrix
-        # store distance matrice values for new node
+        # Remove merged nodes and add new node
+        nodes_to_remove = [nodes[min_i], nodes[min_j]]
+        new_nodes = [n for n in nodes if n not in nodes_to_remove]
+        new_nodes.append(new_node)
+        # Calculate new distances for the new node to remaining nodes
         new_node_distances = self._pair_distance(min_i, min_j)
-
-        # filler node that will be not used, only there to skip iteration
+        # Build new distance matrix
+        new_mat_len = mat_len - 1
         new_distance_matrix = [
-            [0 for _ in range(mat_len - 1)] for _ in range(mat_len - 1)
+            [0.0 for _ in range(new_mat_len)] for _ in range(new_mat_len)
         ]
-        saved_matrices_values = []
-
-        # k is the row_idx and m is the col_idx, change if desired
-        # grabbing values that have not been merged
-        for i in range(len(new_node_distances)):
-            saved_matrices_values.append(new_node_distances[i])
-        for k in range(mat_len):
-            if k == min_i or k == min_j:
+        # Fill in the new distance matrix
+        idx = 0
+        for i in range(mat_len):
+            if i == min_i or i == min_j:
                 continue
-            for m in range(mat_len - 1):
-                if m == min_i or m == min_j:
+            jdx = 0
+            for j in range(mat_len):
+                if j == min_i or j == min_j:
                     continue
-                if self.dist_matrix[k][m] != 0:
-                    saved_matrices_values.append(self.dist_matrix[k][m])
-        if mat_len - 1 > 2:
-            # Fill in newDistanceMatrix based on conditions
-            count = len(saved_matrices_values) - 1
-            for i in range(mat_len):
-                for j in range(i + 1, mat_len):
-                    if j - 1 == i:
-                        new_distance_matrix[i][j - 1] = 0
-                        new_distance_matrix[j - 1][i] = 0
-                    else:
-                        new_distance_matrix[i][j - 1] = saved_matrices_values[j - count]
-                        new_distance_matrix[j - 1][i] = saved_matrices_values[j - count]
-                count -= 1
-                # now solve i for when j does not equal zero
-        elif mat_len - 1 == 2:
-            new_distance_matrix[0][1] = saved_matrices_values[0]
-            new_distance_matrix[1][0] = saved_matrices_values[0]
-        # print(new_distance_matrix)
-        return new_distance_matrix, tree, nodes
+                new_distance_matrix[idx][jdx] = self.dist_matrix[i][j]
+                jdx += 1
+            idx += 1
+        # Add distances for the new node
+        for i in range(new_mat_len - 1):
+            dist = new_node_distances[i]
+            new_distance_matrix[i][new_mat_len - 1] = dist
+            new_distance_matrix[new_mat_len - 1][i] = dist
+        # Recursively cluster
+        self.dist_matrix = new_distance_matrix
+        return self._cluster_NJ(tree, new_nodes)
 
     # place holder NJ algorithm formatting to Newick
     def generate_newick(self):
