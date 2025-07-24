@@ -1,10 +1,14 @@
 # Base classes
-from goombay.algorithms.base import GlobalBase, LocalBase
+from goombay.align.base import GlobalBase, LocalBase
 
-# Algorithms module
-from goombay.algorithms import edit
-from goombay.algorithms import overlap
-from goombay.algorithms import overlap_msa
+# Alignment module
+from goombay.align import edit
+from goombay.align import edit_msa
+from goombay.align import overlap
+from goombay.align import overlap_msa
+
+# Clustering module
+from goombay.cluster import phylo
 
 # Variables from edit-based file
 hamming = edit.hamming
@@ -33,6 +37,7 @@ postfix = overlap.postfix
 ratcliff_obershelp = overlap.ratcliff_obershelp
 
 # Variables from multiple sequence alignment file
+feng_doolittle = edit_msa.feng_doolittle
 longest_common_substring_msa = overlap_msa.longest_common_substring_msa
 
 # Classes from edit-based file
@@ -62,4 +67,9 @@ Postfix = overlap.Postfix
 RatcliffObershelp = overlap.RatcliffObershelp
 
 # Classes from multiple sequence alignment file
+FengDoolittle = edit_msa.FengDoolittle
 LongestCommonSubstringMSA = overlap_msa.LongestCommonSubstringMSA
+
+# Classes from clustering file
+NeighborJoining = phylo.NeighborJoining
+NewickFormatter = phylo.NewickFormatter
