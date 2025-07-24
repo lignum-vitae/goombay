@@ -7,8 +7,8 @@ except ImportError:
     raise ImportError("Please pip install all dependencies from requirements.txt!")
 
 # internal dependencies
-from goombay.algorithms.base import LocalBase as _LocalBase
-from goombay.algorithms.edit import hamming
+from goombay.align.base import LocalBase as _LocalBase
+from goombay.align.edit import hamming
 
 __all__ = [
     "LongestCommonSubsequence",
