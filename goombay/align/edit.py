@@ -7,7 +7,7 @@ except ImportError:
     raise ImportError("Please pip install all dependencies from requirements.txt!")
 
 # internal dependencies
-from goombay.algorithms.base import GlobalBase as _GlobalBase, LocalBase as _LocalBase
+from goombay.align.base import GlobalBase as _GlobalBase, LocalBase as _LocalBase
 
 __all__ = [
     "WagnerFischer",
