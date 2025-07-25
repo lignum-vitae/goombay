@@ -66,6 +66,7 @@ The Hamming distance has two additional methods called `.binary_distance_array` 
 |Waterman-Smith-Beyer           |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | WatermanSmithBeyer          | waterman_smith_beyer          |
 |Wagner-Fischer                 |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | WagnerFischer               | wagner_fischer                |
 |Lowrance-Wagner                |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | LowranceWagner              | lowrance_wagner               |
+|Feng-Doolittle                 |<ul><li> [x] </li></ul>|<ul><li> [ ] </li></ul>|     <ul><li> [ ] </li></ul>     | FengDoolittle               | feng_doolittle                |
 |Hamming                        |<ul><li> [x] </li></ul>|<ul><li> [ ] </li></ul>|     <ul><li> [x] </li></ul>     | Hamming                     | hamming                       |
 |Hirschberg                     |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Hirschberg                  | hirschberg                    |
 |Jaro                           |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Jaro                        | jaro                          |
@@ -81,6 +82,7 @@ The Hamming distance has two additional methods called `.binary_distance_array` 
 |Length Ratio                   |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | LengthRatio                 | length_ratio                  |
 |Prefix                         |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Prefix                      | prefix                        |
 |Postfix                        |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Postfix                     | postfix                       |
+|Ratcliff Obershelp             |<ul><li> [x] </li></ul>|<ul><li> [ ] </li></ul>|     <ul><li> [x] </li></ul>     | RatcliffObershelp           | ratcliff_obershelp            |
 
 
 ## Algorithms Explained
@@ -137,6 +139,14 @@ The Hamming distance has two additional methods called `.binary_distance_array` 
   It uses a method known as divide and conquer to compare the two sequences.
   - The keyword arguments for this algorithm are `match_score: int = 1`, `mismatch_penalty: int = 2`, and `gap_penalty: int = 4`.
 
+- [Feng Doolittle](https://www.cs.auckland.ac.nz/compsci369s1c/lectures/DW-notes/lecture21.pdf) -
+  The Feng Doolittle algorithm is a progressive multiple sequence alignment algorithm
+  that uses a pairwise implementation such as Needleman Wunsch to determine a distance
+  matrix and a clustering algorithm such as the neighbour joining algorithm to determine
+  the final alignment.
+  - The keyword arguments for the class instantiation are `cluster: str = neighbor_joining` and `pairwise: str = needleman_wunsch`
+  - The keyword argument for the align method is `verbose: bool = False`
+
 - [Jaro & Jaro-Winkler](https://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance) -
   The Jaro algorithm is a global alignment algorithm that measures the Jaro distance between two sequences. It produces a number between 0 and 1 that accounts
   for the length of the strings, the number of matching characters, and the number of transpositions. The Jaro algorithm also takes into consideration matches
@@ -191,6 +201,12 @@ The Hamming distance has two additional methods called `.binary_distance_array` 
 
 - **Postfix** -
   The Postfix algorithm measures the number of contiguous matches from the end of a string.
+
+- [Ratcliff Obershelp](https://en.wikipedia.org/wiki/Gestalt_pattern_matching) -
+  The Ratcliff Obershelp algorithm determines the similarity of two or more strings
+  by multiplying two by the matching characters and dividing this product by the total
+  number of characters in both strings. The matching characters are found by progressive
+  iterations of finding the longest common substring.
 
 # Code Examples
 
