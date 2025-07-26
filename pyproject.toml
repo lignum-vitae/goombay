@@ -14,7 +14,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["numpy >= 2.0.0"]
+dependencies = ["numpy >= 2.0.0", "biopython>=1.85"]
 
 [project.urls]
 Homepage = "https://github.com/lignum-vitae/goombay"

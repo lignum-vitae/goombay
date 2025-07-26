@@ -155,10 +155,10 @@ git push -f origin feature-name
 To ensure your changes work correctly, you can run the tests before
 submitting a PR.
 
-Install dependencies (make sure you have numpy installed as well):
+Install development dependencies:
 
 ```nginx
-pip install goombay
+pip install -r requirements-dev.txt
 ```
 Run all tests using the following command from the root directory:
 

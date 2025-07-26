@@ -380,10 +380,14 @@ class Hamming:
 
 
 class NeedlemanWunsch(_GlobalBase):
-    def __init__(self, match: int = 2, mismatch: int = 1, gap: int = 2) -> None:
+    def __init__(self, match: int = 2, mismatch: int = 1, gap: int = 2, scoring_matrix = None) -> None:
         self.match = match
         self.mismatch = mismatch
         self.gap = gap
+        if scoring_matrix is not None:
+            self.match_func = lambda a, b: scoring_matrix[a][b]
+        else:
+            self.match_func = lambda a, b: self.match if a == b else -self.mismatch
 
     def __call__(
         self, query_seq: str, subject_seq: str
@@ -406,10 +410,7 @@ class NeedlemanWunsch(_GlobalBase):
 
         for i in range(1, qs_len):
             for j in range(1, ss_len):
-                if qs[i] == ss[j]:
-                    match = self.score[i - 1][j - 1] + self.match
-                else:
-                    match = self.score[i - 1][j - 1] - self.mismatch
+                match = self.score[i - 1][j - 1] + self.match_func(qs[i], ss[j])
                 ugap = self.score[i - 1][j] - self.gap
                 lgap = self.score[i][j - 1] - self.gap
                 tmax = max(match, lgap, ugap)
@@ -450,11 +451,16 @@ class WatermanSmithBeyer(_GlobalBase):
         mismatch: int = 1,
         new_gap: int = 4,
         continued_gap: int = 1,
+        scoring_matrix = None,
     ) -> None:
         self.match = match
         self.mismatch = mismatch
         self.new_gap = new_gap
         self.continued_gap = continued_gap
+        if scoring_matrix is not None:
+            self.match_func = lambda a, b: scoring_matrix[a][b]
+        else:
+            self.match_func = lambda a, b: self.match if a == b else -self.mismatch
 
     def __call__(
         self, query_seq: str, subject_seq: str
@@ -482,11 +488,9 @@ class WatermanSmithBeyer(_GlobalBase):
 
         for i in range(1, qs_len):
             for j in range(1, ss_len):
-                if qs[i] == ss[j]:
-                    match = self.score[i - 1][j - 1] + self.match
-                else:
-                    match = self.score[i - 1][j - 1] - self.mismatch
-                # both gaps defaulted to continue gap penalty
+                match = self.score[i - 1][j - 1] + self.match_func(qs[i], ss[j])
+                # calculate gap scores, if both gaps are not continued gaps, then
+                # they are new gaps, otherwise they are continued gaps
                 ugap_score = self.score[i - 1][j] - self.continued_gap
                 lgap_score = self.score[i][j - 1] - self.continued_gap
                 # if cell before i-1 or j-1 is gap, then this is a gap continuation
@@ -538,11 +542,16 @@ class Gotoh(_GlobalBase):
         mismatch: int = 1,
         new_gap: int = 2,
         continued_gap: int = 1,
+        scoring_matrix = None,
     ) -> None:
         self.match = match
         self.mismatch = mismatch
         self.new_gap = new_gap
         self.continued_gap = continued_gap
+        if scoring_matrix is not None:
+            self.match_func = lambda a, b: scoring_matrix[a][b]
+        else:
+            self.match_func = lambda a, b: self.match if a == b else -self.mismatch
 
     def __call__(
         self, query_seq: str, subject_seq: str
@@ -571,9 +580,7 @@ class Gotoh(_GlobalBase):
 
         for i in range(1, len(qs)):
             for j in range(1, len(ss)):
-                match = self.D[i - 1, j - 1] + (
-                    self.match if qs[i] == ss[j] else -self.mismatch
-                )
+                match = self.D[i - 1, j - 1] + self.match_func(qs[i], ss[j])
                 self.P[i, j] = max(
                     self.D[i - 1, j] - self.new_gap - self.continued_gap,
                     self.P[i - 1, j] - self.continued_gap,
@@ -754,10 +761,14 @@ class GotohLocal(_LocalBase):
 
 
 class Hirschberg:
-    def __init__(self, match: int = 1, mismatch: int = 2, gap: int = 4) -> None:
+    def __init__(self, match: int = 1, mismatch: int = 2, gap: int = 4, scoring_matrix = None) -> None:
         self.match = match
         self.mismatch = mismatch
         self.gap = gap
+        if scoring_matrix is not None:
+            self.match_func = lambda a, b: -1 * scoring_matrix[a][b]
+        else:
+            self.match_func = lambda a, b: -self.match if a == b else self.mismatch
 
     def __call__(self, query_seq: str, subject_seq: str) -> str:
         qs = "".join([x.upper() for x in query_seq])
@@ -804,7 +815,7 @@ class Hirschberg:
         for i in range(1, len(qs) + 1):
             curr_row[0] = prev_row[0] + self.gap
             for j in range(1, len(ss) + 1):
-                match = -self.match if qs[i - 1] == ss[j - 1] else self.mismatch
+                match = self.match_func(qs[i-1], ss[j-1])
                 curr_row[j] = min(
                     prev_row[j - 1] + match,  # match/mismatch
                     prev_row[j] + self.gap,  # deletion
@@ -829,7 +840,7 @@ class Hirschberg:
         # Fill matrices
         for i in range(1, len(qs) + 1):
             for j in range(1, len(ss) + 1):
-                match = -self.match if qs[i - 1] == ss[j - 1] else self.mismatch
+                match = self.match_func(qs[i-1], ss[j-1])
                 diag = score[i - 1, j - 1] + match
                 up = score[i - 1, j] + self.gap
                 left = score[i, j - 1] + self.gap
