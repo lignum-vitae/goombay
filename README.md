@@ -33,9 +33,12 @@ python3 -m unittest discover tests
 pytest tests\
 ```
 
+---
+
 All algorithms have a class with customizable parameters and a class instance with default parameters.
 
-Each algorithm is able to perform tasks such as alignment and displaying the underlying matrices, as shown in the implementation table. All algorithms, with the exception of the Hirschberg algorithm, can perform distance, similarity, normalized distance, and normalized similarity calculations.
+Each algorithm is able to perform tasks such as alignment and displaying the underlying matrices.
+See the [Implementation](#implementation) table for details about which methods can be used with each algorithm.
 
 The methods for the algorithms are:
 
@@ -52,6 +55,18 @@ The methods for the algorithms are:
 6. `.matrix(seq1, seq2)` - matrix (or matrices) created through the dynamic programming process.
 
 The Hamming distance has two additional methods called `.binary_distance_array` and `.binary_similarity_array` that produce a list of bits denoting which pairwise combinations are a match and which are a mismatch.
+
+---
+
+The `scoring_matrix` keyword argument accepts a substitution matrix from the [Biobase](https://github.com/lignum-vitae/biobase) package.
+
+The following algorithms accept the `scoring_matrix` keyword argument as a parameter:
+
+- NeedlemanWunsch
+- WatermanSmithBeyer
+- Gotoh
+- Hirschberg
+- FengDoolittle (only applies to above mentioned pairwise algorithms)
 
 # Implementation
 
