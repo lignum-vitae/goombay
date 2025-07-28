@@ -4,7 +4,7 @@ try:
     from numpy import float64
     from numpy._typing import NDArray
 except ImportError:
-    raise ImportError("Please pip install all dependencies from requirements.txt!")
+    raise ImportError("Numpy is not installed. Please pip install numpy to continue.")
 
 # internal dependencies
 from goombay.align.base import GlobalBase as _GlobalBase, LocalBase as _LocalBase
@@ -54,6 +54,8 @@ def main():
 
 
 class WagnerFischer(_GlobalBase):  # Levenshtein Distance
+    supports_scoring_matrix = False
+
     def __init__(self) -> None:
         self.gap = 1
         self.substitution = 1
@@ -154,6 +156,8 @@ class WagnerFischer(_GlobalBase):  # Levenshtein Distance
 
 
 class LowranceWagner(_GlobalBase):  # Damerau-Levenshtein distance
+    supports_scoring_matrix = False
+
     def __init__(self) -> None:
         self.gap = 1
         self.substitution = 1
@@ -380,7 +384,11 @@ class Hamming:
 
 
 class NeedlemanWunsch(_GlobalBase):
-    def __init__(self, match: int = 2, mismatch: int = 1, gap: int = 2, scoring_matrix = None) -> None:
+    supports_scoring_matrix = True
+
+    def __init__(
+        self, match: int = 2, mismatch: int = 1, gap: int = 2, scoring_matrix=None
+    ) -> None:
         self.match = match
         self.mismatch = mismatch
         self.gap = gap
@@ -445,13 +453,15 @@ class NeedlemanWunsch(_GlobalBase):
 
 
 class WatermanSmithBeyer(_GlobalBase):
+    supports_scoring_matrix = True
+
     def __init__(
         self,
         match: int = 2,
         mismatch: int = 1,
         new_gap: int = 4,
         continued_gap: int = 1,
-        scoring_matrix = None,
+        scoring_matrix=None,
     ) -> None:
         self.match = match
         self.mismatch = mismatch
@@ -536,13 +546,15 @@ class WatermanSmithBeyer(_GlobalBase):
 
 
 class Gotoh(_GlobalBase):
+    supports_scoring_matrix = True
+
     def __init__(
         self,
         match: int = 2,
         mismatch: int = 1,
         new_gap: int = 2,
         continued_gap: int = 1,
-        scoring_matrix = None,
+        scoring_matrix=None,
     ) -> None:
         self.match = match
         self.mismatch = mismatch
@@ -761,7 +773,11 @@ class GotohLocal(_LocalBase):
 
 
 class Hirschberg:
-    def __init__(self, match: int = 1, mismatch: int = 2, gap: int = 4, scoring_matrix = None) -> None:
+    supports_scoring_matrix = True
+
+    def __init__(
+        self, match: int = 1, mismatch: int = 2, gap: int = 4, scoring_matrix=None
+    ) -> None:
         self.match = match
         self.mismatch = mismatch
         self.gap = gap
@@ -815,7 +831,7 @@ class Hirschberg:
         for i in range(1, len(qs) + 1):
             curr_row[0] = prev_row[0] + self.gap
             for j in range(1, len(ss) + 1):
-                match = self.match_func(qs[i-1], ss[j-1])
+                match = self.match_func(qs[i - 1], ss[j - 1])
                 curr_row[j] = min(
                     prev_row[j - 1] + match,  # match/mismatch
                     prev_row[j] + self.gap,  # deletion
@@ -840,7 +856,7 @@ class Hirschberg:
         # Fill matrices
         for i in range(1, len(qs) + 1):
             for j in range(1, len(ss) + 1):
-                match = self.match_func(qs[i-1], ss[j-1])
+                match = self.match_func(qs[i - 1], ss[j - 1])
                 diag = score[i - 1, j - 1] + match
                 up = score[i - 1, j] + self.gap
                 left = score[i, j - 1] + self.gap
@@ -967,6 +983,8 @@ class Hirschberg:
 
 
 class Jaro:
+    supports_scoring_matrix = False
+
     def __init__(self) -> None:
         self.match = 1
         self.winkler = False
@@ -1128,6 +1146,8 @@ class Jaro:
 
 
 class JaroWinkler(Jaro):
+    supports_scoring_matrix = False
+
     def __init__(self, scaling_factor=0.1):
         self.match = 1
         self.winkler = True

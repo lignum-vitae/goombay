@@ -4,7 +4,7 @@ try:
     from numpy import float64
     from numpy._typing import NDArray
 except ImportError:
-    raise ImportError("Please pip install all dependencies from requirements.txt!")
+    raise ImportError("Numpy is not installed. Please pip install numpy to continue.")
 
 # internal dependencies
 from goombay.align.base import LocalBase as _LocalBase

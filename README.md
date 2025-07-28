@@ -1,4 +1,4 @@
-[![Static Badge](https://img.shields.io/badge/Project_Name-Goombay-blue)](https://github.com/dawnandrew100/goombay)
+[![Static Badge](https://img.shields.io/badge/Project_Name-Goombay-blue)](https://github.com/lignum-vitae/goombay)
 [![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Flignum-vitae%2Fgoombay%2Fmaster%2Fpyproject.toml)](https://github.com/lignum-vitae/goombay/blob/master/pyproject.toml)
 [![PyPI version](https://img.shields.io/pypi/v/goombay.svg)](https://pypi.python.org/pypi/goombay)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14903445.svg)](https://doi.org/10.5281/zenodo.14903445)
@@ -259,6 +259,31 @@ print(needleman_wunsch.matrix("AFTG","ACTG"))
  [6. 4. 3. 1. 3.]
  [8. 6. 5. 3. 1.]]
  ```
+
+Needleman-Wunsch with scoring matrix
+
+- Details about scoring matrices can be found at [Biobase](https://github.com/lignum-vitae/biobase)
+- Custom scoring matrices also supported
+
+```py
+from goombay import NeedlemanWunsch, needleman_wunsch
+from biobase.matrix import Blosum
+
+
+seq1 = "MENSDSLFKLLAEAKGK"
+seq2 = "MEQNSDIFKLAQK"
+
+print(needleman_wunsch.align(seq1, seq2))
+# ME-NSDSLFKLLAEAKGK
+# MEQNSD-IFK-L--A-QK
+
+needleman62 = NeedlemanWunsch(scoring_matrix=Blosum(62))
+print(needleman62.align(seq1, seq2))
+# ME-NSDSLFKLLAEAKGK
+# MEQNSD-IFK-LAQ---K
+
+
+```
 
 # Contributions
 

@@ -8,7 +8,12 @@ try:
     from Bio import Phylo
     from io import StringIO
 except ImportError:
-    raise ImportError("Please pip install all dependencies from requirements.txt!")
+    raise ImportError(
+        "Please ensure that both numpy and biopython packages are installed.\n"
+        "Run the 'pip install <package name>' command from the terminal "
+        "if they are not installed or run 'pip install --upgrade <package name>' "
+        "to install the latest version."
+    )
 
 
 # internal dependencies
@@ -71,13 +76,13 @@ class FengDoolittle:
 
     cl_abbreviations = {"nj": "neighbor_joining"}
 
-    def __init__(self, cluster: str = "nj", pairwise: str = "nw"):
+    def __init__(self, cluster: str = "nj", pairwise: str = "nw", scoring_matrix=None):
         """Initialize Feng-Doolittle algorithm with chosen pairwise method"""
         # Get pairwise alignment algorithm
         if pairwise.lower() in self.supported_pairwise:
-            self.pairwise = self.supported_pairwise[pairwise]()
+            pairwise_class = self.supported_pairwise[pairwise]
         elif pairwise.lower() in self.pw_abbreviations:
-            self.pairwise = self.supported_pairwise[self.pw_abbreviations[pairwise]]()
+            pairwise_class = self.supported_pairwise[self.pw_abbreviations[pairwise]]
         else:
             raise ValueError(f"Unsupported pairwise alignment method: {pairwise}")
 
@@ -87,6 +92,17 @@ class FengDoolittle:
             self.cluster = self.supported_clustering[self.cl_abbreviations[cluster]]
         else:
             raise ValueError(f"Unsupported clustering algorithm: {cluster}")
+
+        if scoring_matrix is not None:
+            # getattr(object, attribute, default)
+            if getattr(pairwise_class, "supports_scoring_matrix", False):
+                self.pairwise = pairwise_class(scoring_matrix=scoring_matrix)
+            else:
+                raise ValueError(
+                    f"The selected pairwise method '{pairwise}' does not support a scoring matrix."
+                )
+        else:
+            self.pairwise = pairwise_class()
 
     @classmethod
     def supported_pairwise_algs(cls):
