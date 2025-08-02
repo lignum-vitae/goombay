@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "goombay"
-version = "0.24.0"
+version = "0.24.1"
 authors = [{ name = "Andrew Hennis", email = "andrew.mr.hennis@gmail.com" }]
 description = "Python implementation of several sequence alignment algorithms such as Waterman-Smith-Beyer, Gotoh, and Needleman-Wunsch intended to calculate distance, show alignment, and display the underlying matrices."
 readme = "README.md"
@@ -14,8 +14,21 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["numpy >= 2.0.0"]
+dependencies = ["numpy >= 2.0.0", "biopython>=1.85"]
 
 [project.urls]
 Homepage = "https://github.com/lignum-vitae/goombay"
 Issues = "https://github.com/lignum-vitae/goombay/issues"
+
+[tool.hatch.build.sources]
+goombay = "goombay"
+
+[tool.hatch.build]
+include = ["goombay/**/*.py"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["goombay"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

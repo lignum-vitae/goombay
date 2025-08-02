@@ -1,4 +1,4 @@
-[![Static Badge](https://img.shields.io/badge/Project_Name-Goombay-blue)](https://github.com/dawnandrew100/goombay)
+[![Static Badge](https://img.shields.io/badge/Project_Name-Goombay-blue)](https://github.com/lignum-vitae/goombay)
 [![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Flignum-vitae%2Fgoombay%2Fmaster%2Fpyproject.toml)](https://github.com/lignum-vitae/goombay/blob/master/pyproject.toml)
 [![PyPI version](https://img.shields.io/pypi/v/goombay.svg)](https://pypi.python.org/pypi/goombay)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14903445.svg)](https://doi.org/10.5281/zenodo.14903445)
@@ -33,9 +33,12 @@ python3 -m unittest discover tests
 pytest tests\
 ```
 
+---
+
 All algorithms have a class with customizable parameters and a class instance with default parameters.
 
-Each algorithm is able to perform tasks such as alignment and displaying the underlying matrices, as shown in the implementation table. All algorithms, with the exception of the Hirschberg algorithm, can perform distance, similarity, normalized distance, and normalized similarity calculations.
+Each algorithm is able to perform tasks such as alignment and displaying the underlying matrices.
+See the [Implementation](#implementation) table for details about which methods can be used with each algorithm.
 
 The methods for the algorithms are:
 
@@ -52,6 +55,18 @@ The methods for the algorithms are:
 6. `.matrix(seq1, seq2)` - matrix (or matrices) created through the dynamic programming process.
 
 The Hamming distance has two additional methods called `.binary_distance_array` and `.binary_similarity_array` that produce a list of bits denoting which pairwise combinations are a match and which are a mismatch.
+
+---
+
+The `scoring_matrix` keyword argument accepts a substitution matrix from the [Biobase](https://github.com/lignum-vitae/biobase) package.
+
+The following algorithms accept the `scoring_matrix` keyword argument as a parameter:
+
+- NeedlemanWunsch
+- WatermanSmithBeyer
+- Gotoh
+- Hirschberg
+- FengDoolittle (only applies to above mentioned pairwise algorithms)
 
 # Implementation
 
@@ -259,6 +274,31 @@ print(needleman_wunsch.matrix("AFTG","ACTG"))
  [6. 4. 3. 1. 3.]
  [8. 6. 5. 3. 1.]]
  ```
+
+Needleman-Wunsch with scoring matrix
+
+- Details about scoring matrices can be found at [Biobase](https://github.com/lignum-vitae/biobase)
+- Custom scoring matrices also supported
+
+```py
+from goombay import NeedlemanWunsch, needleman_wunsch
+from biobase.matrix import Blosum
+
+
+seq1 = "MENSDSLFKLLAEAKGK"
+seq2 = "MEQNSDIFKLAQK"
+
+print(needleman_wunsch.align(seq1, seq2))
+# ME-NSDSLFKLLAEAKGK
+# MEQNSD-IFK-L--A-QK
+
+needleman62 = NeedlemanWunsch(scoring_matrix=Blosum(62))
+print(needleman62.align(seq1, seq2))
+# ME-NSDSLFKLLAEAKGK
+# MEQNSD-IFK-LAQ---K
+
+
+```
 
 # Contributions
 
