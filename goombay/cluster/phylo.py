@@ -8,6 +8,7 @@ except ImportError:
 try:
     from io import StringIO
     from Bio import Phylo
+    from Bio.Phylo.BaseTree import Tree
 except ImportError:
     raise ImportError(
         "Biopython is not installed. Please pip install biopython to continue"
@@ -20,7 +21,7 @@ class NewickFormatter:
         self.dist_matrix = dist_matrix
 
     # in order for parse to work there needs to have been a tree object that is inserted into the class
-    def parse_newick(self, newick):
+    def parse_newick(self, newick: str) -> Tree:
         """takes a newick string and converts it into a simple binary tree with Biopythons phylo module"""
         tree = Phylo.read(StringIO(newick), "newick")
         return tree
@@ -57,7 +58,7 @@ class NeighborJoining:
                     node_row.append(dIJ_prime)
         return adj_matrix
 
-    def _pair_distance(self, nodeI, nodeJ):
+    def _pair_distance(self, nodeI: int, nodeJ: int) -> list[numpy.float32]:
         # return new calculated distances
         stored_values = []
         mat_len = len(self.dist_matrix)
@@ -77,7 +78,9 @@ class NeighborJoining:
     # nodes A and B into consideration instead of divergences.
     # Calculate limb lengths for each leaf that is joined
     # return a tuple containing two values for each distance
-    def _limb_length(self, nodeA, nodeB, divergences):
+    def _limb_length(
+        self, nodeA: int, nodeB: int, divergences: list[numpy.float32]
+    ) -> tuple[numpy.float32, numpy.float32]:
         n = len(self.dist_matrix)
         dAB = self.dist_matrix[nodeA][nodeB]
         divergenceA = divergences[nodeA]
@@ -89,8 +92,8 @@ class NeighborJoining:
 
         return dAZ, dBZ
 
-    def _to_newick(self, tree):
-        def recurse(node):
+    def _to_newick(self, tree: dict[str, dict[str, numpy.float32]]) -> str:
+        def recurse(node: str):
             if isinstance(tree[node], dict):
                 children = []
                 for child, dist in tree[node].items():
@@ -105,7 +108,7 @@ class NeighborJoining:
         root = list(tree.keys())[-1]
         return recurse(root) + ";"
 
-    def _cluster_NJ(self, tree, nodes):
+    def _cluster_NJ(self, tree: dict[str, dict[str, numpy.float32]], nodes: list[str]):
         mat_len = len(self.dist_matrix)
 
         if mat_len == 2:
@@ -167,7 +170,7 @@ class NeighborJoining:
         self.dist_matrix = new_distance_matrix
         return self._cluster_NJ(tree, new_nodes)
 
-    def generate_newick(self):
+    def generate_newick(self) -> str:
         # distance matrix and n x n dimensions, respectfully
         dist_matrix = self.dist_matrix
         tree = {}

@@ -5,8 +5,7 @@ try:
     from numpy._typing import NDArray
 
     # global packages serving as a placeholder for parsing newick strings - adahik
-    from Bio import Phylo
-    from io import StringIO
+    from Bio.Phylo.BaseTree import Tree
 except ImportError:
     raise ImportError(
         "Please ensure that both numpy and biopython packages are installed.\n"
@@ -112,7 +111,8 @@ class FengDoolittle:
     def supported_clustering_algs(cls):
         return list(cls.supported_clustering)
 
-    def __call__(self, seqs: list[str]):
+    def __call__(self, seqs: list[str]) -> tuple[dict[str, list[str]], NDArray]:
+        # tuple[dict[], list[]]:
         """"""
         # This sets the unnormalized sequence distance
         dist_mat_len = len(seqs)
@@ -127,7 +127,9 @@ class FengDoolittle:
                     seq_dist_matrix[j][i] = alignment_score
         return profile_dict, seq_dist_matrix
 
-    def _align(self, newick_tree, profile_dict, verbose: bool):
+    def _align(
+        self, newick_tree: Tree, profile_dict: dict[str, list[str]], verbose: bool
+    ) -> None:
         for clade in newick_tree.get_nonterminals(order="postorder"):
             left, right = clade.clades
             if verbose:
@@ -148,7 +150,7 @@ class FengDoolittle:
                 # store the merged profile
                 profile_dict[clade.name] = merged_profile
 
-    def align(self, seqs: list[str], verbose: bool = False):
+    def align(self, seqs: list[str], verbose: bool = False) -> str:
         if not isinstance(seqs, list):
             raise TypeError("Input must be a list of sequences.")
 
@@ -174,12 +176,6 @@ class FengDoolittle:
         for i in range(len(aligned_seqs)):
             rtn_str.append(aligned_seqs[i])
         return "\n".join(rtn_str)
-
-    # helper functions
-    def parse_newick(self, newick):
-        """takes a newick string and converts it into a simple binary tree with Biopythons phylo module"""
-        tree = Phylo.read(StringIO(newick), "newick")
-        return tree
 
     def merge_profiles(self, profile1: list[str], profile2: list[str]) -> list[str]:
         # Pick first seq from each profile as representative (simplified for now)
