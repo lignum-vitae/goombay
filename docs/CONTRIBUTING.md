@@ -132,6 +132,20 @@ git add <resolved-filename>
 git rebase --continue
 ```
 
+The behavior of `git pull` can be adjusted to deal with merge conflicts by
+rebasing them instead of merging them by running the command
+`git config pull.rebase true` from the base of this repo.
+
+This will only change the behavior for this repo. To change it for all your current
+repositories, run the command `git config --global pull.rebase true`.
+
+This change can be confirmed by checking that this is in your `.git/config` file:
+
+```toml
+[pull]
+	rebase = true
+```
+
 #### 10. Push your branch to your fork on GitHub
 
 ```nginx

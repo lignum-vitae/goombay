@@ -1,10 +1,22 @@
-from io import StringIO
-from Bio import Phylo
+try:
+    # external dependencies
+    import numpy
+    from numpy._typing import NDArray
+except ImportError:
+    raise ImportError("Numpy is not installed. Please pip install numpy to continue.")
+
+try:
+    from io import StringIO
+    from Bio import Phylo
+except ImportError:
+    raise ImportError(
+        "Biopython is not installed. Please pip install biopython to continue"
+    )
 
 
 # takes a matrix from a clustering algorithm and outputs a newick tree, can also parse newicks?
 class NewickFormatter:
-    def __init__(self, dist_matrix):
+    def __init__(self, dist_matrix: NDArray):
         self.dist_matrix = dist_matrix
 
     # in order for parse to work there needs to have been a tree object that is inserted into the class
@@ -15,8 +27,8 @@ class NewickFormatter:
 
 
 class NeighborJoining:
-    def __init__(self, dist_matrix):
-        self.dist_matrix = dist_matrix
+    def __init__(self, dist_matrix: NDArray):
+        self.dist_matrix = numpy.array(dist_matrix)
 
     # distance calculation for NJ
     # returns a list of total distances for forming Distance Matrix Prime
@@ -131,9 +143,9 @@ class NeighborJoining:
         new_node_distances = self._pair_distance(min_i, min_j)
         # Build new distance matrix
         new_mat_len = mat_len - 1
-        new_distance_matrix = [
-            [0.0 for _ in range(new_mat_len)] for _ in range(new_mat_len)
-        ]
+        new_distance_matrix = numpy.zeros(
+            (new_mat_len, new_mat_len), dtype=numpy.float32
+        )
         # Fill in the new distance matrix
         idx = 0
         for i in range(mat_len):
@@ -155,7 +167,6 @@ class NeighborJoining:
         self.dist_matrix = new_distance_matrix
         return self._cluster_NJ(tree, new_nodes)
 
-    # place holder NJ algorithm formatting to Newick
     def generate_newick(self):
         # distance matrix and n x n dimensions, respectfully
         dist_matrix = self.dist_matrix

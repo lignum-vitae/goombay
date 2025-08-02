@@ -1,7 +1,7 @@
 try:
     # external dependencies
     import numpy
-    from numpy import float64
+    from numpy import float32
     from numpy._typing import NDArray
 
     # global packages serving as a placeholder for parsing newick strings - adahik
@@ -116,7 +116,7 @@ class FengDoolittle:
         """"""
         # This sets the unnormalized sequence distance
         dist_mat_len = len(seqs)
-        seq_dist_matrix = numpy.zeros((dist_mat_len, dist_mat_len), dtype=float64)
+        seq_dist_matrix = numpy.zeros((dist_mat_len, dist_mat_len), dtype=float32)
         profile_dict = {}
         for i, i_seq in enumerate(seqs):
             profile_dict[str(i)] = [i_seq]  # storing lists instead of strings
