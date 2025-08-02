@@ -22,10 +22,21 @@ class TestFengDoolittle(unittest.TestCase):
         """Check output for a known 3-sequence progressive alignment"""
         seqs = ["HOUSEOFCARDSFALLDOWN", "HOUSECARDFALLDOWN", "FALLDOWN"]
         result = self.feng.align(seqs).splitlines()
+        expected = [
+            "HOUSEOFCARDSFALLDOWN",
+            "HOUSE--CARD-FALLDOWN",
+            "------------FALLDOWN",
+        ]
 
         self.assertEqual(len(result), 3)
         self.assertTrue(all(len(row) == len(result[0]) for row in result))  # aligned
-        self.assertIn("FALLDOWN", result[2].replace("-", ""))  # must preserve core
+
+        orig_no_gaps = sorted(seq for seq in seqs)
+        aligned_no_gaps = sorted(seq.replace("-", "") for seq in result)
+        self.assertEqual(orig_no_gaps, aligned_no_gaps)
+
+        for seq in expected:
+            self.assertIn(seq, result)
 
     def test_alignment_with_gaps(self):
         """Test sequences that require gap insertions"""
@@ -92,12 +103,19 @@ class TestFengDoolittle(unittest.TestCase):
 
     def test_case_insensitivity(self):
         """Ensure alignment behaves case-insensitively (via pairwise alignment)"""
+        aligned = []
         upper = self.feng.align(["ACTG", "ACTG", "ACTG"])
         lower = self.feng.align(["actg", "actg", "actg"])
         mixed = self.feng.align(["AcTg", "aCtG", "ACTG"])
 
+        aligned.extend([upper, lower, mixed])
+
         self.assertEqual(upper, lower)
         self.assertEqual(lower, mixed)
+
+        for alignment in aligned:
+            for seq in alignment.split("\n"):
+                self.assertEqual(seq, "ACTG")  # ensure aligned length
 
     def test_more_than_three_sequences(self):
         """Test alignment with more than three sequences"""
