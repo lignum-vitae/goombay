@@ -6,8 +6,6 @@ try:
 except ImportError:
     raise ImportError("Numpy is not installed. Please pip install numpy to continue.")
 
-from biobase.matrix import Blosum
-
 # internal dependencies
 from goombay.align.base import GlobalBase as _GlobalBase, LocalBase as _LocalBase
 
@@ -38,6 +36,8 @@ __all__ = [
 
 
 def main():
+    from biobase.matrix import Blosum
+
     """
     qqs = "HOLYWATERISABLESSING"
     sss = ["HOLYWATERBLESSING", "HOLYERISSING", "HOLYWATISSSI", "HWATISBLESSING", "HOLYWATISSS"]
