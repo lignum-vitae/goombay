@@ -1,4 +1,4 @@
 numpy>=2.0.0
 biopython>=1.85
 pytest
-biobase>=0.4.8
+biobase>=0.5.1
