@@ -36,6 +36,8 @@ __all__ = [
 
 
 def main():
+    from biobase.matrix import Blosum
+
     """
     qqs = "HOLYWATERISABLESSING"
     sss = ["HOLYWATERBLESSING", "HOLYERISSING", "HOLYWATISSSI", "HWATISBLESSING", "HOLYWATISSS"]
@@ -48,9 +50,9 @@ def main():
     query = "CGCAAATGGGCGGTAGGCGTG"
     subject = "CTTTATCCAGCCCTCAC"
 
-    print(needleman_wunsch.distance(query, subject))
     print(needleman_wunsch.normalized_distance(query, subject))
-    print(smith_waterman.align(query, subject))
+    nw_62 = NeedlemanWunsch(scoring_matrix=Blosum(62))
+    print(nw_62.normalized_distance(query, subject))
 
 
 class WagnerFischer(_GlobalBase):  # Levenshtein Distance
@@ -392,8 +394,11 @@ class NeedlemanWunsch(_GlobalBase):
         self.match = match
         self.mismatch = mismatch
         self.gap = gap
+        self.has_sub_mat = False
+        self.sub_mat = scoring_matrix
         if scoring_matrix is not None:
             self.match_func = lambda a, b: scoring_matrix[a][b]
+            self.has_sub_mat = True
         else:
             self.match_func = lambda a, b: self.match if a == b else -self.mismatch
 
@@ -467,8 +472,11 @@ class WatermanSmithBeyer(_GlobalBase):
         self.mismatch = mismatch
         self.new_gap = new_gap
         self.continued_gap = continued_gap
+        self.has_sub_mat = False
+        self.sub_mat = scoring_matrix
         if scoring_matrix is not None:
             self.match_func = lambda a, b: scoring_matrix[a][b]
+            self.has_sub_mat = True
         else:
             self.match_func = lambda a, b: self.match if a == b else -self.mismatch
 
@@ -560,8 +568,11 @@ class Gotoh(_GlobalBase):
         self.mismatch = mismatch
         self.new_gap = new_gap
         self.continued_gap = continued_gap
+        self.has_sub_mat = False
+        self.sub_mat = scoring_matrix
         if scoring_matrix is not None:
             self.match_func = lambda a, b: scoring_matrix[a][b]
+            self.has_sub_mat = True
         else:
             self.match_func = lambda a, b: self.match if a == b else -self.mismatch
 
@@ -781,8 +792,11 @@ class Hirschberg:
         self.match = match
         self.mismatch = mismatch
         self.gap = gap
+        self.has_sub_mat = False
+        self.sub_mat = scoring_matrix
         if scoring_matrix is not None:
             self.match_func = lambda a, b: -1 * scoring_matrix[a][b]
+            self.has_sub_mat = True
         else:
             self.match_func = lambda a, b: -self.match if a == b else self.mismatch
 
@@ -922,12 +936,10 @@ class Hirschberg:
 
         score = 0.0
         for q, s in zip(qs_align, ss_align):
-            if q == s and q != "-":
-                score += self.match
-            elif q == "-" or s == "-":
+            if q == "-" or s == "-":
                 score -= self.gap
             else:
-                score -= self.mismatch
+                score -= self.match_func(q, s)
         return max(0.0, float(score))
 
     def normalized_distance(self, query_seq: str, subject_seq: str) -> float:

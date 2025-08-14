@@ -36,8 +36,20 @@ class GlobalBase(ABC):
     def normalized_similarity(self, query_seq: str, subject_seq: str) -> float:
         raw_score = self.similarity(query_seq, subject_seq)
         max_len = len(max(query_seq, subject_seq, key=len))
-        max_possible = max_len * self.match
-        min_possible = -max_len * self.mismatch
+        if self.has_sub_mat:
+            max_val = float("-inf")
+            min_val = float("inf")
+            avail_keys = list(self.sub_mat["A"].keys())
+            for key in avail_keys:
+                temp_max = max(self.sub_mat[key].values())
+                temp_min = min(self.sub_mat[key].values())
+                max_val = temp_max if temp_max > max_val else max_val
+                min_val = temp_min if temp_min < min_val else min_val
+            max_possible = max_len * max_val
+            min_possible = -max_len * abs(min_val)
+        else:
+            max_possible = max_len * self.match
+            min_possible = -max_len * self.mismatch
         score_range = max_possible - min_possible
         return (raw_score - min_possible) / score_range
 
