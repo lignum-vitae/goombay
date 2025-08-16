@@ -36,7 +36,7 @@ __all__ = [
 
 
 def main():
-    from biobase.matrix import Blosum
+    from biobase.matrix import Blosum, Pam
 
     """
     qqs = "HOLYWATERISABLESSING"
@@ -47,12 +47,18 @@ def main():
         print()
     print(waterman_smith_beyer.matrix("TRATE", "TRACE"))
     """
-    query = "CGCAAATGGGCGGTAGGCGTG"
-    subject = "CTTTATCCAGCCCTCAC"
+    query = "*****"
+    subject = "DDDDD"
 
-    print(needleman_wunsch.normalized_distance(query, subject))
-    nw_62 = NeedlemanWunsch(scoring_matrix=Blosum(62))
-    print(nw_62.normalized_distance(query, subject))
+    gb62 = Gotoh(scoring_matrix=Blosum(62))
+    gp250 = Gotoh(continued_gap=2, scoring_matrix=Pam(250))
+    print(gb62.normalized_similarity(query, subject))
+    print(gb62.matrix(query, subject))
+    print(gp250.normalized_similarity(query, subject))
+    print(gp250.matrix(query, subject))
+    wsbp250 = WatermanSmithBeyer(scoring_matrix=Pam(250))
+    print(wsbp250.normalized_similarity(query, subject))
+    print(wsbp250.matrix(query, subject))
 
 
 class WagnerFischer(_GlobalBase):  # Levenshtein Distance
@@ -944,10 +950,10 @@ class Hirschberg:
 
     def normalized_distance(self, query_seq: str, subject_seq: str) -> float:
         """Calculate normalized distance between sequences"""
-        if not query_seq or not subject_seq:
-            return 1.0
         if query_seq == subject_seq:
             return 0.0
+        if not query_seq or not subject_seq:
+            return 1.0
 
         raw_dist = self.distance(query_seq, subject_seq)
         max_len = max(len(query_seq), len(subject_seq))
@@ -959,11 +965,6 @@ class Hirschberg:
 
     def normalized_similarity(self, query_seq: str, subject_seq: str) -> float:
         """Calculate normalized similarity between sequences"""
-        if not query_seq or not subject_seq:
-            return 0.0
-        if query_seq == subject_seq:
-            return 1.0
-
         return 1.0 - self.normalized_distance(query_seq, subject_seq)
 
     def matrix(self, query_seq: str, subject_seq: str) -> NDArray[float64]:
