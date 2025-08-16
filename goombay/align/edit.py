@@ -36,7 +36,7 @@ __all__ = [
 
 
 def main():
-    from biobase.matrix import Blosum
+    from biobase.matrix import Blosum, Pam
 
     """
     qqs = "HOLYWATERISABLESSING"
@@ -47,12 +47,12 @@ def main():
         print()
     print(waterman_smith_beyer.matrix("TRATE", "TRACE"))
     """
-    query = "CGCAAATGGGCGGTAGGCGTG"
-    subject = "CTTTATCCAGCCCTCAC"
+    query = "ACTG"
+    subject = "AAAA"
 
-    print(needleman_wunsch.normalized_distance(query, subject))
-    nw_62 = NeedlemanWunsch(scoring_matrix=Blosum(62))
-    print(nw_62.normalized_distance(query, subject))
+    print(needleman_wunsch.matrix(query, subject))
+    print(gotoh.normalized_similarity(query, subject))
+    print(needleman_wunsch.normalized_similarity(query, subject))
 
 
 class WagnerFischer(_GlobalBase):  # Levenshtein Distance
@@ -554,7 +554,7 @@ class WatermanSmithBeyer(_GlobalBase):
 
 
 class Gotoh(_GlobalBase):
-    supports_scoring_matrix = True
+    supports_scoring_matrix = False
 
     def __init__(
         self,
@@ -562,19 +562,13 @@ class Gotoh(_GlobalBase):
         mismatch: int = 1,
         new_gap: int = 2,
         continued_gap: int = 1,
-        scoring_matrix=None,
     ) -> None:
         self.match = match
         self.mismatch = mismatch
         self.new_gap = new_gap
         self.continued_gap = continued_gap
         self.has_sub_mat = False
-        self.sub_mat = scoring_matrix
-        if scoring_matrix is not None:
-            self.match_func = lambda a, b: scoring_matrix[a][b]
-            self.has_sub_mat = True
-        else:
-            self.match_func = lambda a, b: self.match if a == b else -self.mismatch
+        self.match_func = lambda a, b: self.match if a == b else -self.mismatch
 
     def __call__(
         self, query_seq: str, subject_seq: str
@@ -944,10 +938,10 @@ class Hirschberg:
 
     def normalized_distance(self, query_seq: str, subject_seq: str) -> float:
         """Calculate normalized distance between sequences"""
-        if not query_seq or not subject_seq:
-            return 1.0
         if query_seq == subject_seq:
             return 0.0
+        if not query_seq or not subject_seq:
+            return 1.0
 
         raw_dist = self.distance(query_seq, subject_seq)
         max_len = max(len(query_seq), len(subject_seq))
@@ -959,11 +953,6 @@ class Hirschberg:
 
     def normalized_similarity(self, query_seq: str, subject_seq: str) -> float:
         """Calculate normalized similarity between sequences"""
-        if not query_seq or not subject_seq:
-            return 0.0
-        if query_seq == subject_seq:
-            return 1.0
-
         return 1.0 - self.normalized_distance(query_seq, subject_seq)
 
     def matrix(self, query_seq: str, subject_seq: str) -> NDArray[float64]:

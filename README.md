@@ -64,7 +64,6 @@ The following algorithms accept the `scoring_matrix` keyword argument as a param
 
 - NeedlemanWunsch
 - WatermanSmithBeyer
-- Gotoh
 - Hirschberg
 - FengDoolittle (only applies to above mentioned pairwise algorithms)
 
@@ -305,9 +304,6 @@ print(needleman62.align(seq1, seq2))
 Interested in contributing to Goombay? Please review our [Contribution Guidelines](https://github.com/lignum-vitae/goombay/blob/master/docs/CONTRIBUTING.md) for detailed instructions on how to get involved.
 
 # Caveats
-
-> [!CAUTION]
-> There are some issues with alignment to be tackled in later releases.
 
 Note that due to the fact that the Hamming distance does not allow for insertions or deletions, the "aligned sequence" that is returned is just the original sequences in a formatted string.
 This is due to the fact that actually aligning the two sequences using this algorithm would just lead to two lines of the query sequence.
