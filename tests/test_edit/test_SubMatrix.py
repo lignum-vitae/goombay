@@ -13,7 +13,9 @@ class TestSubstitutionMatrices(unittest.TestCase):
         self.h = Hirschberg()
         self.nwb62 = NeedlemanWunsch(scoring_matrix=Blosum(62))
         self.hb62 = Hirschberg(scoring_matrix=Blosum(62))
-        self.wsbp250 = WatermanSmithBeyer(new_gap=5, continued_gap=3, scoring_matrix=Pam(250))
+        self.wsbp250 = WatermanSmithBeyer(
+            new_gap=5, continued_gap=3, scoring_matrix=Pam(250)
+        )
         self.gp250 = Gotoh(new_gap=5, continued_gap=3, scoring_matrix=Pam(250))
 
     def test_identical_sequences(self):

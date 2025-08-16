@@ -38,6 +38,7 @@ class GlobalBase(ABC):
             return 1.0
         if not query_seq or not subject_seq:
             return 0.0
+
         raw_score = self.similarity(query_seq, subject_seq)
         if self.has_sub_mat:
             max_possible = 0
