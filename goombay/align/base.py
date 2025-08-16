@@ -42,15 +42,11 @@ class GlobalBase(ABC):
         if self.has_sub_mat:
             max_possible = 0
             min_possible = 0
-            if hasattr(self, "new_gap"):
-                gap = -self.continued_gap
-            else:
-                gap = -self.gap
             for q, s in zip(query_seq, subject_seq):
                 q_match = self.sub_mat[q][q]
                 s_match = self.sub_mat[s][s]
                 qs_match = self.sub_mat[q][s]
-                candidates = (gap, q_match, s_match, qs_match)
+                candidates = (q_match, s_match, qs_match)
                 max_possible += max(candidates)
                 min_possible += min(candidates)
         else:
@@ -58,7 +54,6 @@ class GlobalBase(ABC):
             max_possible = max_len * self.match
             min_possible = -max_len * self.mismatch
         score_range = max_possible + abs(min_possible)
-
         return (raw_score + abs(min_possible)) / score_range
 
     def align(self, query_seq: str, subject_seq: str) -> str:

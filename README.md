@@ -305,6 +305,11 @@ Interested in contributing to Goombay? Please review our [Contribution Guideline
 
 # Caveats
 
+> [!CAUTION]
+> Scoring for Gotoh and Water-Smith-Beyer may be incorrect if new gap and continued gap penalties are not adjusted when substitution matrices are in use.
+> It is recommended that the the penalties are adjusted so that they are harsher than the worst mismatch possible in your sequence for a give substitution matrix.
+> Refer to the `test_SubMatrix.py` file in the `tests` directory for an example.
+
 Note that due to the fact that the Hamming distance does not allow for insertions or deletions, the "aligned sequence" that is returned is just the original sequences in a formatted string.
 This is due to the fact that actually aligning the two sequences using this algorithm would just lead to two lines of the query sequence.
 It should also be noted that the Hamming distance is intended to only be used with sequences of the same length.

@@ -13,7 +13,8 @@ class TestSubstitutionMatrices(unittest.TestCase):
         self.h = Hirschberg()
         self.nwb62 = NeedlemanWunsch(scoring_matrix=Blosum(62))
         self.hb62 = Hirschberg(scoring_matrix=Blosum(62))
-        self.wsbp250 = WatermanSmithBeyer(scoring_matrix=Pam(250))
+        self.wsbp250 = WatermanSmithBeyer(new_gap=5, continued_gap=3, scoring_matrix=Pam(250))
+        self.gp250 = Gotoh(new_gap=5, continued_gap=3, scoring_matrix=Pam(250))
 
     def test_identical_sequences(self):
         """Test behavior with identical sequences"""
@@ -37,9 +38,12 @@ class TestSubstitutionMatrices(unittest.TestCase):
         self.assertEqual(self.wsbp250.normalized_similarity(seq, seq), 1.0)
         self.assertEqual(self.wsbp250.normalized_distance(seq, seq), 0.0)
 
+        self.assertEqual(self.gp250.normalized_similarity(seq, seq), 1.0)
+        self.assertEqual(self.gp250.normalized_distance(seq, seq), 0.0)
+
     def test_worst_alignment_score(self):
         """Test behavior with identical sequences"""
-        query = "LLLLL"
+        query = "*****"
         subject = "DDDDD"
 
         # Test normalization
@@ -60,6 +64,9 @@ class TestSubstitutionMatrices(unittest.TestCase):
 
         self.assertEqual(self.wsbp250.normalized_similarity(query, subject), 0.0)
         self.assertEqual(self.wsbp250.normalized_distance(query, subject), 1.0)
+
+        self.assertEqual(self.gp250.normalized_similarity(query, subject), 0.0)
+        self.assertEqual(self.gp250.normalized_distance(query, subject), 1.0)
 
     def test_different_length_sequences(self):
         query = "MKT"

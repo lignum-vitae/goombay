@@ -47,12 +47,18 @@ def main():
         print()
     print(waterman_smith_beyer.matrix("TRATE", "TRACE"))
     """
-    query = "ACTG"
-    subject = "AAAA"
+    query = "*****"
+    subject = "DDDDD"
 
-    print(needleman_wunsch.matrix(query, subject))
-    print(gotoh.normalized_similarity(query, subject))
-    print(needleman_wunsch.normalized_similarity(query, subject))
+    gb62 = Gotoh(scoring_matrix=Blosum(62))
+    gp250 = Gotoh(continued_gap=2, scoring_matrix=Pam(250))
+    print(gb62.normalized_similarity(query, subject))
+    print(gb62.matrix(query, subject))
+    print(gp250.normalized_similarity(query, subject))
+    print(gp250.matrix(query, subject))
+    wsbp250 = WatermanSmithBeyer(scoring_matrix=Pam(250))
+    print(wsbp250.normalized_similarity(query, subject))
+    print(wsbp250.matrix(query, subject))
 
 
 class WagnerFischer(_GlobalBase):  # Levenshtein Distance
@@ -554,7 +560,7 @@ class WatermanSmithBeyer(_GlobalBase):
 
 
 class Gotoh(_GlobalBase):
-    supports_scoring_matrix = False
+    supports_scoring_matrix = True
 
     def __init__(
         self,
@@ -562,13 +568,19 @@ class Gotoh(_GlobalBase):
         mismatch: int = 1,
         new_gap: int = 2,
         continued_gap: int = 1,
+        scoring_matrix=None,
     ) -> None:
         self.match = match
         self.mismatch = mismatch
         self.new_gap = new_gap
         self.continued_gap = continued_gap
         self.has_sub_mat = False
-        self.match_func = lambda a, b: self.match if a == b else -self.mismatch
+        self.sub_mat = scoring_matrix
+        if scoring_matrix is not None:
+            self.match_func = lambda a, b: scoring_matrix[a][b]
+            self.has_sub_mat = True
+        else:
+            self.match_func = lambda a, b: self.match if a == b else -self.mismatch
 
     def __call__(
         self, query_seq: str, subject_seq: str
