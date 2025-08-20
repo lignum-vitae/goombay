@@ -7,9 +7,6 @@ from goombay.align import edit_msa
 from goombay.align import overlap
 from goombay.align import overlap_msa
 
-# Clustering module
-from goombay.cluster import phylo
-
 # Variables from edit-based file
 hamming = edit.hamming
 jaro = edit.jaro
@@ -69,7 +66,3 @@ RatcliffObershelp = overlap.RatcliffObershelp
 # Classes from multiple sequence alignment file
 FengDoolittle = edit_msa.FengDoolittle
 LongestCommonSubstringMSA = overlap_msa.LongestCommonSubstringMSA
-
-# Classes from clustering file
-NeighborJoining = phylo.NeighborJoining
-NewickFormatter = phylo.NewickFormatter
