@@ -2,12 +2,15 @@
 from abc import ABC, abstractmethod
 
 # external dependencies
+from numpy import float64
 from numpy.typing import NDArray
 
 
 class GlobalBase(ABC):
     @abstractmethod
-    def __call__(self, query_seq: str, subject_seq: str):
+    def __call__(
+        self, query_seq: str, subject_seq: str
+    ) -> tuple[NDArray[float64], NDArray[float64]]:
         pass
 
     def matrix(self, query_seq: str, subject_seq: str) -> list[list[float]]:
@@ -57,42 +60,51 @@ class GlobalBase(ABC):
         score_range = max_possible + abs(min_possible)
         return (raw_score + abs(min_possible)) / score_range
 
-    def align(self, query_seq: str, subject_seq: str) -> str:
+    def align(
+        self, query_seq: str, subject_seq: str, all_alignments: bool = False
+    ) -> list[str]:
         _, pointer_matrix = self(query_seq, subject_seq)
 
         qs = [x.upper() for x in query_seq]
         ss = [x.upper() for x in subject_seq]
         i, j = len(qs), len(ss)
-        qs_align, ss_align = [], []
+        aligned = []
+        stack = [([""], [""], i, j)]
 
         # looks for match/mismatch/gap starting from bottom right of matrix
-        while i > 0 or j > 0:
+        while stack:
+            qs_align, ss_align, i, j = stack.pop()
+            if i <= 0 and j <= 0:
+                qs = "".join(qs_align[::-1])
+                ss = "".join(ss_align[::-1])
+                aligned.append(f"{qs}\n{ss}")
+                continue
             if pointer_matrix[i, j] in [2, 5, 6, 9]:
                 # appends match/mismatch then moves to the cell diagonally up and to the left
-                qs_align.append(qs[i - 1])
-                ss_align.append(ss[j - 1])
-                i -= 1
-                j -= 1
-            elif pointer_matrix[i, j] in [3, 5, 7, 9]:
+                stack.append(
+                    (qs_align + [qs[i - 1]], ss_align + [ss[j - 1]], i - 1, j - 1)
+                )
+                if not all_alignments:
+                    continue
+            if pointer_matrix[i, j] in [3, 5, 7, 9]:
                 # appends gap and accompanying nucleotide, then moves to the cell above
-                ss_align.append("-")
-                qs_align.append(qs[i - 1])
-                i -= 1
-            elif pointer_matrix[i, j] in [4, 6, 7, 9]:
+                stack.append((qs_align + [qs[i - 1]], ss_align + ["-"], i - 1, j))
+                if not all_alignments:
+                    continue
+            if pointer_matrix[i, j] in [4, 6, 7, 9]:
                 # appends gap and accompanying nucleotide, then moves to the cell to the left
-                ss_align.append(ss[j - 1])
-                qs_align.append("-")
-                j -= 1
+                stack.append((qs_align + ["-"], ss_align + [ss[j - 1]], i, j - 1))
+                if not all_alignments:
+                    continue
 
-        qs_align = "".join(qs_align[::-1])
-        ss_align = "".join(ss_align[::-1])
-
-        return f"{qs_align}\n{ss_align}"
+        if not all_alignments:
+            return aligned[0]
+        return aligned
 
 
 class LocalBase(ABC):
     @abstractmethod
-    def __call__(self, query_seq: str, subject_seq: str):
+    def __call__(self, query_seq: str, subject_seq: str) -> NDArray[float64]:
         pass
 
     def matrix(self, query_seq: str, subject_seq: str) -> NDArray:

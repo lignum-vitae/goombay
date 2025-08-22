@@ -47,18 +47,10 @@ def main():
         print()
     print(waterman_smith_beyer.matrix("TRATE", "TRACE"))
     """
-    query = "*****"
-    subject = "DDDDD"
+    query = "ACCG"
+    subject = "ACG"
 
-    gb62 = Gotoh(scoring_matrix=Blosum(62))
-    gp250 = Gotoh(continued_gap=2, scoring_matrix=Pam(250))
-    print(gb62.normalized_similarity(query, subject))
-    print(gb62.matrix(query, subject))
-    print(gp250.normalized_similarity(query, subject))
-    print(gp250.matrix(query, subject))
-    wsbp250 = WatermanSmithBeyer(scoring_matrix=Pam(250))
-    print(wsbp250.normalized_similarity(query, subject))
-    print(wsbp250.matrix(query, subject))
+    print(needleman_wunsch.align(query, subject))
 
 
 class WagnerFischer(_GlobalBase):  # Levenshtein Distance
