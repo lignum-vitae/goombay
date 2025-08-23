@@ -75,9 +75,9 @@ class GlobalBase(ABC):
         while stack:
             qs_align, ss_align, i, j = stack.pop()
             if i <= 0 and j <= 0:
-                qs = "".join(qs_align[::-1])
-                ss = "".join(ss_align[::-1])
-                aligned.append(f"{qs}\n{ss}")
+                qs_aligned = "".join(qs_align[::-1])
+                ss_aligned = "".join(ss_align[::-1])
+                aligned.append(f"{qs_aligned}\n{ss_aligned}")
                 continue
             if pointer_matrix[i, j] in [2, 2 + 3, 2 + 4, 2 + 3 + 4]:
                 # appends match/mismatch then moves to the cell diagonally up and to the left

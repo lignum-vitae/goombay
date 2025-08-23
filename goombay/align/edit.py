@@ -547,7 +547,6 @@ class WatermanSmithBeyer(_GlobalBase):
         for i in range(1, qs_len):
             for j in range(1, ss_len):
                 match = self.score[i - 1][j - 1] + self.match_func(qs[i], ss[j])
-
                 ugap = [
                     self.score[i - k][j] + self._gap_func(k) for k in range(1, i + 1)
                 ]

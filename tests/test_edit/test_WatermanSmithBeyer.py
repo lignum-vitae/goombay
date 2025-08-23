@@ -136,6 +136,7 @@ class TestWatermanSmithBeyer(unittest.TestCase):
                 2,
             ),
             ("ACGGCT", "ACT", ["ACGGCT\nAC---T", "ACGGCT\nA---CT"], 2),
+            ("CCGA", "CG", ["CCGA\nCG--", "CCGA\nC--G"], 2),
         ]
         for query, subject, alignments, length in test_cases:
             with self.subTest(query=query, subject=subject):
