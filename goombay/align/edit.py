@@ -517,6 +517,8 @@ class WatermanSmithBeyer(_GlobalBase):
                 return -self.new_gap + (-self.continued_gap * k)
             case "quadratic":
                 return -self.new_gap + (-self.continued_gap * k**2)
+            case "log" | "logarithmic":
+                return -self.new_gap + (-self.continued_gap * numpy.log(k))
             case _:
                 raise ValueError("Invalid gap function")
 

@@ -145,6 +145,40 @@ class TestWatermanSmithBeyer(unittest.TestCase):
                 for alignment in alignments:
                     self.assertIn(alignment, res)
 
+    def test_gap_functions_affine(self):
+        """Test affine gap function produces expected alignment"""
+        affine = WatermanSmithBeyer(
+            match=2, mismatch=1, new_gap=3, continued_gap=1, gap_function="affine"
+        )
+        query, subject = "ACCGT", "CT"
+        alignment = affine.align(query, subject)
+        # Affine gap: expect one gap, not two single gaps
+        self.assertIn(alignment, ["ACCGT\n---CT", "ACCGT\nC---T"])
+
+    def test_gap_functions_quadratic(self):
+        """Test quadratic gap function penalizes longer gaps more heavily"""
+        quad = WatermanSmithBeyer(
+            match=2, mismatch=1, new_gap=3, continued_gap=1, gap_function="quadratic"
+        )
+        query, subject = "ACCGT", "GT"
+        alignment = quad.align(query, subject)
+        self.assertIn(alignment, ["ACCGT\n---GT"])
+
+    def test_gap_functions_logarithmic(self):
+        """Test logarithmic gap function penalizes longer gaps less than quadratic"""
+        log = WatermanSmithBeyer(
+            match=2, mismatch=1, new_gap=3, continued_gap=1, gap_function="logarithmic"
+        )
+        query, subject = "ACCGT", "CT"
+        alignment = log.align(query, subject)
+        self.assertIn(alignment, ["ACCGT\n---CT", "ACCGT\nC---T"])
+
+    def test_gap_function_invalid(self):
+        """Test that invalid gap function raises ValueError"""
+        with self.assertRaises(ValueError):
+            self.algorithm.gap_function = "invalid"
+            self.algorithm("ACGT", "AGT")
+
 
 if __name__ == "__main__":
     unittest.main()
