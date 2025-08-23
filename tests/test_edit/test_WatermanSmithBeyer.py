@@ -15,7 +15,7 @@ class TestWatermanSmithBeyer(unittest.TestCase):
         score, pointer = self.algorithm("ACTG", "ACTG")
         # Test scoring
         self.assertEqual(score[-1][-1], 4 * self.algorithm.match)
-        self.assertEqual(pointer[-1][-1], 2)  # All diagonal moves
+        self.assertEqual(pointer[-1][-1], (2, 0, 0))  # All diagonal moves
 
         # Test normalization
         self.assertEqual(self.algorithm.normalized_similarity("ACTG", "ACTG"), 1.0)
@@ -58,12 +58,12 @@ class TestWatermanSmithBeyer(unittest.TestCase):
         # Test match
         score, pointer = self.algorithm("A", "A")
         self.assertEqual(score[-1][-1], self.algorithm.match)
-        self.assertEqual(pointer[-1][-1], 2)  # Diagonal move
+        self.assertEqual(pointer[-1][-1], (2, 0, 0))  # Diagonal move
 
         # Test mismatch
         score, pointer = self.algorithm("A", "T")
         self.assertEqual(score[-1][-1], -self.algorithm.mismatch)
-        self.assertEqual(pointer[-1][-1], 2)  # Diagonal move
+        self.assertEqual(pointer[-1][-1], (2, 0, 0))  # Diagonal move
 
     def test_case_sensitivity(self):
         """Test that matching is case-insensitive"""
@@ -96,7 +96,6 @@ class TestWatermanSmithBeyer(unittest.TestCase):
             with self.subTest(query=query, subject=subject):
                 score, pointer = self.algorithm(query, subject)
                 self.assertEqual(score.shape, (len(query) + 1, len(subject) + 1))
-                self.assertTrue(numpy.all(pointer >= 0))  # Valid pointer values
 
     def test_gap_penalties(self):
         """Test behavior with gaps"""
@@ -108,10 +107,11 @@ class TestWatermanSmithBeyer(unittest.TestCase):
 
         for query, subject in test_cases:
             with self.subTest(query=query, subject=subject):
-                _, pointer = self.algorithm(query, subject)
-                self.assertTrue(
-                    numpy.any(pointer == 3) or numpy.any(pointer == 4)
-                )  # Should have gaps
+                _, pointer_matrix = self.algorithm(query, subject)
+                has_gap = any(
+                    pointer[0] in (3, 4) for row in pointer_matrix for pointer in row
+                )
+                self.assertTrue(has_gap)
 
     def test_scoring_parameters(self):
         """Test behavior with different scoring parameters"""
@@ -132,8 +132,8 @@ class TestWatermanSmithBeyer(unittest.TestCase):
             (
                 "ATGTGTA",
                 "ATA",
-                ["ATGTGTA\nAT----A", "ATGTGTA\nA----TA", "ATGTGTA\nA--T--A"],
-                3,
+                ["ATGTGTA\nAT----A", "ATGTGTA\nA----TA"],
+                2,
             ),
             ("ACGGCT", "ACT", ["ACGGCT\nAC---T", "ACGGCT\nA---CT"], 2),
         ]

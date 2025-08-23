@@ -50,15 +50,7 @@ def main():
     query = "CCGA"
     subject = "CG"
 
-    # Everything else works but this very specific case doesn't
-    # Expected - ['CCGA\nC--G', 'CCGA\nCG--']
-    # Actual - ['CCGA\nC-G-', 'CCGA\n-CG-', 'CCGA\n---G', 'CCGA\n---G']
-    # This isn't a problem with any other algorithm
-    # Score matrix is exactly as to be expected
-    # Pointer matrix might need to be adjusted ????
-    #
-    # Quadratic gap function works fine?????
-    # It's literally just the affine gap function of this one algorithm???????????
+    print(waterman_smith_beyer(query, subject))
     print(waterman_smith_beyer.align(query, subject, all_alignments=True))
 
 
@@ -540,9 +532,9 @@ class WatermanSmithBeyer(_GlobalBase):
         # matrix initialisation
         self.score = numpy.zeros((qs_len, ss_len))
         # pointer matrix to trace optimal alignment
-        self.pointer = numpy.zeros((qs_len, ss_len))
-        self.pointer[:, 0] = 3
-        self.pointer[0, :] = 4
+        self.pointer = numpy.zeros((qs_len, ss_len), dtype=object)
+        self.pointer[:, 0] = [(3, 1, 0)] * self.pointer.shape[0]
+        self.pointer[0, :] = [(4, 0, 1)] * self.pointer.shape[1]
         # initialisation of starter values for first column and first row
         self.score[:, 0] = [
             -self.new_gap + -n * self.continued_gap for n in range(qs_len)
@@ -555,24 +547,33 @@ class WatermanSmithBeyer(_GlobalBase):
         for i in range(1, qs_len):
             for j in range(1, ss_len):
                 match = self.score[i - 1][j - 1] + self.match_func(qs[i], ss[j])
-                # calculate gap scores, if both gaps are not continued gaps, then
-                # they are new gaps, otherwise they are continued gaps
-                ugap_score = max(
-                    [self.score[i - k][j] + self._gap_func(k) for k in range(1, i + 1)]
-                )
-                lgap_score = max(
-                    [self.score[i][j - k] + self._gap_func(k) for k in range(1, j + 1)]
-                )
+
+                ugap = [
+                    self.score[i - k][j] + self._gap_func(k) for k in range(1, i + 1)
+                ]
+                lgap = [
+                    self.score[i][j - k] + self._gap_func(k) for k in range(1, j + 1)
+                ]
+                ugap_score = max(ugap)
+                u_step = ugap.index(ugap_score) + 1
+                lgap_score = max(lgap)
+                l_step = lgap.index(lgap_score) + 1
+
                 tmax = max(match, lgap_score, ugap_score)
 
                 self.score[i][j] = tmax  # highest value is best choice
+                pointers = {"pointer": 0, "i_step": 0, "j_step": 0}
                 # matrix for traceback based on results from scoring matrix
                 if match == tmax:
-                    self.pointer[i, j] += 2
+                    pointers["pointer"] += 2
                 if ugap_score == tmax:
-                    self.pointer[i, j] += 3
+                    pointers["pointer"] += 3
+                    pointers["i_step"] = u_step
                 if lgap_score == tmax:
-                    self.pointer[i, j] += 4
+                    pointers["pointer"] += 4
+                    pointers["j_step"] = l_step
+                self.pointer[i][j] = tuple(pointers.values())
+
         return self.score, self.pointer
 
     def distance(self, query_seq: str, subject_seq: str) -> float:
@@ -593,7 +594,58 @@ class WatermanSmithBeyer(_GlobalBase):
     def align(
         self, query_seq: str, subject_seq: str, all_alignments: bool = False
     ) -> str | list[str]:
-        return super().align(query_seq, subject_seq, all_alignments)
+        _, pointer_matrix = self(query_seq, subject_seq)
+
+        qs = [x.upper() for x in query_seq]
+        ss = [x.upper() for x in subject_seq]
+        i, j = len(qs), len(ss)
+        aligned = []
+        stack = [([""], [""], i, j)]
+
+        # looks for match/mismatch/gap starting from bottom right of matrix
+        while stack:
+            qs_align, ss_align, i, j = stack.pop()
+            pointer, i_step, j_step = pointer_matrix[i][j]
+            if i <= 0 and j <= 0:
+                qs_aligned = "".join(qs_align[::-1])
+                ss_aligned = "".join(ss_align[::-1])
+                aligned.append(f"{qs_aligned}\n{ss_aligned}")
+                continue
+            if pointer in [2, 2 + 3, 2 + 4, 2 + 3 + 4]:
+                # appends match/mismatch then moves to the cell diagonally up and to the left
+                stack.append(
+                    (qs_align + [qs[i - 1]], ss_align + [ss[j - 1]], i - 1, j - 1)
+                )
+                if not all_alignments:
+                    continue
+            if pointer in [3, 3 + 2, 3 + 4, 3 + 2 + 4]:
+                # appends gap and accompanying nucleotide, then moves to the cell above
+                stack.append(
+                    (
+                        qs_align + ["".join(qs[i - i_step : i])],
+                        ss_align + ["-"] * i_step,
+                        i - i_step,
+                        j,
+                    )
+                )
+                if not all_alignments:
+                    continue
+            if pointer in [4, 4 + 2, 4 + 3, 4 + 2 + 3]:
+                # appends gap and accompanying nucleotide, then moves to the cell to the left
+                stack.append(
+                    (
+                        qs_align + ["-"] * j_step,
+                        ss_align + ["".join(ss[j - j_step : j])],
+                        i,
+                        j - j_step,
+                    )
+                )
+                if not all_alignments:
+                    continue
+
+        if not all_alignments:
+            return aligned[0]
+        return aligned
 
 
 class Gotoh(_GlobalBase):
@@ -701,9 +753,9 @@ class Gotoh(_GlobalBase):
         while stack:
             qs_align, ss_align, i, j = stack.pop()
             if i <= 0 and j <= 0:
-                qs = "".join(qs_align[::-1])
-                ss = "".join(ss_align[::-1])
-                aligned.append(f"{qs}\n{ss}")
+                qs_aligned = "".join(qs_align[::-1])
+                ss_aligned = "".join(ss_align[::-1])
+                aligned.append(f"{qs_aligned}\n{ss_aligned}")
                 continue
             if pointer_matrix[i, j] in [2, 2 + 3, 2 + 4, 2 + 3 + 4]:
                 # appends match/mismatch then moves to the cell diagonally up and to the left
