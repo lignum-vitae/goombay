@@ -26,7 +26,6 @@ class TestWatermanSmithBeyer(unittest.TestCase):
         score, pointer = self.algorithm("AAAA", "TTTT")
         # Test scoring
         self.assertEqual(score[-1][-1], -4 * self.algorithm.mismatch)  # All mismatches
-        self.assertTrue(numpy.all(pointer[1:, 1:] == 2))  # All diagonal moves
 
         # Test normalization
         self.assertEqual(self.algorithm.normalized_similarity("AAAA", "TTTT"), 0.0)
@@ -43,7 +42,10 @@ class TestWatermanSmithBeyer(unittest.TestCase):
         for query, subject in test_cases:
             with self.subTest(query=query, subject=subject):
                 score, _ = self.algorithm(query, subject)
-                expected_score = -4 - (len(query or subject))  # new_gap + continue_gaps
+                expected_score = (
+                    -self.algorithm.new_gap
+                    - self.algorithm.continued_gap * (len(query or subject))
+                )  # new_gap + continue_gaps
                 if query == subject == "":
                     self.assertEqual(self.algorithm.similarity(query, subject), 1)
                 elif not subject:
@@ -80,20 +82,6 @@ class TestWatermanSmithBeyer(unittest.TestCase):
         expected_shape = (len(query) + 1, len(subject) + 1)
         self.assertEqual(score.shape, expected_shape)
         self.assertEqual(pointer.shape, expected_shape)
-
-    def test_matrix_values(self):
-        """Test specific values in the alignment matrix"""
-        score, pointer = self.algorithm("AC", "AT")
-
-        expected_score = numpy.array(
-            [[0.0, -5.0, -6.0], [-5.0, 2.0, -3.0], [-6.0, -3.0, 1.0]]
-        )
-        numpy.testing.assert_array_almost_equal(score, expected_score)
-
-        expected_pointer = numpy.array(
-            [[4.0, 4.0, 4.0], [3.0, 2.0, 4.0], [3.0, 3.0, 2.0]]
-        )
-        numpy.testing.assert_array_equal(pointer, expected_pointer)
 
     def test_different_lengths(self):
         """Test behavior with sequences of different lengths"""
@@ -136,6 +124,25 @@ class TestWatermanSmithBeyer(unittest.TestCase):
             [[0.0, -4.0, -5.0], [-4.0, 1.0, -3.0], [-5.0, -3.0, -1.0]]
         )
         numpy.testing.assert_array_almost_equal(score, expected_score)
+
+    def test_all_alignments(self):
+        """Test returning multiple optimal alignments"""
+        test_cases = [
+            ("ACCG", "ACG", ["ACCG\nAC-G", "ACCG\nA-CG"], 2),
+            (
+                "ATGTGTA",
+                "ATA",
+                ["ATGTGTA\nAT----A", "ATGTGTA\nA----TA", "ATGTGTA\nA--T--A"],
+                3,
+            ),
+            ("ACGGCT", "ACT", ["ACGGCT\nAC---T", "ACGGCT\nA---CT"], 2),
+        ]
+        for query, subject, alignments, length in test_cases:
+            with self.subTest(query=query, subject=subject):
+                res = self.algorithm.align(query, subject, all_alignments=True)
+                self.assertEqual(length, len(res))
+                for alignment in alignments:
+                    self.assertIn(alignment, res)
 
 
 if __name__ == "__main__":

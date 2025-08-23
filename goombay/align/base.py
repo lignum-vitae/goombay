@@ -62,7 +62,7 @@ class GlobalBase(ABC):
 
     def align(
         self, query_seq: str, subject_seq: str, all_alignments: bool = False
-    ) -> list[str]:
+    ) -> str | list[str]:
         _, pointer_matrix = self(query_seq, subject_seq)
 
         qs = [x.upper() for x in query_seq]
@@ -79,19 +79,19 @@ class GlobalBase(ABC):
                 ss = "".join(ss_align[::-1])
                 aligned.append(f"{qs}\n{ss}")
                 continue
-            if pointer_matrix[i, j] in [2, 5, 6, 9]:
+            if pointer_matrix[i, j] in [2, 2 + 3, 2 + 4, 2 + 3 + 4]:
                 # appends match/mismatch then moves to the cell diagonally up and to the left
                 stack.append(
                     (qs_align + [qs[i - 1]], ss_align + [ss[j - 1]], i - 1, j - 1)
                 )
                 if not all_alignments:
                     continue
-            if pointer_matrix[i, j] in [3, 5, 7, 9]:
+            if pointer_matrix[i, j] in [3, 3 + 2, 3 + 4, 3 + 2 + 4]:
                 # appends gap and accompanying nucleotide, then moves to the cell above
                 stack.append((qs_align + [qs[i - 1]], ss_align + ["-"], i - 1, j))
                 if not all_alignments:
                     continue
-            if pointer_matrix[i, j] in [4, 6, 7, 9]:
+            if pointer_matrix[i, j] in [4, 4 + 2, 4 + 3, 4 + 2 + 3]:
                 # appends gap and accompanying nucleotide, then moves to the cell to the left
                 stack.append((qs_align + ["-"], ss_align + [ss[j - 1]], i, j - 1))
                 if not all_alignments:

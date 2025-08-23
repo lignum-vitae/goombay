@@ -98,8 +98,8 @@ The following algorithms accept the `scoring_matrix` keyword argument as a param
 |Postfix                        |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Postfix                     | postfix                       |
 |Ratcliff Obershelp             |<ul><li> [x] </li></ul>|<ul><li> [ ] </li></ul>|     <ul><li> [x] </li></ul>     | RatcliffObershelp           | ratcliff_obershelp            |
 
-
 ## Algorithms Explained
+
 - [Hamming](https://en.wikipedia.org/wiki/Hamming_distance) -
   The Hamming distance is a distance measurement between two sequences of the same length which measures the minimum number of substitutions 
   needed to convert one string into the other.
@@ -110,18 +110,21 @@ The following algorithms accept the `scoring_matrix` keyword argument as a param
 - [Wagner-Fischer](https://en.wikipedia.org/wiki/Wagner%E2%80%93Fischer_algorithm) - **Levenshtein distance** -
   The Wagner-Fischer algorithm is a global alignment algorithm that computes the Levenshtein distance between two sequences.
   This algorithm has an invariable gap penalty of 1 and a mismatch (or substitution) cost of 1. Matches are worth 0 therefore they do not affect the score.
+  - The keyword argument for the align method for this algorithm is `all_alignments: bool = False`
 
 - [Lowrance-Wagner](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-019-2819-0) - **Damerau–Levenshtein distance**
   The Lowrance-Wagner algorithm is a global alignment algorithm that computes the Levenshtein distance between two sequences 
   with the addition of adjacent swapping between matching adjacent characters.
   Like the Wagner-Fischer algorithm, there's an invariable gap penalty and mismatch penalty of 1. Matches are worth 0 and do not affect the score.
   In addition to these penalties, there's an invariable transposition penalty cost of 1.
+  - The keyword argument for the align method for this algorithm is `all_alignments: bool = False`
 
 
 - [Needleman-Wunsch](https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm) -
   The Needleman-Wunsch algorithm is a global alignment algorithm that uses a generalized form of the Levenshtein distance 
   which allows for different weights to be given to matches, mismatches, and gaps.
-  - The keyword arguments for this algorithm are `match_score:int = 2`, `mismatch_penalty:int = 1`, and `gap_penalty:int = 2`.
+  - The keyword arguments for the class of this algorithm are `match_score:int = 2`, `mismatch_penalty:int = 1`, and `gap_penalty:int = 2`.
+  - The keyword argument for the align method for this algorithm is `all_alignments: bool = False`
 
 - [Gotoh (Global)](https://helios2.mi.parisdescartes.fr/~lomn/Cours/BI/Material/gap-penalty-gotoh.pdf) -
   The Gotoh algorithm is a global alignment algorithm that is a modification to the Levenshtein distance that uses an affine gap penalty
@@ -129,13 +132,14 @@ The following algorithms accept the `scoring_matrix` keyword argument as a param
   that differentiates between newly created gaps and continuations of gaps.
   This algorithm uses three matrices; ***D*** (optimal score under affine gap penalties), ***P*** (optimal score given that query sequence ends in a gap), and 
   ***Q*** (optimal score given that subject sequence ends in a gap).
-  - The keyword arguments for this algorithm are `match_score:int = 2`, `mismatch_penalty:int = 1`, `new_gap_penalty:int = 2`, and `continue_gap_penalty: int = 1`.
+  - The keyword arguments for the class of this algorithm are `match_score:int = 2`, `mismatch_penalty:int = 1`, `new_gap_penalty:int = 2`, and `continue_gap_penalty: int = 1`.
+  - The keyword argument for the align method for this algorithm is `all_alignments: bool = False`
 
 - [Gotoh (Local)](http://rna.informatik.uni-freiburg.de/Teaching/index.jsp?toolName=Gotoh%20(Local)) -
   Similar to the global alignment version of the Gotoh alignment algorithm, the local alignment version also uses three matrices.
   The primary difference is that the optimal alignment score is chosen between applying a penalty for either a mismatch or gap, adding to the total for a match, or zero.
   This allows the cell to be reset to zero if it were to become negative.
-  - The keyword arguments for this algorithm are `match_score:int = 2`, `mismatch_penalty:int = 1`, `new_gap_penalty:int = 3`, and `continue_gap_penalty: int = 2`.
+  - The keyword arguments for the class of this algorithm are `match_score:int = 2`, `mismatch_penalty:int = 1`, `new_gap_penalty:int = 3`, and `continue_gap_penalty: int = 2`.
 
 - [Smith-Waterman ](https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm) -
   The Smith-Waterman algorithm is the local alignment equivalent to the Needleman-Wunsch algorithm. Similar to Needleman-Wunsch, it generalizes the Levenshtein distance.
@@ -146,7 +150,8 @@ The following algorithms accept the `scoring_matrix` keyword argument as a param
   The Waterman-Smith-Beyer algorithm is a global alignment algorithm that is a modification to the Levenshtein distance which uses an arbitrary gap-scoring method.
   The specific implementation used in this package is the affine gap penalty.
   However, a logarithmic or a quadratic gap calculation can also be performed.
-  - The keyword arguments for this algorithm are `match_score:int = 2`, `mismatch_penalty:int = 1`, `new_gap_penalty:int = 4`, and `continue_gap_penalty:int = 1`.
+  - The keyword arguments for the class of this algorithm are `match_score:int = 2`, `mismatch_penalty:int = 1`, `new_gap_penalty:int = 4`, and `continue_gap_penalty:int = 1`.
+  - The keyword argument for the align method for this algorithm is `all_alignments: bool = False`
 
 - [Hirschberg](https://en.wikipedia.org/wiki/Hirschberg%27s_algorithm) -
   The Hirschberg algorithm is intended to improve the Needleman-Wunsch algorithm by using recursion to improve space efficiency.
@@ -260,12 +265,14 @@ print(needleman_wunsch.similarity("ACTG","FHYU"))
 print(needleman_wunsch.similarity("ACTG","ACTG"))
 # 4
 print(needleman_wunsch.normalized_distance("ACTG","AATG"))
-#0.25
+# 0.25
 print(needleman_wunsch.normalized_similarity("ACTG","AATG"))
-#0.75
+# 0.75
 print(needleman_wunsch.align("BA","ABA"))
-#-BA
-#ABA
+# -BA
+# ABA
+print(needleman_wunsch.align("BA","ABA", all_alignments=True))
+# ["ACCG\nA-CG", "ACCG\nAC-G"]
 print(needleman_wunsch.matrix("AFTG","ACTG"))
 [[0. 2. 4. 6. 8.]
  [2. 0. 2. 4. 6.]

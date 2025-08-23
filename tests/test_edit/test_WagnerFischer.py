@@ -164,6 +164,26 @@ class TestWagnerFischer(unittest.TestCase):
                     places=3,
                 )
 
+    def test_all_alignments(self):
+        """Test returning multiple optimal alignments"""
+        test_cases = [
+            ("ACCG", "ACG", ["ACCG\nAC-G", "ACCG\nA-CG"], 2),
+            (
+                "ATGTGTA",
+                "ATA",
+                ["ATGTGTA\nAT----A", "ATGTGTA\nA----TA", "ATGTGTA\nA--T--A"],
+                3,
+            ),
+            ("ACGGCT", "ACT", ["ACGGCT\nAC---T", "ACGGCT\nA---CT"], 2),
+            ("CCGA", "CG", ["CCGA\nC-G-", "CCGA\n-CG-"], 2),
+        ]
+        for query, subject, alignments, length in test_cases:
+            with self.subTest(query=query, subject=subject):
+                res = self.algorithm.align(query, subject, all_alignments=True)
+                self.assertEqual(length, len(res))
+                for alignment in alignments:
+                    self.assertIn(alignment, res)
+
 
 if __name__ == "__main__":
     unittest.main()
