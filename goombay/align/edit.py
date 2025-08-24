@@ -36,22 +36,10 @@ __all__ = [
 
 
 def main():
-    from biobase.matrix import Blosum, Pam
+    query = "CCGGGGAT"
+    subject = "CGCAT"
 
-    """
-    qqs = "HOLYWATERISABLESSING"
-    sss = ["HOLYWATERBLESSING", "HOLYERISSING", "HOLYWATISSSI", "HWATISBLESSING", "HOLYWATISSS"]
-
-    for i in range(len(sss)):
-        print(waterman_smith_beyer.align(qqs, sss[i]))
-        print()
-    print(waterman_smith_beyer.matrix("TRATE", "TRACE"))
-    """
-    query = "CCGA"
-    subject = "CG"
-
-    print(waterman_smith_beyer(query, subject))
-    print(waterman_smith_beyer.align(query, subject, all_alignments=True))
+    print(smith_waterman.align(query, subject, all_alignments=True))
 
 
 class WagnerFischer(_GlobalBase):  # Levenshtein Distance
@@ -1309,7 +1297,9 @@ class SmithWaterman(_LocalBase):
     def matrix(self, query_seq: str, subject_seq: str) -> NDArray[float64]:
         return super().matrix(query_seq, subject_seq)
 
-    def align(self, query_seq: str, subject_seq: str) -> str:
+    def align(
+        self, query_seq: str, subject_seq: str, all_alignments: bool = False
+    ) -> str | list[str]:
         matrix = self(query_seq, subject_seq)
 
         qs = [x.upper() for x in query_seq]
@@ -1318,23 +1308,27 @@ class SmithWaterman(_LocalBase):
             return "There is no local alignment!"
 
         # finds the largest value closest to bottom right of matrix
-        i, j = list(numpy.where(matrix == matrix.max()))
-        i, j = i[-1], j[-1]
-
-        ss_align = []
-        qs_align = []
-        score = matrix.max()
-        while score > 0:
-            score = matrix[i][j]
-            if score == 0:
-                break
-            qs_align.append(qs[i - 1])
-            ss_align.append(ss[j - 1])
-            i -= 1
-            j -= 1
-        qs_align = "".join(qs_align[::-1])
-        ss_align = "".join(ss_align[::-1])
-        return f"{qs_align}\n{ss_align}"
+        positions = numpy.argwhere(matrix == matrix.max())
+        alignments = []
+        for position in positions:
+            i, j = position
+            ss_align = []
+            qs_align = []
+            score = matrix.max()
+            while score > 0:
+                score = matrix[i][j]
+                if score == 0:
+                    break
+                qs_align.append(qs[i - 1])
+                ss_align.append(ss[j - 1])
+                i -= 1
+                j -= 1
+            qs_align = "".join(qs_align[::-1])
+            ss_align = "".join(ss_align[::-1])
+            alignments.append(f"{qs_align}\n{ss_align}")
+            if not all_alignments:
+                return alignments[0]
+        return alignments
 
 
 hamming = Hamming()
