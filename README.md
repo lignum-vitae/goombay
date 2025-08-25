@@ -145,6 +145,7 @@ The following algorithms accept the `scoring_matrix` keyword argument as a param
   The Smith-Waterman algorithm is the local alignment equivalent to the Needleman-Wunsch algorithm. Similar to Needleman-Wunsch, it generalizes the Levenshtein distance.
   Similar to the Gotoh local algorithm, it resets any negative cell to zero.
   - The keyword arguments for this algorithm are `match_score:int = 1`, `mismatch_penalty:int = 1`, and `gap_penalty:int = 2`.
+  - The keyword argument for the align method for this algorithm is `all_alignments: bool = False`
 
 - [Waterman-Smith-Beyer](http://rna.informatik.uni-freiburg.de/Teaching/index.jsp?toolName=Waterman-Smith-Beyer) -
   The Waterman-Smith-Beyer algorithm is a global alignment algorithm that is a modification to the Levenshtein distance which uses an arbitrary gap-scoring method.

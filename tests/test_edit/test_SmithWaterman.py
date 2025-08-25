@@ -138,7 +138,7 @@ class TestSmithWaterman(unittest.TestCase):
         """Test specific local alignment behaviors"""
         test_cases = [
             ("CGATC", "GTATG", "AT\nAT", 2, 3),  # Find internal match
-            ("AAAGGGGTTT", "AAATTT", "TTT\nTTT", 3, 7),  # Multiple possible alignments
+            ("AAAGGGGTTT", "AAATTT", "AAA\nAAA", 3, 7),  # Multiple possible alignments
             ("ACGTACGT", "TACGTAC", "ACGTAC\nACGTAC", 6, 2),  # Longer local alignment
         ]
 
@@ -147,6 +147,19 @@ class TestSmithWaterman(unittest.TestCase):
                 self.assertEqual(self.algorithm.align(query, subject), expected)
                 self.assertEqual(self.algorithm.similarity(query, subject), sim)
                 self.assertEqual(self.algorithm.distance(query, subject), dist)
+
+    def test_multiple_optimal(self):
+        """ "Test multiple optimal alignments"""
+        test_cases = [
+            ("AAAGGGGTTT", "AAATTT", ["AAA\nAAA", "TTT\nTTT"]),
+            ("CCGGGGAT", "CGCAT", ["CG\nCG", "AT\nAT"]),
+        ]
+
+        for query, subject, alignments in test_cases:
+            with self.subTest(query=query, subject=subject):
+                aligned = self.algorithm.align(query, subject, all_alignments=True)
+                for alignment in aligned:
+                    self.assertIn(alignment, alignments)
 
 
 if __name__ == "__main__":
