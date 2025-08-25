@@ -119,7 +119,6 @@ The following algorithms accept the `scoring_matrix` keyword argument as a param
   In addition to these penalties, there's an invariable transposition penalty cost of 1.
   - The keyword argument for the align method for this algorithm is `all_alignments: bool = False`
 
-
 - [Needleman-Wunsch](https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm) -
   The Needleman-Wunsch algorithm is a global alignment algorithm that uses a generalized form of the Levenshtein distance 
   which allows for different weights to be given to matches, mismatches, and gaps.
@@ -140,8 +139,9 @@ The following algorithms accept the `scoring_matrix` keyword argument as a param
   The primary difference is that the optimal alignment score is chosen between applying a penalty for either a mismatch or gap, adding to the total for a match, or zero.
   This allows the cell to be reset to zero if it were to become negative.
   - The keyword arguments for the class of this algorithm are `match_score:int = 2`, `mismatch_penalty:int = 1`, `new_gap_penalty:int = 3`, and `continue_gap_penalty: int = 2`.
+  - The keyword argument for the align method for this algorithm is `all_alignments: bool = False`
 
-- [Smith-Waterman ](https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm) -
+- [Smith-Waterman](https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm) -
   The Smith-Waterman algorithm is the local alignment equivalent to the Needleman-Wunsch algorithm. Similar to Needleman-Wunsch, it generalizes the Levenshtein distance.
   Similar to the Gotoh local algorithm, it resets any negative cell to zero.
   - The keyword arguments for this algorithm are `match_score:int = 1`, `mismatch_penalty:int = 1`, and `gap_penalty:int = 2`.
