@@ -37,9 +37,9 @@ __all__ = [
 
 def main():
     query = "CCGGGGAT"
-    subject = "CGCAT"
+    subject = "CGTTAT"
 
-    print(smith_waterman.align(query, subject, all_alignments=True))
+    print(gotoh_local.align(query, subject, all_alignments=True))
 
 
 class WagnerFischer(_GlobalBase):  # Levenshtein Distance
@@ -849,7 +849,9 @@ class GotohLocal(_LocalBase):
         D, P, Q = self(query_seq, subject_seq)
         return D, P, Q
 
-    def align(self, query_seq: str, subject_seq: str) -> str:
+    def align(
+        self, query_seq: str, subject_seq: str, all_alignments: bool = False
+    ) -> str | list[str]:
         matrix, _, _ = self(query_seq, subject_seq)
 
         qs = [x.upper() for x in query_seq]
@@ -857,23 +859,27 @@ class GotohLocal(_LocalBase):
         if matrix.max() == 0:
             return ""
 
-        # finds the largest value closest to bottom right of matrix
-        i, j = numpy.unravel_index(matrix.argmax(), matrix.shape)
-
-        ss_align = []
-        qs_align = []
-        score = matrix.max()
-        while score > 0:
-            score = matrix[i][j]
-            if score == 0:
-                break
-            qs_align.append(qs[i - 1])
-            ss_align.append(ss[j - 1])
-            i -= 1
-            j -= 1
-        qs_align = "".join(qs_align[::-1])
-        ss_align = "".join(ss_align[::-1])
-        return f"{qs_align}\n{ss_align}"
+        alignments = []
+        positions = numpy.argwhere(matrix == matrix.max())
+        for position in positions:
+            i, j = position
+            ss_align = []
+            qs_align = []
+            score = matrix.max()
+            while score > 0:
+                score = matrix[i][j]
+                if score == 0:
+                    break
+                qs_align.append(qs[i - 1])
+                ss_align.append(ss[j - 1])
+                i -= 1
+                j -= 1
+            qs_align = "".join(qs_align[::-1])
+            ss_align = "".join(ss_align[::-1])
+            alignments.append(f"{qs_align}\n{ss_align}")
+        if not all_alignments:
+            return alignments[0]
+        return alignments
 
 
 class Hirschberg:

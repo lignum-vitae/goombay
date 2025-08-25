@@ -147,6 +147,19 @@ class TestGotohLocal(unittest.TestCase):
             with self.subTest(query=query, subject=subject):
                 self.assertEqual(self.algorithm.align(query, subject), expected)
 
+    def test_multiple_optimal(self):
+        """ "Test multiple optimal alignments"""
+        test_cases = [
+            ("AAAGGGGTTT", "AAATTT", ["AAA\nAAA", "TTT\nTTT"]),
+            ("CCGGGGAT", "CGTTAT", ["CG\nCG", "AT\nAT"]),
+        ]
+
+        for query, subject, alignments in test_cases:
+            with self.subTest(query=query, subject=subject):
+                aligned = self.algorithm.align(query, subject, all_alignments=True)
+                for alignment in aligned:
+                    self.assertIn(alignment, alignments)
+
 
 if __name__ == "__main__":
     unittest.main()
