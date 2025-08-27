@@ -36,10 +36,9 @@ __all__ = [
 
 
 def main():
-    query = "CCGGGGAT"
-    subject = "CGTTAT"
-
-    print(gotoh_local.align(query, subject, all_alignments=True))
+    query = "CG"
+    subject = "CCGA"
+    print(gotoh(query, subject))
 
 
 class WagnerFischer(_GlobalBase):  # Levenshtein Distance
@@ -71,15 +70,15 @@ class WagnerFischer(_GlobalBase):  # Levenshtein Distance
                 substitution = 0
                 if qs[i] != ss[j]:
                     substitution = self.substitution
-                match = self.score[i - 1][j - 1] + substitution
+                substitution = self.score[i - 1][j - 1] + substitution
                 ugap = self.score[i - 1][j] + self.gap
                 lgap = self.score[i][j - 1] + self.gap
 
-                tmin = min(match, lgap, ugap)
+                tmin = min(substitution, lgap, ugap)
 
                 self.score[i][j] = tmin  # lowest value is best choice
                 # matrix for traceback based on results from scoring matrix
-                if match == tmin:
+                if substitution == tmin:
                     self.pointer[i, j] += 2
                 if ugap == tmin:
                     self.pointer[i, j] += 3
@@ -152,7 +151,7 @@ class LowranceWagner(_GlobalBase):  # Damerau-Levenshtein distance
                 substitution = 0
                 if qs[i] != ss[j]:
                     substitution = self.substitution
-                match = self.score[i - 1][j - 1] + substitution
+                substitution = self.score[i - 1][j - 1] + substitution
                 ugap = self.score[i - 1][j] + self.gap
                 lgap = self.score[i][j - 1] + self.gap
                 trans = (
@@ -160,11 +159,11 @@ class LowranceWagner(_GlobalBase):  # Damerau-Levenshtein distance
                     if qs[i] == ss[j - 1] and ss[j] == qs[i - 1]
                     else float("inf")
                 )
-                tmin = min(match, lgap, ugap, trans)
+                tmin = min(substitution, lgap, ugap, trans)
 
                 self.score[i][j] = tmin  # lowest value is best choice
                 # matrix for traceback based on results from scoring matrix
-                if match == tmin:
+                if substitution == tmin:
                     self.pointer[i, j] += 2
                 if ugap == tmin:
                     self.pointer[i, j] += 3
@@ -642,9 +641,9 @@ class Gotoh(_GlobalBase):
 
     def __init__(
         self,
-        match: int = 2,
+        match: int = 1,
         mismatch: int = 1,
-        new_gap: int = 2,
+        new_gap: int = 3,
         continued_gap: int = 1,
         scoring_matrix=None,
     ) -> None:
@@ -660,9 +659,12 @@ class Gotoh(_GlobalBase):
         else:
             self.match_func = lambda a, b: self.match if a == b else -self.mismatch
 
-    def __call__(
-        self, query_seq: str, subject_seq: str
-    ) -> tuple[NDArray[float64], NDArray[float64], NDArray[float64], NDArray[float64]]:
+    def __call__(self, query_seq: str, subject_seq: str) -> tuple[
+        NDArray[float64],
+        NDArray[float64],
+        NDArray[float64],
+        tuple[NDArray[float64], ...],
+    ]:
         qs, ss = [""], [""]
         qs.extend([x.upper() for x in query_seq])
         ss.extend([x.upper() for x in subject_seq])
@@ -676,6 +678,8 @@ class Gotoh(_GlobalBase):
         self.pointer = numpy.zeros((len(qs), len(ss)))
         self.pointer[:, 0] = 3
         self.pointer[0, :] = 4
+        self.P_pointer = numpy.zeros((len(qs), len(ss)))
+        self.Q_pointer = numpy.zeros((len(qs), len(ss)))
         # initialisation of starter values for first column and first row
         self.D[0, 0] = 0
         # Initialize first column (vertical gaps)
@@ -688,14 +692,27 @@ class Gotoh(_GlobalBase):
         for i in range(1, len(qs)):
             for j in range(1, len(ss)):
                 match = self.D[i - 1, j - 1] + self.match_func(qs[i], ss[j])
-                self.P[i, j] = max(
-                    self.D[i - 1, j] - self.new_gap - self.continued_gap,
-                    self.P[i - 1, j] - self.continued_gap,
-                )
-                self.Q[i, j] = max(
-                    self.D[i, j - 1] - self.new_gap - self.continued_gap,
-                    self.Q[i, j - 1] - self.continued_gap,
-                )
+                i_new_gap = self.D[i - 1, j] - self.new_gap - self.continued_gap
+                i_old_gap = self.P[i - 1, j] - self.continued_gap
+
+                self.P[i, j] = max(i_new_gap, i_old_gap)
+                if self.P[i, j] == i_new_gap:
+                    self.P_pointer[i, j] = 3
+                    self.P_pointer[i - 1, j] = 2
+                elif self.P[i, j] == i_old_gap:
+                    self.P_pointer[i, j] = 3
+                    self.P_pointer[i - 1, j] = 3
+
+                j_new_gap = self.D[i, j - 1] - self.new_gap - self.continued_gap
+                j_old_gap = self.Q[i, j - 1] - self.continued_gap
+                self.Q[i, j] = max(j_new_gap, j_old_gap)
+                if self.Q[i, j] == j_new_gap:
+                    self.Q_pointer[i, j] = 4
+                    self.Q_pointer[i, j - 1] = 2
+                elif self.Q[i, j] == j_old_gap:
+                    self.Q_pointer[i, j] = 4
+                    self.Q_pointer[i, j - 1] = 2
+
                 self.D[i, j] = max(match, self.P[i, j], self.Q[i, j])
                 # matrix for traceback based on results from scoring matrix
                 if self.D[i, j] == match:
@@ -705,7 +722,7 @@ class Gotoh(_GlobalBase):
                 if self.D[i, j] == self.Q[i, j]:
                     self.pointer[i, j] += 4
 
-        return self.D, self.P, self.Q, self.pointer
+        return self.D, self.P, self.Q, (self.pointer, self.P_pointer, self.Q_pointer)
 
     def distance(self, query_seq: str, subject_seq: str) -> float:
         return super().distance(query_seq, subject_seq)
@@ -731,7 +748,14 @@ class Gotoh(_GlobalBase):
     def align(
         self, query_seq: str, subject_seq: str, all_alignments: bool = False
     ) -> str | list[str]:
-        _, _, _, pointer_matrix = self(query_seq, subject_seq)
+        if not query_seq and not subject_seq:
+            return "\n"
+        if not query_seq or not subject_seq:
+            length = max(len(query_seq), len(subject_seq))
+            gaps = "".join(["-"] * length)
+            return f"{gaps if not query_seq else query_seq}\n{gaps if not subject_seq else subject_seq}"
+
+        _, _, _, (D_pointer, P_pointer, Q_pointer) = self(query_seq, subject_seq)
 
         qs, ss = [x.upper() for x in query_seq], [x.upper() for x in subject_seq]
         i, j = len(qs), len(ss)
@@ -739,6 +763,7 @@ class Gotoh(_GlobalBase):
         stack = [([""], [""], i, j)]
 
         # looks for match/mismatch/gap starting from bottom right of matrix
+        active_matrix = D_pointer
         while stack:
             qs_align, ss_align, i, j = stack.pop()
             if i <= 0 and j <= 0:
@@ -746,21 +771,24 @@ class Gotoh(_GlobalBase):
                 ss_aligned = "".join(ss_align[::-1])
                 aligned.append(f"{qs_aligned}\n{ss_aligned}")
                 continue
-            if pointer_matrix[i, j] in [2, 2 + 3, 2 + 4, 2 + 3 + 4]:
+            if active_matrix[i, j] in [2, 2 + 3, 2 + 4, 2 + 3 + 4]:
                 # appends match/mismatch then moves to the cell diagonally up and to the left
                 stack.append(
                     (qs_align + [qs[i - 1]], ss_align + [ss[j - 1]], i - 1, j - 1)
                 )
+                active_matrix = D_pointer
                 if not all_alignments:
                     continue
-            if pointer_matrix[i, j] in [3, 3 + 2, 3 + 4, 3 + 2 + 4]:
+            if active_matrix[i, j] in [3, 3 + 2, 3 + 4, 3 + 2 + 4]:
                 # appends gap and accompanying nucleotide, then moves to the cell above
                 stack.append((qs_align + [qs[i - 1]], ss_align + ["-"], i - 1, j))
+                active_matrix = P_pointer
                 if not all_alignments:
                     continue
-            if pointer_matrix[i, j] in [4, 4 + 2, 4 + 3, 4 + 2 + 3]:
+            if active_matrix[i, j] in [4, 4 + 2, 4 + 3, 4 + 2 + 3]:
                 # appends gap and accompanying nucleotide, then moves to the cell to the left
                 stack.append((qs_align + ["-"], ss_align + [ss[j - 1]], i, j - 1))
+                active_matrix = Q_pointer
                 if not all_alignments:
                     continue
 
