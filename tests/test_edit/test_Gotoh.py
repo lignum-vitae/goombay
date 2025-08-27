@@ -31,8 +31,8 @@ class TestGotoh(unittest.TestCase):
         self.assertEqual(self.algorithm.align("AAAA", "TTTT"), "AAAA\nTTTT")
 
         # Test scoring
-        expected_score = -(4 * self.algorithm.mismatch)  # All positions are mismatches
-        self.assertEqual(self.algorithm.similarity("AAAA", "TTTT"), expected_score)
+        expected = -(4 * self.algorithm.mismatch)  # All positions are mismatches
+        self.assertEqual(self.algorithm.similarity("AAAA", "TTTT"), expected)
 
         # Test normalization
         self.assertEqual(self.algorithm.normalized_similarity("AAAA", "TTTT"), 0.0)
@@ -62,12 +62,12 @@ class TestGotoh(unittest.TestCase):
                         self.algorithm.align(query, subject),
                         f"{expected_gaps if not query else query}\n{expected_gaps if not subject else subject}",
                     )
-                    expected_score = -(
+                    expected = -(
                         self.algorithm.new_gap
                         + len(non_empty) * self.algorithm.continued_gap
                     )
                     self.assertEqual(
-                        self.algorithm.similarity(query, subject), expected_score
+                        self.algorithm.similarity(query, subject), expected
                     )
 
     def test_single_character(self):
@@ -79,8 +79,8 @@ class TestGotoh(unittest.TestCase):
 
         # Test mismatch
         self.assertEqual(self.algorithm.align("A", "T"), "A\nT")
-        expected_score = -self.algorithm.mismatch
-        self.assertEqual(self.algorithm.similarity("A", "T"), expected_score)
+        expected = -self.algorithm.mismatch
+        self.assertEqual(self.algorithm.similarity("A", "T"), expected)
 
     def test_case_sensitivity(self):
         """Test that matching is case-insensitive"""

@@ -659,9 +659,7 @@ class Gotoh(_GlobalBase):
         else:
             self.match_func = lambda a, b: self.match if a == b else -self.mismatch
 
-    def __call__(
-        self, query_seq: str, subject_seq: str
-    ) -> tuple[
+    def __call__(self, query_seq: str, subject_seq: str) -> tuple[
         NDArray[float64],
         NDArray[float64],
         NDArray[float64],
