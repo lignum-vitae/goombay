@@ -1,5 +1,5 @@
 name: New Algorithm Request
-about: Suggest a new algorithm for this project
+description: Suggest a new algorithm for this project
 title: 'Implement [Algorithm Name] Alignment Algorithm'
 labels: 'feature'
 body:
