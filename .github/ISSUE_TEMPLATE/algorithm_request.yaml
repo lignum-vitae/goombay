@@ -1,0 +1,75 @@
+name: New Algorithm Request
+about: Suggest a new algorithm for this project
+title: 'Implement [Algorithm Name] Alignment Algorithm'
+labels: 'feature'
+body:
+  - type: markdown
+    attributes:
+      value: "## Welcome!"
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this feature request!
+        If you need real-time help, join us on [Discord](https://discord.gg/6SZ7KnhXC6).
+
+  - type: input
+    id: algorithm_name
+    attributes:
+      label: Algorithm Name
+      description: Name of the alignment algorithm to be implemented
+      placeholder: e.g., Thompson-Higgins-Gibson, Hirschberg, Needleman-Wunsch
+    validations:
+      required: true
+
+  - type: dropdown
+    id: algorithm_type
+    attributes:
+      label: Algorithm Type
+      description: Select the algorithm category
+      options:
+        - Edit Distance
+        - Overlap based
+        - Compression based
+        - Multiple Sequence Alignment
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Brief description of the algorithm and its significance
+      placeholder: Add support for the [Algorithm Name] alignment algorithm which is known for...
+    validations:
+      required: true
+
+  - type: textarea
+    id: original_authors
+    attributes:
+      label: Original Authors / Reference
+      description: List authors, year, paper title, or URLs referencing the algorithm
+      placeholder: e.g., Notredame, Higgins, Heringa (2000), T-COFFEE paper link
+
+  - type: textarea
+    id: key_features
+    attributes:
+      label: Key Features
+      description: Brief bullet points describing algorithm strengths or unique features
+      placeholder: e.g., uses progressive alignment, consistency-based scoring...
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation_notes
+    attributes:
+      label: Implementation Notes
+      description: Notes on integration, dependencies, inputs/outputs, data structures, etc.
+      placeholder: Consider how this fits into the architecture of Goombay, required dependencies...
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional Context
+      description: Links to papers, code, benchmarks, datasets, or any relevant info
+      placeholder: Provide URLs or extra information that might be useful
