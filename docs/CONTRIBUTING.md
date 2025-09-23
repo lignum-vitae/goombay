@@ -229,6 +229,7 @@ Additional guidelines:
 - Use meaningful variable and function names.
 - Ensure all new features are covered by tests.
 - Update documentation if your changes affect usage or the API.
+- Add tests into `tests/` directory for any new functionality
 
 ## License
 
