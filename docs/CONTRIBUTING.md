@@ -4,6 +4,13 @@ Thank you for your interest in contributing to Goombay! We welcome contributions
 whether you're fixing a bug, improving documentation, or adding new features.
 This guide will help you get started with contributing to the project.
 
+We recommend using [uv](https://docs.astral.sh/uv/getting-started/installation/)
+for managing dependencies and running the project locally.
+
+After installing uv, check out [uv commands](https://docs.astral.sh/uv/reference/cli/).
+The most important will be `uv run` to run project files, `uv sync` to sync dependencies,
+`uv add` to add dependencies, `uv remove` to remove dependencies, and `uv pip`.
+
 ## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
@@ -82,9 +89,15 @@ git checkout <feature-name>
 
 ```nginx
 # Downloads project as editable, which allows local imports. Run this command from the root directory.
-python -m pip install -e .
+uv pip install -e ".[dev]"
 
-# Files may be run as a module
+# Ensure dependencies match the project's using uv sync
+uv sync --all-extras
+
+# Files may be run preferentially run using uv
+uv run editdistance.py
+
+# Or as a module
 python -m goombay.algorithms.editdistance
 
 # Or as a script
@@ -172,9 +185,9 @@ submitting a PR.
 Install development dependencies:
 
 ```nginx
-pip install -r requirements-dev.txt
+uv sync --all-extras
 ```
-Run all tests using the following command from the root directory:
+Run all tests using one of the following commands from the root directory:
 
 ```nginx
 python -m unittest discover tests
@@ -204,7 +217,10 @@ Please run Black on your code before submitting a pull request. You can install
 it via pip:
 
 ```shell
+# If black is not already installed, pip install black
 pip install black
+
+# Run this command from the root in order to format all python files
 black .
 ```
 
