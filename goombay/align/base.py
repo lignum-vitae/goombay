@@ -5,6 +5,11 @@ from abc import ABC, abstractmethod
 from numpy import float64
 from numpy.typing import NDArray
 
+# Pointer direction constants
+MATCH = 2
+UP = 3
+LEFT = 4
+
 
 class GlobalBase(ABC):
     @abstractmethod
@@ -79,19 +84,29 @@ class GlobalBase(ABC):
                 ss_aligned = "".join(ss_align[::-1])
                 aligned.append(f"{qs_aligned}\n{ss_aligned}")
                 continue
-            if pointer_matrix[i, j] in [2, 2 + 3, 2 + 4, 2 + 3 + 4]:
+            if pointer_matrix[i, j] in [
+                MATCH,
+                MATCH + UP,
+                MATCH + LEFT,
+                MATCH + UP + LEFT,
+            ]:
                 # appends match/mismatch then moves to the cell diagonally up and to the left
                 stack.append(
                     (qs_align + [qs[i - 1]], ss_align + [ss[j - 1]], i - 1, j - 1)
                 )
                 if not all_alignments:
                     continue
-            if pointer_matrix[i, j] in [3, 3 + 2, 3 + 4, 3 + 2 + 4]:
+            if pointer_matrix[i, j] in [UP, UP + MATCH, UP + LEFT, UP + MATCH + LEFT]:
                 # appends gap and accompanying nucleotide, then moves to the cell above
                 stack.append((qs_align + [qs[i - 1]], ss_align + ["-"], i - 1, j))
                 if not all_alignments:
                     continue
-            if pointer_matrix[i, j] in [4, 4 + 2, 4 + 3, 4 + 2 + 3]:
+            if pointer_matrix[i, j] in [
+                LEFT,
+                LEFT + MATCH,
+                LEFT + UP,
+                LEFT + MATCH + UP,
+            ]:
                 # appends gap and accompanying nucleotide, then moves to the cell to the left
                 stack.append((qs_align + ["-"], ss_align + [ss[j - 1]], i, j - 1))
                 if not all_alignments:
