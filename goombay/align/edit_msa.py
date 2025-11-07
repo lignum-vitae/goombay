@@ -21,28 +21,28 @@ from goombay.align.edit import (
     Hirschberg,
     Jaro,
     JaroWinkler,
-    GotohLocal
+    GotohLocal,
 )
 
 
 from goombay.cluster.phylo import NeighborJoining, NewickFormatter
 
-__all__ = ["FengDoolittle", "feng_doolittle"]
+__all__ = ["FengDoolittle", "feng_doolittle", "TCoffee", "t_coffee"]
 
 
 def main():
     # FengDoolittle
-    #seq1 = "HOUSEOFCARDSFALLDOWN"
-    #seq2 = "HOUSECARDFALLDOWN"
-    #seq3 = "FALLDOWN"
-    #seq_list = [seq1, seq2, seq3]
+    # seq1 = "HOUSEOFCARDSFALLDOWN"
+    # seq2 = "HOUSECARDFALLDOWN"
+    # seq3 = "FALLDOWN"
+    # seq_list = [seq1, seq2, seq3]
 
-    #print(FengDoolittle.align(seq_list))
-    #print(FengDoolittle.supported_pairwise_algs())
-    #print(FengDoolittle.supported_clustering_algs())
-    #fd_gotoh = FengDoolittle(pairwise="gotoh")
-    
-    #TCoffee seqs from rna.informatik
+    # print(FengDoolittle.align(seq_list))
+    # print(FengDoolittle.supported_pairwise_algs())
+    # print(FengDoolittle.supported_clustering_algs())
+    # fd_gotoh = FengDoolittle(pairwise="gotoh")
+
+    # TCoffee seqs from rna.informatik
     seq1 = "GARFIELD_THE_LAST_FAT_CAT"
     seq2 = "GARFIELD_THE_FAST_CAT"
     seq3 = "GARFIELD_THE_VERY_FAST_CAT"
@@ -51,8 +51,8 @@ def main():
     print(TCoffee.supported_pairwise_algs())
     print(TCoffee.supported_clustering_algs())
     print(t_coffee(seq_list))
-    #fd_gotoh = TCoffee(pairwise="gotoh")
-    #print(t_coffee.align(seq_list))
+    # fd_gotoh = TCoffee(pairwise="gotoh")
+    # print(t_coffee.align(seq_list))
 
 
 class AlignTemp:
@@ -69,12 +69,12 @@ class AlignTemp:
     }
 
     pw_abbreviations = {
-        "nw": "needleman_wunsch", # global alignment
+        "nw": "needleman_wunsch",  # global alignment
         "j": "jaro",
         "jw": "jaro_winkler",
         "gg": "gotoh_global",
         "wf": "wagner_fischer",
-        "wsb": "waterman_smith_beyer", #local alignment
+        "wsb": "waterman_smith_beyer",  # local alignment
         "h": "hirschberg",
         "lw": "lowrance_wagner",
         "gl": "gotoh_local",
@@ -99,7 +99,7 @@ class AlignTemp:
         """takes a newick string and converts it into a simple binary tree with Biopythons phylo module"""
         tree = Phylo.read(StringIO(newick), "newick")
         return tree
-    
+
     def merge_profiles(self, profile1: list[str], profile2: list[str]) -> list[str]:
         # Pick first seq from each profile as representative (simplified for now)
         rep1 = profile1[0]
@@ -128,7 +128,7 @@ class AlignTemp:
         aligned_profile2 = apply_gaps(profile2, aligned_rep2)
 
         return aligned_profile1 + aligned_profile2
-    
+
     def _align(self, newick_tree, profile_dict, verbose: bool):
         for clade in newick_tree.get_nonterminals(order="postorder"):
             left, right = clade.clades
@@ -176,10 +176,11 @@ class AlignTemp:
         for i in range(len(aligned_seqs)):
             rtn_str.append(aligned_seqs[i])
         return "\n".join(rtn_str)
-    
-    
+
+
 class FengDoolittle(AlignTemp):
-    """ functions beloww are unique to FengDoolittle """
+    """functions beloww are unique to FengDoolittle"""
+
     def __init__(self, cluster: str = "nj", pairwise: str = "nw"):
         """Initialize Feng-Doolittle algorithm with chosen pairwise method"""
         # Get pairwise alignment algorithm
@@ -211,14 +212,15 @@ class FengDoolittle(AlignTemp):
                     seq_dist_matrix[i][j] = alignment_score
                     seq_dist_matrix[j][i] = alignment_score
         return profile_dict, seq_dist_matrix
-    
-    
-    
-class TCoffee(AlignTemp): #Notredame-Higgins-Heringa implementation
 
-    """ functions beloww are unique to T-Coffee """
+
+class TCoffee(AlignTemp):  # Notredame-Higgins-Heringa implementation
+    """functions beloww are unique to T-Coffee"""
+
     # instead of waterman smith bayer and needleman wunsch, follow RNAinformatik's use of Gotoh
-    def __init__(self, local_pw: str = "wsb", global_pw: str = "nw", cluster: str = "nj"):
+    def __init__(
+        self, local_pw: str = "wsb", global_pw: str = "nw", cluster: str = "nj"
+    ):
         """Initialize T-Coffee algorithm with chosen methods"""
         # Get Global pairwise alignment algorithm
         if global_pw.lower() in self.supported_pairwise:
@@ -234,7 +236,7 @@ class TCoffee(AlignTemp): #Notredame-Higgins-Heringa implementation
             self.local_pw = self.supported_pairwise[self.pw_abbreviations[local_pw]]()
         else:
             raise ValueError(f"Unsupported pairwise alignment method: {local_pw}")
-        
+
         # get clustering algorithm - one the extended library use a clustering method to make a di
         if cluster.lower() in self.supported_clustering:
             self.cluster = self.supported_pairwise[cluster]()
@@ -242,7 +244,7 @@ class TCoffee(AlignTemp): #Notredame-Higgins-Heringa implementation
             self.cluster = self.supported_clustering[self.cl_abbreviations[cluster]]
         else:
             raise ValueError(f"Unsupported clustering algorithm: {cluster}")
-        
+
     # Andrew Dahik: we may want to move the primary library into its own file like edit distance!
     # heuristic consistency score
     def __call__(self, seqs: list[str]):
@@ -251,14 +253,14 @@ class TCoffee(AlignTemp): #Notredame-Higgins-Heringa implementation
         # make merge alignments for tracking the alignments themselves
         # the index positions should keep track
         # REMOVE Print Statements when done
-        #print(seqs)
-        #print(self._sum_of_pairs(seqs))
+        # print(seqs)
+        # print(self._sum_of_pairs(seqs))
 
         prelim_libr = self.merge_alignments(seqs)
-        
-        #print(prelim_libr)
-        # placeholder - based on the weighted scores of each alignment individually, hold the best aligned sequence based on the 
-       
+
+        # print(prelim_libr)
+        # placeholder - based on the weighted scores of each alignment individually, hold the best aligned sequence based on the
+
         best_seqs = self.store_best_sequences(prelim_libr)
         print(best_seqs)
         # Similar to FengDoolittle, Store a profile dict to leverage align
@@ -267,21 +269,22 @@ class TCoffee(AlignTemp): #Notredame-Higgins-Heringa implementation
             profile_dict[str(i)] = [i_seq]  # storing lists instead of strings
         # primary library forming logic - primary library is interesting in that its actually a dictionary containing a list of tuples as the values assigned to keys determined by their indexes unicode value
         primary_library = self.form_primary_constraints(prelim_libr)
-        #print(primary_library)
+        # print(primary_library)
         """Extension library logic"""
-        # taking the primary library 
+        # taking the primary library
         # for each stored sequence need to calculate extended library score against other alignments
-    
+
         # alrighty, lets do the extension
         extended_library = self.form_extension_library(primary_library, len(seqs))
-        #print(extended_library)
-        
-        #distance matrix from the extended library, almost ready to be clustered
-        seq_dist_matrix = self.create_distance_matrix(extended_library, list(best_seqs.keys()))
-        #print(dist_matrix)
+        # print(extended_library)
+
+        # distance matrix from the extended library, almost ready to be clustered
+        seq_dist_matrix = self.create_distance_matrix(
+            extended_library, list(best_seqs.keys())
+        )
+        # print(dist_matrix)
         return profile_dict, seq_dist_matrix
 
-        
     def merge_alignments(self, seqs):
         # maybe add a counter for easier to track keys?
         # This sets the unnormalized sequence distance, odd numbered keys are aligned to global alignments, even are assigned to local alignments
@@ -291,30 +294,38 @@ class TCoffee(AlignTemp): #Notredame-Higgins-Heringa implementation
                 # this condition helps avoid repeats
                 if i < j and i != j:
                     global_align = self.global_pw.align(i_seq, j_seq)
-                    merged_alignments[chr(seqs.index(i_seq)+65).lower() + '-' + chr(seqs.index(j_seq)+65).lower()] = (global_align, self._merge_weight_calc(global_align))
+                    merged_alignments[
+                        chr(seqs.index(i_seq) + 65).lower()
+                        + "-"
+                        + chr(seqs.index(j_seq) + 65).lower()
+                    ] = (global_align, self._merge_weight_calc(global_align))
 
                     local_align = self.local_pw.align(i_seq, j_seq)
                     if global_align != local_align:
-                        merged_alignments[chr(seqs.index(i_seq)+65).lower() + '-' + chr(seqs.index(j_seq)+65).lower()] = (local_align, self._merge_weight_calc(local_align))
-        #print(merged_alignments)
+                        merged_alignments[
+                            chr(seqs.index(i_seq) + 65).lower()
+                            + "-"
+                            + chr(seqs.index(j_seq) + 65).lower()
+                        ] = (local_align, self._merge_weight_calc(local_align))
+        # print(merged_alignments)
         return merged_alignments
 
     def _merge_weight_calc(self, seq_ab):
         # seq_ab is the A(a,b) - alignment of sequence a and sequence b
-        #print("weight calc")
+        # print("weight calc")
         total_match = 0
         total_mismatch = 0
-        sequences = seq_ab.split('\n')
+        sequences = seq_ab.split("\n")
         seq_a, seq_b = sequences[0], sequences[1]
         for i in range(len(seq_a)):
-            if seq_a[i] != "-" and seq_b[i] != "-": # skip over indels
+            if seq_a[i] != "-" and seq_b[i] != "-":  # skip over indels
                 if seq_a[i] == seq_b[i]:
                     total_match += 1
                 else:
                     total_mismatch += 1
-        
-        return round((total_match * 100) / (total_match + total_mismatch),1)
-    
+
+        return round((total_match * 100) / (total_match + total_mismatch), 1)
+
     def store_best_sequences(self, prelim_libr):
         """
         This function works to take the best alignment for each sequence from the original input base on weight
@@ -324,25 +335,25 @@ class TCoffee(AlignTemp): #Notredame-Higgins-Heringa implementation
         seq_weight_map = {}
         # iterate through the map and store the alignments in a new arrangement
         for ab_key, (align_seq, w_ab) in prelim_libr.items():
-            a, b = ab_key.split('-')
+            a, b = ab_key.split("-")
             if a not in seq_weight_map:
                 seq_weight_map[a] = {}
             if b not in seq_weight_map:
                 seq_weight_map[b] = {}
-            seq_a, seq_b = align_seq.split('\n')
+            seq_a, seq_b = align_seq.split("\n")
             if seq_a not in seq_weight_map[a]:
                 seq_weight_map[a][seq_a] = w_ab
             else:
                 if w_ab > seq_weight_map[a][seq_a]:
-                 seq_weight_map[a][seq_a] = w_ab
+                    seq_weight_map[a][seq_a] = w_ab
             if seq_b not in seq_weight_map[a]:
                 seq_weight_map[b][seq_b] = w_ab
             else:
                 if w_ab > seq_weight_map[b][seq_b]:
-                 seq_weight_map[b][seq_b] = w_ab
+                    seq_weight_map[b][seq_b] = w_ab
         # now chose the best aligned sequence for each sequence based on weight value, iterating over sequence character index
         for seq_chr_ind in seq_weight_map:
-            #appending to best_sequences a placeholder value that is replaced by the seq value below
+            # appending to best_sequences a placeholder value that is replaced by the seq value below
             best_sequences.append(0)
             best_score, candidates = 0, seq_weight_map[seq_chr_ind]
             for seq in candidates:
@@ -352,18 +363,20 @@ class TCoffee(AlignTemp): #Notredame-Higgins-Heringa implementation
         # now take indices again, I'm getting a little lazy here and wiping seq_map since we don't need it any more at this line
         seq_weight_map = {}
         for i in range(len(best_sequences)):
-            i_char = chr(i+65).lower() # index character i
+            i_char = chr(i + 65).lower()  # index character i
             seq_weight_map[i_char] = best_sequences[i]
         return seq_weight_map
 
-    def form_primary_constraints(self, prelim_libr): #forming the primary library
+    def form_primary_constraints(self, prelim_libr):  # forming the primary library
         primary_lib_tuples = []
-        
+
         for key in prelim_libr:
             seq_ab, weight = prelim_libr[key][0], prelim_libr[key][1]
-            seq_a, seq_b = seq_ab.split('\n')
+            seq_a, seq_b = seq_ab.split("\n")
 
-            pos_a_lst, pos_b_lst = self._create_positions(seq_a), self._create_positions(seq_b)
+            pos_a_lst, pos_b_lst = self._create_positions(
+                seq_a
+            ), self._create_positions(seq_b)
             best_matches = {}  # key: a_pos_index, value: (b_pos_index, weight)
 
             for i in range(len(seq_a)):
@@ -377,24 +390,42 @@ class TCoffee(AlignTemp): #Notredame-Higgins-Heringa implementation
                         w = 0.0 if seq_a[i] == "-" else weight
 
                         # pick the best match: higher weight or closer position if weights equal
-                        if (i not in best_matches or 
-                            w > best_matches[i][1] or 
-                            (w == best_matches[i][1] and abs(i - j) < abs(i - best_matches[i][0]))):
+                        if (
+                            i not in best_matches
+                            or w > best_matches[i][1]
+                            or (
+                                w == best_matches[i][1]
+                                and abs(i - j) < abs(i - best_matches[i][0])
+                            )
+                        ):
                             best_matches[i] = (j, w)
 
             # Append only the best matches
             for i, (j, w) in best_matches.items():
-                primary_lib_tuples.append((key[:key.index('-')], pos_a_lst[i], key[key.index('-')+1:], pos_b_lst[j], w))
+                primary_lib_tuples.append(
+                    (
+                        key[: key.index("-")],
+                        pos_a_lst[i],
+                        key[key.index("-") + 1 :],
+                        pos_b_lst[j],
+                        w,
+                    )
+                )
 
         # Compress tuples into final sequences_maps
         sequences_maps = {}
         seq_pair_mem = []
         for tup in primary_lib_tuples:
             seq_pair = (tup[0], tup[2])
-            if seq_pair not in seq_pair_mem and self._rev_pair(seq_pair) not in seq_pair_mem:
+            if (
+                seq_pair not in seq_pair_mem
+                and self._rev_pair(seq_pair) not in seq_pair_mem
+            ):
                 seq_pair_mem.append(seq_pair)
-                sequences_maps[seq_pair[0] + '-' + seq_pair[1]] = []
-            sequences_maps[seq_pair[0] + '-' + seq_pair[1]].append((tup[1], tup[3], tup[4]))
+                sequences_maps[seq_pair[0] + "-" + seq_pair[1]] = []
+            sequences_maps[seq_pair[0] + "-" + seq_pair[1]].append(
+                (tup[1], tup[3], tup[4])
+            )
 
         # Trim triangulations not starting at pos_b = 1
         for seq_pair in sequences_maps:
@@ -412,188 +443,67 @@ class TCoffee(AlignTemp): #Notredame-Higgins-Heringa implementation
         seq_x_positions = []
         count = 0
         for char in seq_x:
-            if char != '-':
-                count+=1
+            if char != "-":
+                count += 1
                 seq_x_positions.append(count)
             else:
-                seq_x_positions.append('-')
+                seq_x_positions.append("-")
         return seq_x_positions
-    
+
     def _rev_pair(self, pair):
         return (pair[-1], pair[0])
-    
-    def form_extension_library(self, prim_lib, n): #n is the number of sequences
-        extension_library =  {pair: {} for pair in prim_lib}
-        # for tracking iterations, the letters are indexed back to their chr value 
-        
+
+    def form_extension_library(self, prim_lib, n):  # n is the number of sequences
+        extension_library = {pair: {} for pair in prim_lib}
+        # for tracking iterations, the letters are indexed back to their chr value
+
         # ab_key represents sequence a and sequence b
         for ab_key, ab_residue_matches in prim_lib.items():
-            a, b = ab_key.split('-')
+            a, b = ab_key.split("-")
             # iterating over the tuples stored, which is residue i and residue j and weight from the key
-            for (i, j, w_ab) in ab_residue_matches:
+            for i, j, w_ab in ab_residue_matches:
                 for c in range(n):
                     total_weight = w_ab
-                    if chr(c+65) in (a, b):
-                        continue #exit this iteration
+                    if chr(c + 65) in (a, b):
+                        continue  # exit this iteration
                     # check all positions k of c, i2 is the same residue as i
-                    for (i2, k, w_ac) in prim_lib.get(f"{a}-{c}", []):
+                    for i2, k, w_ac in prim_lib.get(f"{a}-{c}", []):
                         if i2 == i:
-                            for (k2, j2, w_cb) in prim_lib.get(f"{c}-{b}", []):
-                                if k2 == k and j2 == j: # triangulation: residue at position k is the same for a-c and b-c, since position i and j have the same value, i can associate with k like j can with k
+                            for k2, j2, w_cb in prim_lib.get(f"{c}-{b}", []):
+                                if (
+                                    k2 == k and j2 == j
+                                ):  # triangulation: residue at position k is the same for a-c and b-c, since position i and j have the same value, i can associate with k like j can with k
                                     total_weight += min(w_ac, w_cb)
                     # store the final score
-                    extension_library[ab_key].setdefault((i, j), total_weight) # using pythons dictionary forming method, adding keys 
+                    extension_library[ab_key].setdefault(
+                        (i, j), total_weight
+                    )  # using pythons dictionary forming method, adding keys
         return extension_library
-    
-    def create_distance_matrix(self, extension_library, seq_names): #TODO
+
+    def create_distance_matrix(self, extension_library, seq_names):  # TODO
         """
         Taking the output from store_best_sequences as seq_names (a, b, c, ...) and the extension library these seq names are tracked too
         """
         n = len(seq_names)
         # time to make the distance matrix
-        distance_matrix = numpy.zeros((n,n))
+        distance_matrix = numpy.zeros((n, n))
         for i, a in enumerate(seq_names):
             for j, b in enumerate(seq_names):
-                if i == j or a+'-'+b not in extension_library:
+                if i == j or a + "-" + b not in extension_library:
                     continue
                 scores = []
                 # the keys are tuples with the index positions where aligned
-                for ai, bj in extension_library[a+'-'+b]:
-                    scores.append(extension_library[a+'-'+b][(ai, bj)])
+                for ai, bj in extension_library[a + "-" + b]:
+                    scores.append(extension_library[a + "-" + b][(ai, bj)])
                 # average (or sum ) the scores
                 avg_scores = numpy.mean(scores) if scores else 0
-                # convert similarity to distance 
-                distance_matrix[i,j] = 1 - avg_scores
-                distance_matrix[j,i] = 1- avg_scores
+                # convert similarity to distance
+                distance_matrix[i, j] = 1 - avg_scores
+                distance_matrix[j, i] = 1 - avg_scores
 
         return distance_matrix
-    
-    ############################################## NOT NEEDED #######################################################
-    def FormPrimaryConstraints_deprecated(self, prelim_libr):
-        # tuple will look like this
-        # (seq_a_id, seq_a_pos, seq_b_id, seq_b_pos, seq_ab_weight)
-        #seq_pos_lib = {}
-        primary_lib_tuples = [(0,0,0,0,0)] # this is a placeholder for a conditional below
-        for key in prelim_libr:
-            seq_ab, weight = prelim_libr[key][0], prelim_libr[key][1]
-            sequences = seq_ab.split('\n')
-            seq_a, seq_b = sequences[0], sequences[1]
-            #if seq_a not in seq_pos_lib:
-                #seq_pos_lib[seq_a] = {}
-            #if seq_b not in seq_pos_lib:
-                #seq_pos_lib[seq_b] = {}
-            # figure out positions
-            pos_a_lst, pos_b_lst = self._create_positions(seq_a), self._create_positions(seq_b)
-            seq_a_pos_mem = []
-            for i in range(len(seq_a)):
-                if seq_a[i] != "-":
-                  
-                    for j in range(len(seq_b)):
-                        if seq_b[j] != "-": # skip over indels
-                            if seq_a[i] == seq_b[j]:
-                                # seq_a_id = int(key[:key.index('-')]) : the first number in the library key before the dividing hyphen
-                                # seq_b_id = int(key[key.index('-')+1:]) : the second number in the library key after the dividing hyphen 
-                                # since we are appending, check if the seq a pos i is the same weight 
-                                if pos_a_lst[i] not in seq_a_pos_mem:
-                                    if seq_a[i] =="_":
-                                        primary_lib_tuples.append((key[:key.index('-')], pos_a_lst[i], key[key.index('-')+1:], pos_b_lst[j], 0.0))
-                                    else:
-                                        primary_lib_tuples.append((key[:key.index('-')], pos_a_lst[i], key[key.index('-')+1:], pos_b_lst[j], weight))
-                                # replacement functions only when j = i
-                                elif j == i or weight > primary_lib_tuples[-1][-1]:
-                                    primary_lib_tuples[-1] = ((primary_lib_tuples[-1][0], primary_lib_tuples[-1][1], primary_lib_tuples[-1][2], pos_b_lst[j], weight))
-                                
-                                seq_a_pos_mem.append(pos_a_lst[i])
-                                
-        # now take the prelim tuples and compress into a libary
-        primary_lib_tuples.remove((0,0,0,0,0))
-        sequences_maps = {}
-        seq_pair_mem = []
-        for i in range(len(primary_lib_tuples)):
-            seq_pair = (primary_lib_tuples[i][0], primary_lib_tuples[i][2])
-            # to avoid duplicates when comparing seq c to seq a when seq a has already been compared to seq c
-            if seq_pair not in seq_pair_mem and self._rev_pair(seq_pair) not in seq_pair_mem:
-                seq_pair_mem.append(seq_pair)
-                # storing lists for each pair including, which will include primary weight score and secondary we
-                sequences_maps[seq_pair[0] + '-' + seq_pair[1]] = []
-            sequences_maps[seq_pair[0] + '-' + seq_pair[1]].append((primary_lib_tuples[i][1], primary_lib_tuples[i][3], primary_lib_tuples[i][4]))
-        # need to trim triangulations that were made that don't start from pos_b = 1, 
-        # several sequences occurred when generating them initially, we can remove this if there is a way to catch it while iterating the first time but the runtime was pretty quick
-        for seq_pair in sequences_maps:
-            seq_pair_lst = sequences_maps[seq_pair]
-            tup_idx = 0
-            for tup in seq_pair_lst:
-                if tup[1] == 1: # looking for pos b index 1, where we set the index
-                    break
-                else:
-                    tup_idx += 1
-            sequences_maps[seq_pair] = seq_pair_lst[tup_idx:]
-            
-
-        return sequences_maps
         
-    # I just added sum of pairs for scoring function is elsewhere, feel free to add
-    def _sum_of_pairs(self, seqs):
-        """generate an alignment with the smallest score possible, take the best of both the global and local alignment. Higher the score the better"""
-        sop = 0
-        for i in range(len(seqs)):
-            seq_i = seqs[i]
-            for j in range(i, len(seqs)):
-                if j >= len(seqs):
-                    break
-                seq_j = seqs[j]
-                #print(self.global_pw.distance(seqs[0], seqs[1]))
-                g_score = self.global_pw.distance(seq_i, seq_j)
-                l_score = self.local_pw.distance(seq_i, seq_j)
-                if g_score < l_score:
-                    sop += l_score
-                else:
-                    sop += g_score
-        return sop
-    
-    def _optimize_alignments(self, seqs):
-        seq_mem = []  # holds aligned sequences
-        used = set()  # which sequences are already locked into alignment
-
-        while len(used) < len(seqs):
-            best_score = -1
-            best_i, best_j = None, None
-            best_type = 0  # 0 = global, 1 = local
-
-            # --- pass 1: find best pair ---
-            for i in range(len(seqs)):
-                if i in used: continue
-                for j in range(i+1, len(seqs)):
-                    if j in used: continue
-
-                    g_score = self.global_pw.distance(seqs[i], seqs[j])
-                    l_score = self.local_pw.distance(seqs[i], seqs[j])
-
-                    if l_score > g_score:
-                        score, align_type = l_score, 1
-                    else:
-                        score, align_type = g_score, 0
-
-                    if score > best_score:
-                        best_score = score
-                        best_i, best_j, best_type = i, j, align_type
-
-            # --- pass 2: align that best pair ---
-            if best_type == 1:
-                new_i, new_j = self.local_pw.align(seqs[best_i], seqs[best_j]).split('\n')
-            else:
-                new_i, new_j = self.global_pw.align(seqs[best_i], seqs[best_j]).split('\n')
-
-            seqs[best_i] = new_i
-            seqs[best_j] = new_j
-            used.add(best_i)
-            used.add(best_j)
-            seq_mem.append(new_i)
-            seq_mem.append(new_j)
-
-        return seqs
-
-
+feng_doolittle = FengDoolittle()
 t_coffee = TCoffee()
 if __name__ == "__main__":
     main()
