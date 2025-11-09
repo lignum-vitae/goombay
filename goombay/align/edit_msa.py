@@ -60,7 +60,7 @@ class AlignTemp:
         "needleman_wunsch": NeedlemanWunsch,
         "jaro": Jaro,
         "jaro_winkler": JaroWinkler,
-        "gotoh_global": Gotoh,
+        "gotoh": Gotoh,
         "wagner_fischer": WagnerFischer,
         "waterman_smith_beyer": WatermanSmithBeyer,
         "hirschberg": Hirschberg,
@@ -72,7 +72,7 @@ class AlignTemp:
         "nw": "needleman_wunsch",  # global alignment
         "j": "jaro",
         "jw": "jaro_winkler",
-        "gg": "gotoh_global",
+        "gg": "gotoh",
         "wf": "wagner_fischer",
         "wsb": "waterman_smith_beyer",  # local alignment
         "h": "hirschberg",
