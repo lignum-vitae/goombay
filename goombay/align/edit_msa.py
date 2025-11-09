@@ -502,7 +502,8 @@ class TCoffee(AlignTemp):  # Notredame-Higgins-Heringa implementation
                 distance_matrix[j, i] = 1 - avg_scores
 
         return distance_matrix
-        
+
+
 feng_doolittle = FengDoolittle()
 t_coffee = TCoffee()
 if __name__ == "__main__":
