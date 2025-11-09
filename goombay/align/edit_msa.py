@@ -25,7 +25,7 @@ from goombay.align.edit import (
 )
 
 
-from goombay.cluster.phylo import NeighborJoining, NewickFormatter
+from goombay.phylo.cluster import NeighborJoining, NewickFormatter
 
 __all__ = ["FengDoolittle", "feng_doolittle", "TCoffee", "t_coffee"]
 
