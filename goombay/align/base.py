@@ -57,12 +57,14 @@ class GlobalBase(ABC):
                 qs_match = self.sub_mat[q][s]
                 candidates = (q_match, s_match, qs_match)
                 max_possible += max(candidates)
-                min_possible += min(candidates)
+                min_possible -= min(candidates)
         else:
             max_len = len(max(query_seq, subject_seq, key=len))
+            min_len = len(min(query_seq, subject_seq, key=len))
+            diff = max_len - min_len
             max_possible = max_len * self.match
-            min_possible = -max_len * self.mismatch
-        score_range = max_possible + abs(min_possible)
+            min_possible = -min_len * self.mismatch - diff * self.gap
+        score_range = max_possible - min_possible
         return (raw_score + abs(min_possible)) / score_range
 
     def align(

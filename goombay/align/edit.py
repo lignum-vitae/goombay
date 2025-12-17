@@ -493,7 +493,7 @@ class WatermanSmithBeyer(_GlobalBase):
     ) -> None:
         self.match = match
         self.mismatch = mismatch
-        self.new_gap = new_gap
+        self.gap = new_gap
         self.continued_gap = continued_gap
         self.gap_function = gap_function
         self.has_sub_mat = False
@@ -507,11 +507,11 @@ class WatermanSmithBeyer(_GlobalBase):
     def _gap_func(self, k: int) -> int:
         match self.gap_function:
             case "affine":
-                return -self.new_gap + (-self.continued_gap * k)
+                return -self.gap + (-self.continued_gap * k)
             case "quadratic":
-                return -self.new_gap + (-self.continued_gap * k**2)
+                return -self.gap + (-self.continued_gap * k**2)
             case "log" | "logarithmic":
-                return -self.new_gap + (-self.continued_gap * numpy.log(k))
+                return -self.gap + (-self.continued_gap * numpy.log(k))
             case _:
                 raise ValueError("Invalid gap function")
 
@@ -531,12 +531,8 @@ class WatermanSmithBeyer(_GlobalBase):
         self.pointer[:, 0] = [(3, 1, 0)] * self.pointer.shape[0]
         self.pointer[0, :] = [(4, 0, 1)] * self.pointer.shape[1]
         # initialisation of starter values for first column and first row
-        self.score[:, 0] = [
-            -self.new_gap + -n * self.continued_gap for n in range(qs_len)
-        ]
-        self.score[0, :] = [
-            -self.new_gap + -n * self.continued_gap for n in range(ss_len)
-        ]
+        self.score[:, 0] = [-self.gap + -n * self.continued_gap for n in range(qs_len)]
+        self.score[0, :] = [-self.gap + -n * self.continued_gap for n in range(ss_len)]
         self.score[0][0] = 0
 
         for i in range(1, qs_len):
@@ -655,7 +651,7 @@ class Gotoh(_GlobalBase):
     ) -> None:
         self.match = match
         self.mismatch = mismatch
-        self.new_gap = new_gap
+        self.gap = new_gap
         self.continued_gap = continued_gap
         self.has_sub_mat = False
         self.sub_mat = scoring_matrix
@@ -690,15 +686,15 @@ class Gotoh(_GlobalBase):
         self.D[0, 0] = 0
         # Initialize first column (vertical gaps)
         for i in range(1, len(qs)):
-            self.D[i, 0] = -(self.new_gap + (i) * self.continued_gap)
+            self.D[i, 0] = -(self.gap + (i) * self.continued_gap)
         # Initialize first row (horizontal gaps)
         for j in range(1, len(ss)):
-            self.D[0, j] = -(self.new_gap + (j) * self.continued_gap)
+            self.D[0, j] = -(self.gap + (j) * self.continued_gap)
 
         for i in range(1, len(qs)):
             for j in range(1, len(ss)):
                 match = self.D[i - 1, j - 1] + self.match_func(qs[i], ss[j])
-                i_new_gap = self.D[i - 1, j] - self.new_gap - self.continued_gap
+                i_new_gap = self.D[i - 1, j] - self.gap - self.continued_gap
                 i_old_gap = self.P[i - 1, j] - self.continued_gap
 
                 self.P[i, j] = max(i_new_gap, i_old_gap)
@@ -709,7 +705,7 @@ class Gotoh(_GlobalBase):
                     self.P_pointer[i, j] = UP
                     self.P_pointer[i - 1, j] = UP
 
-                j_new_gap = self.D[i, j - 1] - self.new_gap - self.continued_gap
+                j_new_gap = self.D[i, j - 1] - self.gap - self.continued_gap
                 j_old_gap = self.Q[i, j - 1] - self.continued_gap
                 self.Q[i, j] = max(j_new_gap, j_old_gap)
                 if self.Q[i, j] == j_new_gap:
@@ -823,7 +819,7 @@ class GotohLocal(_LocalBase):
     ):
         self.match = match
         self.mismatch = mismatch
-        self.new_gap = new_gap
+        self.gap = new_gap
         self.continued_gap = continued_gap
 
     def __call__(
@@ -844,11 +840,11 @@ class GotohLocal(_LocalBase):
                     else -self.mismatch
                 )
                 P[i, j] = max(
-                    D[i - 1, j] - self.new_gap,
+                    D[i - 1, j] - self.gap,
                     P[i - 1, j] - self.continued_gap,
                 )
                 Q[i, j] = max(
-                    D[i, j - 1] - self.new_gap,
+                    D[i, j - 1] - self.gap,
                     Q[i, j - 1] - self.continued_gap,
                 )
                 D[i, j] = max(0, D[i - 1, j - 1] + score, P[i, j], Q[i, j])

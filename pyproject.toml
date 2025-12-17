@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "goombay"
-version = "0.24.9"
+version = "0.24.10"
 authors = [{ name = "Andrew Hennis", email = "andrew.mr.hennis@gmail.com" }]
 description = "Python implementation of several local, global, and multiple sequence alignment algorithms intended to calculate distance, show alignment, and display the underlying matrices."
 readme = "README.md"
@@ -14,11 +14,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = [
- "biobase>=0.8.0",
- "biopython>=1.85",
- "numpy>=2.2.6",
-]
+dependencies = ["biobase>=0.8.0", "biopython>=1.85", "numpy>=2.2.6"]
 
 [project.optional-dependencies]
 dev = ["pytest", "black"]
