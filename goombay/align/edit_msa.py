@@ -48,11 +48,21 @@ def main():
     seq3 = "GARFIELD_THE_VERY_FAST_CAT"
     seq4 = "THE_FAT_CAT"
     seq_list = [seq1, seq2, seq3, seq4]
-    print(TCoffee.supported_pairwise_algs())
-    print(TCoffee.supported_clustering_algs())
-    print(t_coffee(seq_list))
-    # fd_gotoh = TCoffee(pairwise="gotoh")
-    # print(t_coffee.align(seq_list))
+    #print(TCoffee.supported_pairwise_algs())
+    #print(TCoffee.supported_clustering_algs())
+    #print(t_coffee(seq_list))
+    #fd_gotoh = TCoffee(pairwise="gotoh")
+    feng_doo = FengDoolittle()
+    feng_doo_list = feng_doo.get_matrix(seq_list)
+    print(feng_doo_list)
+    feng_doo_align = feng_doo.align(seq_list)
+    print(feng_doo_align)
+    print() # just a space to separate TCoffee and Fengdoolittle 
+    t_coffee = TCoffee()
+    t_coffee_list = t_coffee.get_matrix(seq_list)
+    print(t_coffee_list)
+    t_coffe_align = t_coffee.align(seq_list)
+    print(t_coffe_align)
 
 
 class AlignTemp:
