@@ -36,19 +36,6 @@ __all__ = [
 ]
 
 
-def main():
-    # query = ["WIKIMEDIA", "GESTALT PATTERN MATCHING"]
-    # subject = ["WIKIMANIA", "GESTALT PRACTICE"]
-    """
-    for qs, ss in zip(query, subject):
-        print(ratcliff_obershelp.align(qs, ss))
-        print(ratcliff_obershelp.similarity(qs, ss))
-    """
-    query = "HUMAN"
-    subject = "CHIMPANZEE"
-    print(ratcliff_obershelp(query, subject))
-
-
 class LongestCommonSubsequence(_LocalBase):
     def __init__(self):
         self.match = 1
@@ -685,6 +672,3 @@ simple_matching_coefficient = SimpleMatchingCoefficient()
 prefix = Prefix()
 postfix = Postfix()
 ratcliff_obershelp = RatcliffObershelp()
-
-if __name__ == "__main__":
-    main()
