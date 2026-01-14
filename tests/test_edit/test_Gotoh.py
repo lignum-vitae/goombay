@@ -63,7 +63,7 @@ class TestGotoh(unittest.TestCase):
                         f"{expected_gaps if not query else query}\n{expected_gaps if not subject else subject}",
                     )
                     expected = -(
-                        self.algorithm.new_gap
+                        self.algorithm.gap
                         + len(non_empty) * self.algorithm.continued_gap
                     )
                     self.assertEqual(
@@ -137,7 +137,7 @@ class TestGotoh(unittest.TestCase):
         query = "ACGT"
         subject = "AT"
         D, _, _, _ = custom_algorithm(query, subject)
-        expected_penalty = custom_algorithm.new_gap + 2 * custom_algorithm.continued_gap
+        expected_penalty = custom_algorithm.gap + 2 * custom_algorithm.continued_gap
         expected_matches = 2 * custom_algorithm.match
         self.assertEqual(D[-1, -1], expected_matches - expected_penalty)
 

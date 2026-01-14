@@ -42,10 +42,9 @@ class TestWatermanSmithBeyer(unittest.TestCase):
         for query, subject in test_cases:
             with self.subTest(query=query, subject=subject):
                 score, _ = self.algorithm(query, subject)
-                expected_score = (
-                    -self.algorithm.new_gap
-                    - self.algorithm.continued_gap * (len(query or subject))
-                )  # new_gap + continue_gaps
+                expected_score = -self.algorithm.gap - self.algorithm.continued_gap * (
+                    len(query or subject)
+                )  # gap + continue_gaps
                 if query == subject == "":
                     self.assertEqual(self.algorithm.similarity(query, subject), 1)
                 elif not subject:
