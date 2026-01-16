@@ -1,14 +1,3 @@
-def main():
-    seq1 = "HOUSEOFCARDSFALLDOWN"
-    seq2 = "HOUSECARDFALLDOWN"
-    seq3 = "FALLDOWN"
-    print(longest_common_substring_msa.align([seq2, seq1, seq3]))
-    print(longest_common_substring_msa.distance([seq2, seq1, seq3]))
-    print(longest_common_substring_msa.normalized_distance([seq2, seq1, seq3]))
-    print(longest_common_substring_msa.similarity([seq2, seq1, seq3]))
-    print(longest_common_substring_msa.normalized_similarity([seq2, seq1, seq3]))
-
-
 __all__ = ["LongestCommonSubstringMSA", "longest_common_substring_msa"]
 
 
@@ -91,6 +80,3 @@ class LongestCommonSubstringMSA:
 
 
 longest_common_substring_msa = LongestCommonSubstringMSA()
-
-if __name__ == "__main__":
-    main()

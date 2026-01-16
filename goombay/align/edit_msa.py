@@ -33,7 +33,12 @@ from goombay.phylo.cluster import (
 __all__ = ["FengDoolittle", "feng_doolittle", "TCoffee", "t_coffee"]
 
 
-class AlignTemp:
+def main():
+    seqs = ["ATCG", "TCG", "ACG"]
+    feng_doolittle(seqs)
+
+
+class MSABase:
     supported_pairwise = {
         "needleman_wunsch": NeedlemanWunsch,
         "jaro": Jaro,
@@ -96,10 +101,8 @@ class AlignTemp:
         :rtype: list[str]
         """
         # Pick first seq from each profile as representative (simplified for now)\
-        # print(profile1, profile2)
         rep1 = profile1[0]
         rep2 = profile2[0]
-        # print(rep1, rep2)
         # Align the two representative sequences
         aligned_rep1, aligned_rep2 = self.pairwise.align(rep1, rep2).split("\n")
 
@@ -113,19 +116,10 @@ class AlignTemp:
                     if char == "-":
                         gapped_seq.append("-")
                     else:
-                        # Skip any existing gaps in the input sequence
-                        while seq_i < len(seq) and seq[seq_i] == "-":
-                            seq_i += 1
                         # Now take the actual character
                         if seq_i < len(seq):
                             gapped_seq.append(seq[seq_i])
                             seq_i += 1
-                # Verify we consumed all non-gap characters from seq
-                remaining = seq[seq_i:].replace("-", "")
-                if remaining:
-                    raise ValueError(
-                        f"Unconsumed characters: '{remaining}' from seq '{seq}'"
-                    )
 
                 gapped_profile.append("".join(gapped_seq))
             return gapped_profile
@@ -136,7 +130,12 @@ class AlignTemp:
 
         return aligned_profile1 + aligned_profile2
 
-    def _align(self, newick_tree, profile_dict, verbose: bool):
+    def _align(
+        self,
+        newick_tree: Phylo.Newick.Tree,
+        profile_dict: dict[str, list[str]],
+        verbose: bool,
+    ):
         """
         Docstring for _align
 
@@ -231,7 +230,7 @@ class AlignTemp:
         return (pair[-1], pair[0])
 
 
-class FengDoolittle(AlignTemp):
+class FengDoolittle(MSABase):
     """functions below are unique to FengDoolittle"""
 
     def __init__(self, cluster: str = "nj", pairwise: str = "nw"):
@@ -259,9 +258,10 @@ class FengDoolittle(AlignTemp):
 
         # FengDoolittle can make use of a different algorithm to generate both the profile_dict and sequence distance matrix
         # Might be worth moving it to a function
-        profile_dict = {}
+
+        # storing lists instead of strings
+        profile_dict = {str(i): [seq] for i, seq in enumerate(seqs)}
         for i, i_seq in enumerate(seqs):
-            profile_dict[str(i)] = [i_seq]  # storing lists instead of strings
             for j, j_seq in enumerate(seqs):
                 if i < j and i != j:
                     alignment_score = self.pairwise.distance(i_seq, j_seq)
@@ -269,8 +269,11 @@ class FengDoolittle(AlignTemp):
                     seq_dist_matrix[j][i] = alignment_score
         return profile_dict, seq_dist_matrix
 
+    def align(self, seqs: list[str], verbose: bool = False) -> str:
+        return super().align(seqs, verbose)
 
-class TCoffee(AlignTemp):  # Notredame-Higgins-Heringa implementation
+
+class TCoffee(MSABase):  # Notredame-Higgins-Heringa implementation
     """functions below are unique to T-Coffee"""
 
     # instead of waterman smith bayer and needleman wunsch, follow RNAinformatik's use of Gotoh
@@ -321,26 +324,21 @@ class TCoffee(AlignTemp):  # Notredame-Higgins-Heringa implementation
         seq_tracker = self._track_sequences(seqs)
         alignments = self.compute_alignments(seqs)
 
-        # print(alignments)
-
         primary_library = self.compute_primary_library(alignments, seqs, seq_tracker)
 
-        # print(primary_library)
         """Extension library logic"""
         # taking the primary library
         # for each stored sequence need to calculate extended library score against other alignments
 
         # alrighty, lets do the extension
         extended_library = self.form_extension_library(primary_library, len(seqs))
-        # print(extended_library)
 
         # distance matrix from the extended library, almost ready to be clustered
         seq_dist_matrix = self.create_distance_matrix_NNH(extended_library, seq_tracker)
-        # print(dist_matrix)
         return profile_dict, seq_dist_matrix
 
     def compute_alignments(self, seqs: list[str]):
-        """
+        r"""
         Docstring for merge_alignments: this is a pairwise optimal alignment step following the instruction from https://backofenlab.github.io/BioinformaticsII-pages/exercise-sheet-3.html
 
         Args:
@@ -360,10 +358,6 @@ class TCoffee(AlignTemp):  # Notredame-Higgins-Heringa implementation
             for j, j_seq in enumerate(seqs):
                 # this condition helps avoid repeats
                 if i < j and i != j:
-
-                    # global_align = self.global_pw.align(i_seq, j_seq)
-                    # print(global_align)
-
                     # use Biopythons pairwise align for now to compare alignments
                     alignment = aligner.align(i_seq, j_seq)
                     aligned_seq_ij = alignment[0][0] + "\n" + alignment[0][1]
@@ -373,19 +367,11 @@ class TCoffee(AlignTemp):  # Notredame-Higgins-Heringa implementation
                     seq1_aligned = lines[0]
                     seq2_aligned = lines[1]
 
-                    # print(f"\nOriginal sequences: '{i_seq}' (len={len(i_seq)}) vs '{j_seq}' (len={len(j_seq)})")
-                    # print(f"Aligned:")
-                    # print(f"  Seq1: '{seq1_aligned}' (len={len(seq1_aligned)})")
-                    # print(f"  Seq2: '{seq2_aligned}' (len={len(seq2_aligned)})")
-                    # print(f"  Seq1 no gaps: '{seq1_aligned.replace('-', '')}' (len={len(seq1_aligned.replace('-', ''))})")
-                    # print(f"  Seq2 no gaps: '{seq2_aligned.replace('-', '')}' (len={len(seq2_aligned.replace('-', ''))})")
-
                     merged_alignments[
                         chr(seqs.index(i_seq) + 65).lower()
                         + "-"
                         + chr(seqs.index(j_seq) + 65).lower()
                     ] = (aligned_seq_ij, self._merge_weight_calc(aligned_seq_ij))
-                    # print(merged_alignments)
                     # local_align = self.local_pw.align(i_seq, j_seq)
                     # if global_align != local_align:
                     # merged_alignments[
@@ -393,12 +379,9 @@ class TCoffee(AlignTemp):  # Notredame-Higgins-Heringa implementation
                     # + "-"
                     # + chr(seqs.index(j_seq) + 65).lower()
                     # ] = (local_align, self._merge_weight_calc(local_align))
-        # print(merged_alignments)
         return merged_alignments
 
     def _merge_weight_calc(self, seq_ab):
-        #
-        # print("weight calc")
         """
         Docstring for _merge_weight_calc
 
@@ -411,13 +394,11 @@ class TCoffee(AlignTemp):  # Notredame-Higgins-Heringa implementation
         seq_a, seq_b = sequences[0], sequences[1]
         # get the total character length not including gaps of the min seq
         seqa_trimmed, seqb_trimmed = seq_a.replace("-", ""), seq_b.replace("-", "")
-        # print(f"length of trimmed seqs: {len(seqa_trimmed)}, {len(seqb_trimmed)}")
         total_count = min(len(seqa_trimmed), len(seqb_trimmed))
         for i in range(len(seq_a)):
             if seq_a[i] != "-" and seq_b[i] != "-":  # skip over indels if both are gaps
                 if seq_a[i] == seq_b[i]:
                     total_match += 1
-        # print(f"Total match {seq_a}-{seq_b}: {total_match} / {total_count}")
         return round((total_match * 100) / (total_count), 1)
 
     def compute_primary_library(
@@ -444,11 +425,8 @@ class TCoffee(AlignTemp):  # Notredame-Higgins-Heringa implementation
         :param A: Alignments, calculated from compute_alignments
 
         """
-        # print(A)
         seq_keys, alignment_keys = list(seq_tracker.keys()), list(A.keys())
-        # print(seq_keys, alignment_keys)
         primary_lib_tuples = []
-        # print(m, n)
 
         # The primary sequence is the first one
         seqi_key = seq_keys[m]
@@ -460,9 +438,7 @@ class TCoffee(AlignTemp):  # Notredame-Higgins-Heringa implementation
 
         # Get the alignment between primary and secondary
         alignment_key = f"{seqi_key}-{seqj_key}"
-        # print(alignment_key)
         current_aligned_seqs = A[alignment_key][0].split("\n")
-        # print(current_aligned_seqs)
         aligned_primary = current_aligned_seqs[0]
         aligned_secondary = current_aligned_seqs[1]
         # get the weight for each compared position
@@ -496,9 +472,6 @@ class TCoffee(AlignTemp):  # Notredame-Higgins-Heringa implementation
             for j in range(1, len(orig_seqj) + 1):
                 weight = alignment_map.get((i, j), 0)
                 primary_lib_tuples.append((i, j, weight))
-
-        # working as intended now
-        # print(primary_lib_tuples)
 
         return primary_lib_tuples
 
@@ -579,16 +552,10 @@ class TCoffee(AlignTemp):  # Notredame-Higgins-Heringa implementation
         :param seqs: Description
         :type seqs: list[str]
         """
-        # print(seq_tracker)
         n = len(seq_tracker)
         distance_matrix = numpy.zeros((n, n))
 
-        # print(f"Number of sequences: {n}")
-        # print(f"Sequences: {seq_tracker}")
-        # print(f"Extension library keys: {list(extension_library.keys())}")
-
         for i, a in enumerate(seq_tracker.keys()):
-            # print(i, a)
             for j, b in enumerate(seq_tracker.keys()):
                 if i >= j:  # Skip diagonal and lower triangle
                     continue
@@ -597,34 +564,21 @@ class TCoffee(AlignTemp):  # Notredame-Higgins-Heringa implementation
                 pair_key = f"{a}-{b}"
                 reverse_key = f"{b}-{a}"
 
-                # print(f"\nProcessing pair ({i},{j}): {a} and {b}")
-                # print(f"  Looking for keys: '{pair_key}' or '{reverse_key}'")
-
                 if pair_key in extension_library:
                     pair_dict = extension_library[pair_key]
-                    # print(f"  Found {pair_key}")
                 elif reverse_key in extension_library:
                     pair_dict = extension_library[reverse_key]
-                    # print(f"  Found {reverse_key}")
                 else:
-                    # print(f"  Neither key found!")
                     continue
-
-                # print(f"  Pair dict has {len(pair_dict)} entries")
-                # print(f"  First 3 entries: {list(pair_dict.items())[:3]}")
 
                 # Collect all non-zero scores
                 scores = [
                     weight for (ai, bj), weight in pair_dict.items() if weight > 0
                 ]
 
-                # print(f"  Non-zero scores: {len(scores)} found")
-                # print(f"  Score values: {scores[:10]}")
-
                 if not scores:
                     distance_matrix[i, j] = 1.0
                     distance_matrix[j, i] = 1.0
-                    # print(f"  No scores, setting distance to 1.0")
                 else:
                     avg_score = numpy.mean(scores)
                     similarity = avg_score / 100.0
@@ -632,12 +586,11 @@ class TCoffee(AlignTemp):  # Notredame-Higgins-Heringa implementation
 
                     distance_matrix[i, j] = distance
                     distance_matrix[j, i] = distance
-                    # print(f"  Avg score: {avg_score}, Similarity: {similarity}, Distance: {distance}")
-
-        # print("\nFinal distance matrix:")
-        # print(distance_matrix)
         return distance_matrix
 
 
 feng_doolittle = FengDoolittle()
 t_coffee = TCoffee()
+
+if __name__ == "__main__":
+    main()

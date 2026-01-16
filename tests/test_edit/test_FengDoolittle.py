@@ -1,5 +1,5 @@
 import unittest
-from goombay import FengDoolittle
+from goombay import FengDoolittle, NeedlemanWunsch
 
 
 class TestFengDoolittle(unittest.TestCase):
@@ -8,6 +8,23 @@ class TestFengDoolittle(unittest.TestCase):
     def setUp(self):
         """Initialize algorithm with default pairwise/clustering (NW + NJ)"""
         self.feng = FengDoolittle()
+        self.nw = NeedlemanWunsch()
+
+    def test_call_method(self):
+        seqs = ["ATCG", "ACG", "TCG"]
+        prof_dict, dist_matrix = self.feng(seqs)
+
+        expected_prof_dict = {str(i): [seq] for i, seq in enumerate(seqs)}
+        self.assertEqual(prof_dict, expected_prof_dict)
+
+        self.assertEqual(len(dist_matrix), 3)
+        for i, row in enumerate(dist_matrix):
+            for j, value in enumerate(row):
+                if i == j:
+                    self.assertEqual(value, 0.0)  # distance on diag is 0.0
+                    continue
+                dist = self.nw.distance(prof_dict[str(i)][0], prof_dict[str(j)][0])
+                self.assertEqual(value, dist)
 
     def test_identical_sequences(self):
         """Align multiple identical sequences"""

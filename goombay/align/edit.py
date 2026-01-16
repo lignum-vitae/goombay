@@ -41,12 +41,6 @@ __all__ = [
 ]
 
 
-def main():
-    query = "CG"
-    subject = "CCGA"
-    print(gotoh(query, subject))
-
-
 class WagnerFischer(_GlobalBase):  # Levenshtein Distance
     supports_scoring_matrix = False
 
@@ -1388,6 +1382,3 @@ hirschberg = Hirschberg()
 jaro = Jaro()
 jaro_winkler = JaroWinkler()
 lowrance_wagner = LowranceWagner()
-
-if __name__ == "__main__":
-    main()
