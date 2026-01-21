@@ -97,13 +97,13 @@ class TestSmithWaterman(unittest.TestCase):
         """Test matrix dimensions"""
         query = "ACTG"
         subject = "ACT"
-        score = self.algorithm(query, subject)
+        score, _ = self.algorithm(query, subject)
         expected_shape = (len(query) + 1, len(subject) + 1)
         self.assertEqual(score.shape, expected_shape)
 
     def test_matrix_values(self):
         """Test specific matrix values"""
-        score = self.algorithm("AC", "AT")
+        score, _ = self.algorithm("AC", "AT")
 
         expected_score = numpy.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
         numpy.testing.assert_array_equal(score, expected_score)
@@ -130,7 +130,7 @@ class TestSmithWaterman(unittest.TestCase):
         self.assertEqual(custom_algorithm.align("ACGT", "AGT"), "GT\nGT")
 
         # Test matrix values
-        score = custom_algorithm("AC", "AT")
+        score, _ = custom_algorithm("AC", "AT")
         expected_score = numpy.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
         numpy.testing.assert_array_equal(score, expected_score)
 
@@ -138,7 +138,7 @@ class TestSmithWaterman(unittest.TestCase):
         """Test specific local alignment behaviors"""
         test_cases = [
             ("CGATC", "GTATG", "AT\nAT", 2, 3),  # Find internal match
-            ("AAAGGGGTTT", "AAATTT", "AAA\nAAA", 3, 7),  # Multiple possible alignments
+            ("AAAGGGGTTT", "AAATTT", "TTT\nTTT", 3, 7),  # Multiple possible alignments
             ("ACGTACGT", "TACGTAC", "ACGTAC\nACGTAC", 6, 2),  # Longer local alignment
         ]
 
@@ -152,14 +152,24 @@ class TestSmithWaterman(unittest.TestCase):
         """ "Test multiple optimal alignments"""
         test_cases = [
             ("AAAGGGGTTT", "AAATTT", ["AAA\nAAA", "TTT\nTTT"]),
-            ("CCGGGGAT", "CGCAT", ["CG\nCG", "AT\nAT"]),
+            ("CCGGGGAAT", "CGCAT", ["CG\nCG", "AT\nAT"]),
         ]
 
         for query, subject, alignments in test_cases:
             with self.subTest(query=query, subject=subject):
                 aligned = self.algorithm.align(query, subject, all_alignments=True)
+                self.assertEqual(len(alignments), 2)
                 for alignment in aligned:
                     self.assertIn(alignment, alignments)
+
+    def test_alignment_with_gap(self):
+        """Ensures that pointer matrix is being used correctly"""
+        query = "TGTTACGG"
+        subject = "GGTTGACTA"
+
+        result = self.algorithm.align(query, subject)
+        expected = "GTT-AC\nGTTGAC"
+        self.assertEqual(result, expected)
 
 
 if __name__ == "__main__":

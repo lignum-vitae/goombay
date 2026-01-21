@@ -11,12 +11,12 @@ class TestSubstitutionMatrices(unittest.TestCase):
         self.nw = NeedlemanWunsch()
         self.g = Gotoh()
         self.h = Hirschberg()
-        self.nwb62 = NeedlemanWunsch(scoring_matrix=Blosum(62))
-        self.hb62 = Hirschberg(scoring_matrix=Blosum(62))
+        self.nwb62 = NeedlemanWunsch(substitution_matrix=Blosum(62))
+        self.hb62 = Hirschberg(substitution_matrix=Blosum(62))
         self.wsbp250 = WatermanSmithBeyer(
-            new_gap=5, continued_gap=3, scoring_matrix=Pam(250)
+            new_gap=5, continued_gap=3, substitution_matrix=Pam(250)
         )
-        self.gp250 = Gotoh(new_gap=5, continued_gap=3, scoring_matrix=Pam(250))
+        self.gp250 = Gotoh(new_gap=5, continued_gap=3, substitution_matrix=Pam(250))
 
     def test_identical_sequences(self):
         """Test behavior with identical sequences"""

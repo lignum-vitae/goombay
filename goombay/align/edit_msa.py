@@ -75,7 +75,9 @@ class FengDoolittle:
 
     cl_abbreviations = {"nj": "neighbor_joining"}
 
-    def __init__(self, cluster: str = "nj", pairwise: str = "nw", scoring_matrix=None):
+    def __init__(
+        self, cluster: str = "nj", pairwise: str = "nw", substitution_matrix=None
+    ):
         """Initialize Feng-Doolittle algorithm with chosen pairwise method"""
         # Get pairwise alignment algorithm
         if pairwise.lower() in self.supported_pairwise:
@@ -92,10 +94,10 @@ class FengDoolittle:
         else:
             raise ValueError(f"Unsupported clustering algorithm: {cluster}")
 
-        if scoring_matrix is not None:
+        if substitution_matrix is not None:
             # getattr(object, attribute, default)
-            if getattr(pairwise_class, "supports_scoring_matrix", False):
-                self.pairwise = pairwise_class(scoring_matrix=scoring_matrix)
+            if getattr(pairwise_class, "supports_substitution_matrix", False):
+                self.pairwise = pairwise_class(substitution_matrix=substitution_matrix)
             else:
                 raise ValueError(
                     f"The selected pairwise method '{pairwise}' does not support a scoring matrix."
