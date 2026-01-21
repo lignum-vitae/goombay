@@ -7,7 +7,7 @@ except ImportError:
     raise ImportError("Numpy is not installed. Please pip install numpy to continue.")
 
 # internal dependencies
-from goombay.align.base import LocalBase as _LocalBase
+from goombay.align.base import OverlapBase as _OverlapBase
 from goombay.align.edit import hamming
 
 __all__ = [
@@ -36,7 +36,7 @@ __all__ = [
 ]
 
 
-class LongestCommonSubsequence(_LocalBase):
+class LongestCommonSubsequence(_OverlapBase):
     def __init__(self):
         self.match = 1
 
@@ -102,7 +102,7 @@ class LongestCommonSubsequence(_LocalBase):
         return list(longest_subseqs)
 
 
-class LongestCommonSubstring(_LocalBase):
+class LongestCommonSubstring(_OverlapBase):
     def __init__(self):
         self.match = 1
 

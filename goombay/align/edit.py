@@ -42,7 +42,7 @@ __all__ = [
 
 
 class WagnerFischer(_GlobalBase):  # Levenshtein Distance
-    supports_scoring_matrix = False
+    supports_substitution_matrix = False
 
     def __init__(self) -> None:
         self.gap = 1
@@ -120,7 +120,7 @@ class WagnerFischer(_GlobalBase):  # Levenshtein Distance
 
 
 class LowranceWagner(_GlobalBase):  # Damerau-Levenshtein distance
-    supports_scoring_matrix = False
+    supports_substitution_matrix = False
 
     def __init__(self) -> None:
         self.gap = 1
@@ -400,18 +400,18 @@ class Hamming:
 
 
 class NeedlemanWunsch(_GlobalBase):
-    supports_scoring_matrix = True
+    supports_substitution_matrix = True
 
     def __init__(
-        self, match: int = 2, mismatch: int = 1, gap: int = 2, scoring_matrix=None
+        self, match: int = 2, mismatch: int = 1, gap: int = 2, substitution_matrix=None
     ) -> None:
         self.match = match
         self.mismatch = mismatch
         self.gap = gap
         self.has_sub_mat = False
-        self.sub_mat = scoring_matrix
-        if scoring_matrix is not None:
-            self.match_func = lambda a, b: scoring_matrix[a][b]
+        self.sub_mat = substitution_matrix
+        if substitution_matrix is not None:
+            self.match_func = lambda a, b: substitution_matrix[a][b]
             self.has_sub_mat = True
         else:
             self.match_func = lambda a, b: self.match if a == b else -self.mismatch
@@ -474,7 +474,7 @@ class NeedlemanWunsch(_GlobalBase):
 
 
 class WatermanSmithBeyer(_GlobalBase):
-    supports_scoring_matrix = True
+    supports_substitution_matrix = True
 
     def __init__(
         self,
@@ -482,7 +482,7 @@ class WatermanSmithBeyer(_GlobalBase):
         mismatch: int = 1,
         new_gap: int = 3,
         continued_gap: int = 1,
-        scoring_matrix=None,
+        substitution_matrix=None,
         gap_function: str = "affine",
     ) -> None:
         self.match = match
@@ -491,9 +491,9 @@ class WatermanSmithBeyer(_GlobalBase):
         self.continued_gap = continued_gap
         self.gap_function = gap_function
         self.has_sub_mat = False
-        self.sub_mat = scoring_matrix
-        if scoring_matrix is not None:
-            self.match_func = lambda a, b: scoring_matrix[a][b]
+        self.sub_mat = substitution_matrix
+        if substitution_matrix is not None:
+            self.match_func = lambda a, b: substitution_matrix[a][b]
             self.has_sub_mat = True
         else:
             self.match_func = lambda a, b: self.match if a == b else -self.mismatch
@@ -633,7 +633,7 @@ class WatermanSmithBeyer(_GlobalBase):
 
 
 class Gotoh(_GlobalBase):
-    supports_scoring_matrix = True
+    supports_substitution_matrix = True
 
     def __init__(
         self,
@@ -641,16 +641,16 @@ class Gotoh(_GlobalBase):
         mismatch: int = 1,
         new_gap: int = 3,
         continued_gap: int = 1,
-        scoring_matrix=None,
+        substitution_matrix=None,
     ) -> None:
         self.match = match
         self.mismatch = mismatch
         self.gap = new_gap
         self.continued_gap = continued_gap
         self.has_sub_mat = False
-        self.sub_mat = scoring_matrix
-        if scoring_matrix is not None:
-            self.match_func = lambda a, b: scoring_matrix[a][b]
+        self.sub_mat = substitution_matrix
+        if substitution_matrix is not None:
+            self.match_func = lambda a, b: substitution_matrix[a][b]
             self.has_sub_mat = True
         else:
             self.match_func = lambda a, b: self.match if a == b else -self.mismatch
@@ -665,7 +665,7 @@ class Gotoh(_GlobalBase):
         qs.extend([x.upper() for x in query_seq])
         ss.extend([x.upper() for x in subject_seq])
 
-        # matrix initialisation
+        # Matrix initialisation
         self.D = numpy.full((len(qs), len(ss)), -numpy.inf)
         self.P = numpy.full((len(qs), len(ss)), -numpy.inf)
         self.P[:, 0] = 0
@@ -676,7 +676,7 @@ class Gotoh(_GlobalBase):
         self.pointer[0, :] = LEFT
         self.P_pointer = numpy.zeros((len(qs), len(ss)))
         self.Q_pointer = numpy.zeros((len(qs), len(ss)))
-        # initialisation of starter values for first column and first row
+        # Initialisation of starter values for first column and first row
         self.D[0, 0] = 0
         # Initialize first column (vertical gaps)
         for i in range(1, len(qs)):
@@ -707,7 +707,7 @@ class Gotoh(_GlobalBase):
                     self.Q_pointer[i, j - 1] = MATCH
                 elif self.Q[i, j] == j_old_gap:
                     self.Q_pointer[i, j] = LEFT
-                    self.Q_pointer[i, j - 1] = MATCH
+                    self.Q_pointer[i, j - 1] = LEFT
 
                 self.D[i, j] = max(match, self.P[i, j], self.Q[i, j])
                 # matrix for traceback based on results from scoring matrix
@@ -758,7 +758,7 @@ class Gotoh(_GlobalBase):
         aligned = []
         stack = [([""], [""], i, j)]
 
-        # looks for match/mismatch/gap starting from bottom right of matrix
+        # Looks for match/mismatch/gap starting from bottom right of matrix
         active_matrix = D_pointer
         while stack:
             qs_align, ss_align, i, j = stack.pop()
@@ -773,7 +773,7 @@ class Gotoh(_GlobalBase):
                 MATCH + LEFT,
                 MATCH + UP + LEFT,
             ]:
-                # appends match/mismatch then moves to the cell diagonally up and to the left
+                # Appends match/mismatch then moves to the cell diagonally up and to the left
                 stack.append(
                     (qs_align + [qs[i - 1]], ss_align + [ss[j - 1]], i - 1, j - 1)
                 )
@@ -781,7 +781,7 @@ class Gotoh(_GlobalBase):
                 if not all_alignments:
                     continue
             if active_matrix[i, j] in [UP, UP + MATCH, UP + LEFT, UP + MATCH + LEFT]:
-                # appends gap and accompanying nucleotide, then moves to the cell above
+                # Appends gap and accompanying nucleotide, then moves to the cell above
                 stack.append((qs_align + [qs[i - 1]], ss_align + ["-"], i - 1, j))
                 active_matrix = P_pointer
                 if not all_alignments:
@@ -792,7 +792,7 @@ class Gotoh(_GlobalBase):
                 LEFT + UP,
                 LEFT + MATCH + UP,
             ]:
-                # appends gap and accompanying nucleotide, then moves to the cell to the left
+                # Appends gap and accompanying nucleotide, then moves to the cell to the left
                 stack.append((qs_align + ["-"], ss_align + [ss[j - 1]], i, j - 1))
                 active_matrix = Q_pointer
                 if not all_alignments:
@@ -810,40 +810,73 @@ class GotohLocal(_LocalBase):
         mismatch=1,
         new_gap=3,
         continued_gap=2,
+        substitution_matrix=None,
     ):
         self.match = match
         self.mismatch = mismatch
         self.gap = new_gap
         self.continued_gap = continued_gap
+        if substitution_matrix is not None:
+            self.match_func = lambda a, b: substitution_matrix[a][b]
+            self.has_sub_mat = True
+        else:
+            self.match_func = lambda a, b: self.match if a == b else -self.mismatch
 
     def __call__(
         self, query_seq: str, subject_seq: str
     ) -> tuple[NDArray, NDArray, NDArray]:
         """Compute single alignment matrix"""
+        qs, ss = [""], [""]
+        qs.extend([x.upper() for x in query_seq])
+        ss.extend([x.upper() for x in subject_seq])
+
         # Initialize matrices
-        D = numpy.zeros((len(query_seq) + 1, len(subject_seq) + 1))
-        P = numpy.zeros((len(query_seq) + 1, len(subject_seq) + 1))
-        Q = numpy.zeros((len(query_seq) + 1, len(subject_seq) + 1))
+        self.D = numpy.zeros((len(qs), len(ss)))
+        self.P = numpy.zeros((len(qs), len(ss)))
+        self.Q = numpy.zeros((len(qs), len(ss)))
+        # Initialize traceback matrices
+        self.pointer = numpy.zeros((len(qs), len(ss)))
+        self.pointer[:, 0] = UP
+        self.pointer[0, :] = LEFT
+        self.P_pointer = numpy.zeros((len(qs), len(ss)))
+        self.Q_pointer = numpy.zeros((len(qs), len(ss)))
 
         # Fill matrices
-        for i in range(1, len(query_seq) + 1):
-            for j in range(1, len(subject_seq) + 1):
-                score = (
-                    self.match
-                    if query_seq[i - 1].upper() == subject_seq[j - 1].upper()
-                    else -self.mismatch
-                )
-                P[i, j] = max(
-                    D[i - 1, j] - self.gap,
-                    P[i - 1, j] - self.continued_gap,
-                )
-                Q[i, j] = max(
-                    D[i, j - 1] - self.gap,
-                    Q[i, j - 1] - self.continued_gap,
-                )
-                D[i, j] = max(0, D[i - 1, j - 1] + score, P[i, j], Q[i, j])
+        for i in range(1, len(qs)):
+            for j in range(1, len(ss)):
+                match = self.D[i - 1, j - 1] + self.match_func(qs[i], ss[j])
+                i_new_gap = self.D[i - 1, j] - self.gap - self.continued_gap
+                i_old_gap = self.P[i - 1, j] - self.continued_gap
 
-        return D, P, Q
+                self.P[i, j] = max(i_new_gap, i_old_gap)
+                if self.P[i, j] == i_new_gap:
+                    self.P_pointer[i, j] = UP
+                    self.P_pointer[i - 1, j] = MATCH
+                elif self.P[i, j] == i_old_gap:
+                    self.P_pointer[i, j] = UP
+                    self.P_pointer[i - 1, j] = UP
+
+                j_new_gap = self.D[i, j - 1] - self.gap - self.continued_gap
+                j_old_gap = self.Q[i, j - 1] - self.continued_gap
+                self.Q[i, j] = max(j_new_gap, j_old_gap)
+                if self.Q[i, j] == j_new_gap:
+                    self.Q_pointer[i, j] = LEFT
+                    self.Q_pointer[i, j - 1] = MATCH
+                elif self.Q[i, j] == j_old_gap:
+                    self.Q_pointer[i, j] = LEFT
+                    self.Q_pointer[i, j - 1] = LEFT
+
+                # Min score is 0 for local alignments
+                self.D[i, j] = max(0, match, self.P[i, j], self.Q[i, j])
+                # Matrix for traceback based on results from scoring matrix
+                if self.D[i, j] == match:
+                    self.pointer[i, j] += MATCH
+                if self.D[i, j] == self.P[i, j]:
+                    self.pointer[i, j] += UP
+                if self.D[i, j] == self.Q[i, j]:
+                    self.pointer[i, j] += LEFT
+
+        return self.D, self.P, self.Q, (self.pointer, self.P_pointer, self.Q_pointer)
 
     def distance(self, query_seq: str, subject_seq: str) -> float:
         query_length = len(query_seq)
@@ -853,7 +886,7 @@ class GotohLocal(_LocalBase):
         if not query_seq or not subject_seq:
             return max(query_length, subject_length)
 
-        matrix, _, _ = self(query_seq, subject_seq)
+        matrix, _, _, _ = self(query_seq, subject_seq)
         sim_AB = matrix.max()
         max_score = self.match * max(query_length, subject_length)
         return max_score - sim_AB
@@ -861,7 +894,7 @@ class GotohLocal(_LocalBase):
     def similarity(self, query_seq: str, subject_seq: str) -> float:
         if not query_seq and not subject_seq:
             return 1.0
-        matrix, _, _ = self(query_seq, subject_seq)
+        matrix, _, _, _ = self(query_seq, subject_seq)
         return matrix.max()
 
     def normalized_distance(self, query_seq: str, subject_seq: str) -> float:
@@ -873,62 +906,88 @@ class GotohLocal(_LocalBase):
             return 1.0
         if not query_seq or not subject_seq:
             return 0.0
-        matrix, _, _ = self(query_seq, subject_seq)
+        matrix, _, _, _ = self(query_seq, subject_seq)
         score = matrix.max()
         return score / (min(len(query_seq), len(subject_seq)) * self.match)
 
     def matrix(
         self, query_seq: str, subject_seq: str
     ) -> tuple[NDArray[float64], NDArray[float64], NDArray[float64]]:
-        D, P, Q = self(query_seq, subject_seq)
+        D, P, Q, _ = self(query_seq, subject_seq)
         return D, P, Q
 
     def align(
         self, query_seq: str, subject_seq: str, all_alignments: bool = False
     ) -> str | list[str]:
-        matrix, _, _ = self(query_seq, subject_seq)
+        matrix, _, _, (D_pointer, P_pointer, Q_pointer) = self(query_seq, subject_seq)
 
         qs = [x.upper() for x in query_seq]
         ss = [x.upper() for x in subject_seq]
         if matrix.max() == 0:
             return ""
 
-        alignments = []
+        aligned = []
         positions = numpy.argwhere(matrix == matrix.max())
-        for position in positions:
-            i, j = position
-            ss_align = []
-            qs_align = []
-            score = matrix.max()
-            while score > 0:
-                score = matrix[i][j]
-                if score == 0:
-                    break
-                qs_align.append(qs[i - 1])
-                ss_align.append(ss[j - 1])
-                i -= 1
-                j -= 1
-            qs_align = "".join(qs_align[::-1])
-            ss_align = "".join(ss_align[::-1])
-            alignments.append(f"{qs_align}\n{ss_align}")
+        stack = [([""], [""], i, j) for i, j in positions]
+
+        # Looks for match/mismatch/gap starting from bottom right of matrix
+        active_matrix = D_pointer
+        while stack:
+            qs_align, ss_align, i, j = stack.pop()
+            if matrix[i][j] == 0:
+                qs_aligned = "".join(qs_align[::-1])
+                ss_aligned = "".join(ss_align[::-1])
+                aligned.append(f"{qs_aligned}\n{ss_aligned}")
+                continue
+            if active_matrix[i, j] in [
+                MATCH,
+                MATCH + UP,
+                MATCH + LEFT,
+                MATCH + UP + LEFT,
+            ]:
+                # Appends match/mismatch then moves to the cell diagonally up and to the left
+                stack.append(
+                    (qs_align + [qs[i - 1]], ss_align + [ss[j - 1]], i - 1, j - 1)
+                )
+                active_matrix = D_pointer
+                if not all_alignments:
+                    continue
+            if active_matrix[i, j] in [UP, UP + MATCH, UP + LEFT, UP + MATCH + LEFT]:
+                # Appends gap and accompanying nucleotide, then moves to the cell above
+                stack.append((qs_align + [qs[i - 1]], ss_align + ["-"], i - 1, j))
+                active_matrix = P_pointer
+                if not all_alignments:
+                    continue
+            if active_matrix[i, j] in [
+                LEFT,
+                LEFT + MATCH,
+                LEFT + UP,
+                LEFT + MATCH + UP,
+            ]:
+                # Appends gap and accompanying nucleotide, then moves to the cell to the left
+                stack.append((qs_align + ["-"], ss_align + [ss[j - 1]], i, j - 1))
+                active_matrix = Q_pointer
+                if not all_alignments:
+                    continue
+
         if not all_alignments:
-            return alignments[0]
-        return alignments
+            return aligned[0]
+        return aligned
 
 
 class Hirschberg:
-    supports_scoring_matrix = True
+    supports_substitution_matrix = True
 
     def __init__(
-        self, match: int = 1, mismatch: int = 2, gap: int = 4, scoring_matrix=None
+        self, match: int = 1, mismatch: int = 2, gap: int = 4, substitution_matrix=None
     ) -> None:
         self.match = match
         self.mismatch = mismatch
         self.gap = gap
         self.has_sub_mat = False
-        self.sub_mat = scoring_matrix
-        if scoring_matrix is not None:
-            self.match_func = lambda a, b: -1 * scoring_matrix[a][b]
+        self.sub_mat = substitution_matrix
+        if substitution_matrix is not None:
+            self.match_func = lambda a, b: -1 * substitution_matrix[a][b]
             self.has_sub_mat = True
         else:
             self.match_func = lambda a, b: -self.match if a == b else self.mismatch
@@ -1123,7 +1182,7 @@ class Hirschberg:
 
 
 class Jaro:
-    supports_scoring_matrix = False
+    supports_substitution_matrix = False
 
     def __init__(self) -> None:
         self.match = 1
@@ -1286,7 +1345,7 @@ class Jaro:
 
 
 class JaroWinkler(Jaro):
-    supports_scoring_matrix = False
+    supports_substitution_matrix = False
 
     def __init__(self, scaling_factor=0.1):
         self.match = 1
@@ -1310,6 +1369,11 @@ class SmithWaterman(_LocalBase):
 
         # matrix initialisation
         self.score = numpy.zeros((qs_len, ss_len))
+        # pointer matrix to trace optimal alignment
+        self.pointer = numpy.zeros((qs_len, ss_len))
+        self.pointer[:, 0] = UP
+        self.pointer[0, :] = LEFT
+
         for i in range(1, qs_len):
             for j in range(1, ss_len):
                 if qs[i] == ss[j]:
@@ -1319,8 +1383,16 @@ class SmithWaterman(_LocalBase):
                 ugap = self.score[i - 1][j] - self.gap
                 lgap = self.score[i][j - 1] - self.gap
                 tmax = max(0, match, lgap, ugap)
+
                 self.score[i][j] = tmax
-        return self.score
+                # matrix for traceback based on results from scoring matrix
+                if match == tmax:
+                    self.pointer[i, j] += MATCH
+                if ugap == tmax:
+                    self.pointer[i, j] += UP
+                if lgap == tmax:
+                    self.pointer[i, j] += LEFT
+        return self.score, self.pointer
 
     def distance(self, query_seq: str, subject_seq: str) -> float:
         return super().distance(query_seq, subject_seq)
@@ -1340,7 +1412,7 @@ class SmithWaterman(_LocalBase):
     def align(
         self, query_seq: str, subject_seq: str, all_alignments: bool = False
     ) -> str | list[str]:
-        matrix = self(query_seq, subject_seq)
+        matrix, pointer_matrix = self(query_seq, subject_seq)
 
         qs = [x.upper() for x in query_seq]
         ss = [x.upper() for x in subject_seq]
@@ -1349,26 +1421,49 @@ class SmithWaterman(_LocalBase):
 
         # finds the largest value closest to bottom right of matrix
         positions = numpy.argwhere(matrix == matrix.max())
-        alignments = []
-        for position in positions:
-            i, j = position
-            ss_align = []
-            qs_align = []
-            score = matrix.max()
-            while score > 0:
-                score = matrix[i][j]
-                if score == 0:
-                    break
-                qs_align.append(qs[i - 1])
-                ss_align.append(ss[j - 1])
-                i -= 1
-                j -= 1
-            qs_align = "".join(qs_align[::-1])
-            ss_align = "".join(ss_align[::-1])
-            alignments.append(f"{qs_align}\n{ss_align}")
-            if not all_alignments:
-                return alignments[0]
-        return alignments
+        aligned = []
+
+        stack = [([""], [""], i, j) for i, j in positions]
+
+        # Looks for match/mismatch/gap starting from bottom right of matrix
+        while stack:
+            qs_align, ss_align, i, j = stack.pop()
+            if matrix[i][j] == 0:
+                qs_aligned = "".join(qs_align[::-1])
+                ss_aligned = "".join(ss_align[::-1])
+                aligned.append(f"{qs_aligned}\n{ss_aligned}")
+                continue
+            if pointer_matrix[i, j] in [
+                MATCH,
+                MATCH + UP,
+                MATCH + LEFT,
+                MATCH + UP + LEFT,
+            ]:
+                # Appends match/mismatch then moves to the cell diagonally up and to the left
+                stack.append(
+                    (qs_align + [qs[i - 1]], ss_align + [ss[j - 1]], i - 1, j - 1)
+                )
+                if not all_alignments:
+                    continue
+            if pointer_matrix[i, j] in [UP, UP + MATCH, UP + LEFT, UP + MATCH + LEFT]:
+                # Appends gap and accompanying nucleotide, then moves to the cell above
+                stack.append((qs_align + [qs[i - 1]], ss_align + ["-"], i - 1, j))
+                if not all_alignments:
+                    continue
+            if pointer_matrix[i, j] in [
+                LEFT,
+                LEFT + MATCH,
+                LEFT + UP,
+                LEFT + MATCH + UP,
+            ]:
+                # Appends gap and accompanying nucleotide, then moves to the cell to the left
+                stack.append((qs_align + ["-"], ss_align + [ss[j - 1]], i, j - 1))
+                if not all_alignments:
+                    continue
+
+        if not all_alignments:
+            return aligned[0]
+        return aligned
 
 
 hamming = Hamming()

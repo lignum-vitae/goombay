@@ -18,7 +18,7 @@ class GlobalBase(ABC):
     ) -> tuple[NDArray[float64], NDArray[float64]]:
         pass
 
-    def matrix(self, query_seq: str, subject_seq: str) -> list[list[float]]:
+    def matrix(self, query_seq: str, subject_seq: str) -> NDArray[float64]:
         matrix, _ = self(query_seq, subject_seq)
         return matrix
 
@@ -78,7 +78,7 @@ class GlobalBase(ABC):
         aligned = []
         stack = [([""], [""], i, j)]
 
-        # looks for match/mismatch/gap starting from bottom right of matrix
+        # Looks for match/mismatch/gap starting from bottom right of matrix
         while stack:
             qs_align, ss_align, i, j = stack.pop()
             if i <= 0 and j <= 0:
@@ -92,14 +92,14 @@ class GlobalBase(ABC):
                 MATCH + LEFT,
                 MATCH + UP + LEFT,
             ]:
-                # appends match/mismatch then moves to the cell diagonally up and to the left
+                # Appends match/mismatch then moves to the cell diagonally up and to the left
                 stack.append(
                     (qs_align + [qs[i - 1]], ss_align + [ss[j - 1]], i - 1, j - 1)
                 )
                 if not all_alignments:
                     continue
             if pointer_matrix[i, j] in [UP, UP + MATCH, UP + LEFT, UP + MATCH + LEFT]:
-                # appends gap and accompanying nucleotide, then moves to the cell above
+                # Appends gap and accompanying nucleotide, then moves to the cell above
                 stack.append((qs_align + [qs[i - 1]], ss_align + ["-"], i - 1, j))
                 if not all_alignments:
                     continue
@@ -109,7 +109,7 @@ class GlobalBase(ABC):
                 LEFT + UP,
                 LEFT + MATCH + UP,
             ]:
-                # appends gap and accompanying nucleotide, then moves to the cell to the left
+                # Appends gap and accompanying nucleotide, then moves to the cell to the left
                 stack.append((qs_align + ["-"], ss_align + [ss[j - 1]], i, j - 1))
                 if not all_alignments:
                     continue
@@ -120,6 +120,62 @@ class GlobalBase(ABC):
 
 
 class LocalBase(ABC):
+    @abstractmethod
+    def __call__(
+        self, query_seq: str, subject_seq: str
+    ) -> tuple[NDArray[float64], NDArray[float64]]:
+        pass
+
+    def matrix(self, query_seq: str, subject_seq: str) -> NDArray[float64]:
+        """Return alignment matrix"""
+        return self(query_seq, subject_seq)
+
+    def similarity(self, query_seq: str, subject_seq: str) -> float:
+        """Calculate similarity score"""
+        if not query_seq and not subject_seq:
+            return 1.0
+        if not query_seq or not subject_seq:
+            return 0.0
+        if len(query_seq) == 1 and len(subject_seq) == 1 and query_seq == subject_seq:
+            return 1.0
+        matrix, _ = self(query_seq, subject_seq)
+        return matrix.max() if matrix.max() > 1 else 0.0
+
+    def distance(self, query_seq: str, subject_seq: str) -> float:
+        query_length = len(query_seq)
+        subject_length = len(subject_seq)
+        if not query_seq and not subject_seq:
+            return 0.0
+        if not query_seq or not subject_seq:
+            return max(query_length, subject_length)
+
+        matrix, _ = self(query_seq, subject_seq)
+        sim_AB = matrix.max()
+        max_score = self.match * max(query_length, subject_length)
+        return max_score - sim_AB
+
+    def normalized_similarity(self, query_seq: str, subject_seq: str) -> float:
+        """Calculate normalized similarity between 0 and 1"""
+        if not query_seq and not subject_seq:
+            return 1.0
+        if not query_seq or not subject_seq:
+            return 0.0
+        if len(query_seq) == 1 and len(subject_seq) == 1 and query_seq == subject_seq:
+            return 1.0
+        matrix, _ = self(query_seq, subject_seq)
+        best_score = matrix.max()
+        return best_score / min(len(query_seq), len(subject_seq))
+
+    def normalized_distance(self, query_seq: str, subject_seq: str) -> float:
+        """Calculate normalized distance between 0 and 1"""
+        if not query_seq and not subject_seq:
+            return 0.0
+        if not query_seq or not subject_seq:
+            return 1.0
+        return 1.0 - self.normalized_similarity(query_seq, subject_seq)
+
+
+class OverlapBase(ABC):
     @abstractmethod
     def __call__(self, query_seq: str, subject_seq: str) -> NDArray[float64]:
         pass
