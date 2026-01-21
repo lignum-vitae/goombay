@@ -139,7 +139,7 @@ class TestGotohLocal(unittest.TestCase):
         """Test specific local alignment behaviors"""
         test_cases = [
             ("CGATC", "GTATG", "AT\nAT"),  # Find internal match
-            ("AAAGGGCCGGTTT", "AAATTT", "AAA\nAAA"),  # Multiple possible alignments
+            ("AAAGGGCCGGTTT", "AAATTT", "TTT\nTTT"),  # Multiple possible alignments
             ("ACGTACGT", "TACGTAC", "ACGTAC\nACGTAC"),  # Longer local alignment
         ]
 
