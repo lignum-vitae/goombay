@@ -248,7 +248,9 @@ class FengDoolittle(MSABase):
         if pairwise.lower() in self.global_supported_pairwise:
             self.pairwise = self.global_supported_pairwise[pairwise]()
         elif pairwise.lower() in self.global_pw_abbreviations:
-            self.pairwise = self.global_supported_pairwise[self.global_pw_abbreviations[pairwise]]()
+            self.pairwise = self.global_supported_pairwise[
+                self.global_pw_abbreviations[pairwise]
+            ]()
         else:
             raise ValueError(f"Unsupported pairwise alignment method: {pairwise}")
 
@@ -294,14 +296,18 @@ class NotredameHigginsHeringa(MSABase):  # T-Coffee implementation
         if global_pw.lower() in self.global_supported_pairwise:
             self.global_pw = self.global_supported_pairwise[global_pw]()
         elif global_pw.lower() in self.global_pw_abbreviations:
-            self.global_pw = self.global_supported_pairwise[self.global_pw_abbreviations[global_pw]]()
+            self.global_pw = self.global_supported_pairwise[
+                self.global_pw_abbreviations[global_pw]
+            ]()
         else:
             raise ValueError(f"Unsupported pairwise alignment method: {global_pw}")
         # get local pairwise alignment algorithm
         if local_pw.lower() in self.local_supported_pairwise:
             self.local_pw = self.local_supported_pairwise[local_pw]()
         elif local_pw.lower() in self.local_pw_abbreviations:
-            self.local_pw = self.local_supported_pairwise[self.local_pw_abbreviations[local_pw]]()
+            self.local_pw = self.local_supported_pairwise[
+                self.local_pw_abbreviations[local_pw]
+            ]()
         else:
             raise ValueError(f"Unsupported pairwise alignment method: {local_pw}")
 
@@ -367,7 +373,7 @@ class NotredameHigginsHeringa(MSABase):  # T-Coffee implementation
             for j, j_seq in enumerate(seqs):
                 # this condition helps avoid repeats
                 if i < j and i != j:
-                    ""
+                    """"""
                     # use Biopythons pairwise align for now to compare alignments
                     alignment = aligner.align(i_seq, j_seq)
                     aligned_seq_ij = alignment[0][0] + "\n" + alignment[0][1]
@@ -378,7 +384,10 @@ class NotredameHigginsHeringa(MSABase):  # T-Coffee implementation
                     seq2_aligned = lines[1]
 
                     key = f"{i}-{j}"
-                    merged_alignments[key] = (aligned_seq_ij, self._merge_weight_calc(aligned_seq_ij))
+                    merged_alignments[key] = (
+                        aligned_seq_ij,
+                        self._merge_weight_calc(aligned_seq_ij),
+                    )
                     # local_align = self.local_pw.align(i_seq, j_seq)
                     # if global_align != local_align:
                     # merged_alignments[
@@ -409,7 +418,10 @@ class NotredameHigginsHeringa(MSABase):  # T-Coffee implementation
         return round((total_match * 100) / (total_count), 1)
 
     def compute_primary_library(
-        self, alignments: dict[str, tuple[str, float]], seqs: list[str], seq_tracker: dict[str]
+        self,
+        alignments: dict[str, tuple[str, float]],
+        seqs: list[str],
+        seq_tracker: dict[str],
     ):
         # primary library forming logic - primary library is interesting in that its actually a dictionary containing a list of tuples as the values assigned to keys determined by their indexes unicode value
         primary_library = {}
@@ -422,7 +434,11 @@ class NotredameHigginsHeringa(MSABase):  # T-Coffee implementation
         return primary_library
 
     def _form_primary_constraints(
-        self, alignments: dict[str, tuple[str, float]], seq_tracker: dict[str, str], m: int, n: int
+        self,
+        alignments: dict[str, tuple[str, float]],
+        seq_tracker: dict[str, str],
+        m: int,
+        n: int,
     ):  # forming the primary library
         """
         Docstring for form_primary_constraints: follows the examples from https://backofenlab.github.io/BioinformaticsII-pages/exercise-sheet-3.html

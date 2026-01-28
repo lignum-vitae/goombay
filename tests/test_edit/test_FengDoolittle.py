@@ -21,7 +21,7 @@ class TestFengDoolittle(unittest.TestCase):
         for i, row in enumerate(dist_matrix):
             for j, value in enumerate(row):
                 if i == j:
-                    self.assertEqual(value, 0.0)  # distance on diag is 0.0
+                    self.assertEqual(value, 0.0)  # distance on diag is 0
                     continue
                 dist = self.nw.distance(prof_dict[str(i)][0], prof_dict[str(j)][0])
                 self.assertEqual(value, dist)
