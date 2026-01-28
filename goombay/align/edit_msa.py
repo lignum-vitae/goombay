@@ -21,6 +21,7 @@ from goombay.align.edit import (
     Hirschberg,
     Jaro,
     JaroWinkler,
+    SmithWaterman,
     GotohLocal,
 )
 
@@ -30,7 +31,7 @@ from goombay.phylo.cluster import (
     NewickFormatter,
 )  # cant run this file directly, use python -m goombay.align.edit_msa in $PWD$/goombay/goombay directory
 
-__all__ = ["FengDoolittle", "feng_doolittle", "TCoffee", "t_coffee"]
+__all__ = ["FengDoolittle", "feng_doolittle", "NotredameHigginsHeringa", "nhh"]
 
 
 def main():
@@ -39,7 +40,7 @@ def main():
 
 
 class MSABase:
-    supported_pairwise = {
+    global_supported_pairwise = {
         "needleman_wunsch": NeedlemanWunsch,
         "jaro": Jaro,
         "jaro_winkler": JaroWinkler,
@@ -48,18 +49,26 @@ class MSABase:
         "waterman_smith_beyer": WatermanSmithBeyer,
         "hirschberg": Hirschberg,
         "lowrance_wagner": LowranceWagner,
-        "gotoh_local": GotohLocal,
     }
 
-    pw_abbreviations = {
-        "nw": "needleman_wunsch",  # global alignment
+    global_pw_abbreviations = {
+        "nw": "needleman_wunsch",
         "j": "jaro",
         "jw": "jaro_winkler",
         "gg": "gotoh",
         "wf": "wagner_fischer",
-        "wsb": "waterman_smith_beyer",  # local alignment
+        "wsb": "waterman_smith_beyer",
         "h": "hirschberg",
         "lw": "lowrance_wagner",
+    }
+
+    local_supported_pairwise = {
+        "smith_waterman": SmithWaterman,
+        "gotoh_local": GotohLocal,
+    }
+
+    local_pw_abbreviations = {
+        "sw": "smith_waterman",
         "gl": "gotoh_local",
     }
 
@@ -71,7 +80,7 @@ class MSABase:
 
     @classmethod
     def supported_pairwise_algs(cls):
-        return list(cls.supported_pairwise)
+        return list(cls.global_supported_pairwise)
 
     @classmethod
     def supported_clustering_algs(cls):
@@ -212,7 +221,7 @@ class MSABase:
         """
         lib_seq = {}
         for i in range(len(seqs)):
-            lib_seq[chr(i + 65).lower()] = seqs[i]
+            lib_seq[str(i)] = seqs[i]
         return lib_seq
 
     def _create_positions(self, seq_x):
@@ -236,10 +245,10 @@ class FengDoolittle(MSABase):
     def __init__(self, cluster: str = "nj", pairwise: str = "nw"):
         """Initialize Feng-Doolittle algorithm with chosen pairwise method"""
         # Get pairwise alignment algorithm
-        if pairwise.lower() in self.supported_pairwise:
-            self.pairwise = self.supported_pairwise[pairwise]()
-        elif pairwise.lower() in self.pw_abbreviations:
-            self.pairwise = self.supported_pairwise[self.pw_abbreviations[pairwise]]()
+        if pairwise.lower() in self.global_supported_pairwise:
+            self.pairwise = self.global_supported_pairwise[pairwise]()
+        elif pairwise.lower() in self.global_pw_abbreviations:
+            self.pairwise = self.global_supported_pairwise[self.global_pw_abbreviations[pairwise]]()
         else:
             raise ValueError(f"Unsupported pairwise alignment method: {pairwise}")
 
@@ -273,26 +282,26 @@ class FengDoolittle(MSABase):
         return super().align(seqs, verbose)
 
 
-class TCoffee(MSABase):  # Notredame-Higgins-Heringa implementation
-    """functions below are unique to T-Coffee"""
+class NotredameHigginsHeringa(MSABase):  # T-Coffee implementation
+    """functions below are unique to NotredameHigginsHeringa"""
 
     # instead of waterman smith bayer and needleman wunsch, follow RNAinformatik's use of Gotoh
     def __init__(
-        self, local_pw: str = "wsb", global_pw: str = "nw", cluster: str = "nj"
+        self, local_pw: str = "sw", global_pw: str = "nw", cluster: str = "nj"
     ):
-        """Initialize T-Coffee algorithm with chosen methods"""
+        """Initialize NotredameHigginsHeringa algorithm with chosen methods"""
         # Get Global pairwise alignment algorithm
-        if global_pw.lower() in self.supported_pairwise:
-            self.global_pw = self.supported_pairwise[global_pw]()
-        elif global_pw.lower() in self.pw_abbreviations:
-            self.global_pw = self.supported_pairwise[self.pw_abbreviations[global_pw]]()
+        if global_pw.lower() in self.global_supported_pairwise:
+            self.global_pw = self.global_supported_pairwise[global_pw]()
+        elif global_pw.lower() in self.global_pw_abbreviations:
+            self.global_pw = self.global_supported_pairwise[self.global_pw_abbreviations[global_pw]]()
         else:
             raise ValueError(f"Unsupported pairwise alignment method: {global_pw}")
         # get local pairwise alignment algorithm
-        if local_pw.lower() in self.supported_pairwise:
-            self.local_pw = self.supported_pairwise[local_pw]()
-        elif local_pw.lower() in self.pw_abbreviations:
-            self.local_pw = self.supported_pairwise[self.pw_abbreviations[local_pw]]()
+        if local_pw.lower() in self.local_supported_pairwise:
+            self.local_pw = self.local_supported_pairwise[local_pw]()
+        elif local_pw.lower() in self.local_pw_abbreviations:
+            self.local_pw = self.local_supported_pairwise[self.local_pw_abbreviations[local_pw]]()
         else:
             raise ValueError(f"Unsupported pairwise alignment method: {local_pw}")
 
@@ -301,7 +310,7 @@ class TCoffee(MSABase):  # Notredame-Higgins-Heringa implementation
 
         # get clustering algorithm - one the extended library use a clustering method to make a di
         if cluster.lower() in self.supported_clustering:
-            self.cluster = self.supported_pairwise[cluster]()
+            self.cluster = self.global_supported_pairwise[cluster]()
         elif cluster.lower() in self.cl_abbreviations:
             self.cluster = self.supported_clustering[self.cl_abbreviations[cluster]]
         else:
@@ -358,6 +367,7 @@ class TCoffee(MSABase):  # Notredame-Higgins-Heringa implementation
             for j, j_seq in enumerate(seqs):
                 # this condition helps avoid repeats
                 if i < j and i != j:
+                    ""
                     # use Biopythons pairwise align for now to compare alignments
                     alignment = aligner.align(i_seq, j_seq)
                     aligned_seq_ij = alignment[0][0] + "\n" + alignment[0][1]
@@ -367,11 +377,8 @@ class TCoffee(MSABase):  # Notredame-Higgins-Heringa implementation
                     seq1_aligned = lines[0]
                     seq2_aligned = lines[1]
 
-                    merged_alignments[
-                        chr(seqs.index(i_seq) + 65).lower()
-                        + "-"
-                        + chr(seqs.index(j_seq) + 65).lower()
-                    ] = (aligned_seq_ij, self._merge_weight_calc(aligned_seq_ij))
+                    key = f"{i}-{j}"
+                    merged_alignments[key] = (aligned_seq_ij, self._merge_weight_calc(aligned_seq_ij))
                     # local_align = self.local_pw.align(i_seq, j_seq)
                     # if global_align != local_align:
                     # merged_alignments[
@@ -402,7 +409,7 @@ class TCoffee(MSABase):  # Notredame-Higgins-Heringa implementation
         return round((total_match * 100) / (total_count), 1)
 
     def compute_primary_library(
-        self, alignments: dict[tuple], seqs: list[str], seq_tracker: dict[str]
+        self, alignments: dict[str, tuple[str, float]], seqs: list[str], seq_tracker: dict[str]
     ):
         # primary library forming logic - primary library is interesting in that its actually a dictionary containing a list of tuples as the values assigned to keys determined by their indexes unicode value
         primary_library = {}
@@ -415,7 +422,7 @@ class TCoffee(MSABase):  # Notredame-Higgins-Heringa implementation
         return primary_library
 
     def _form_primary_constraints(
-        self, A, seq_tracker, m, n
+        self, alignments: dict[str, tuple[str, float]], seq_tracker: dict[str, str], m: int, n: int
     ):  # forming the primary library
         """
         Docstring for form_primary_constraints: follows the examples from https://backofenlab.github.io/BioinformaticsII-pages/exercise-sheet-3.html
@@ -425,7 +432,7 @@ class TCoffee(MSABase):  # Notredame-Higgins-Heringa implementation
         :param A: Alignments, calculated from compute_alignments
 
         """
-        seq_keys, alignment_keys = list(seq_tracker.keys()), list(A.keys())
+        seq_keys, alignment_keys = list(seq_tracker.keys()), list(alignments.keys())
         primary_lib_tuples = []
 
         # The primary sequence is the first one
@@ -438,11 +445,11 @@ class TCoffee(MSABase):  # Notredame-Higgins-Heringa implementation
 
         # Get the alignment between primary and secondary
         alignment_key = f"{seqi_key}-{seqj_key}"
-        current_aligned_seqs = A[alignment_key][0].split("\n")
+        current_aligned_seqs = alignments[alignment_key][0].split("\n")
         aligned_primary = current_aligned_seqs[0]
         aligned_secondary = current_aligned_seqs[1]
         # get the weight for each compared position
-        weight = A[alignment_key][1]
+        weight = alignments[alignment_key][1]
 
         # Track positions in original sequences
         i_pos = 0  # position in original primary sequence (0-indexed)
@@ -590,7 +597,7 @@ class TCoffee(MSABase):  # Notredame-Higgins-Heringa implementation
 
 
 feng_doolittle = FengDoolittle()
-t_coffee = TCoffee()
+nhh = NotredameHigginsHeringa()
 
 if __name__ == "__main__":
     main()

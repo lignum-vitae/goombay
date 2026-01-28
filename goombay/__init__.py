@@ -7,7 +7,7 @@ from goombay.align import edit_msa
 from goombay.align import overlap
 from goombay.align import overlap_msa
 
-# Variables from edit-based file
+# Instances from edit-based file
 hamming = edit.hamming
 jaro = edit.jaro
 jaro_winkler = edit.jaro_winkler
@@ -20,7 +20,7 @@ smith_waterman = edit.smith_waterman
 wagner_fischer = edit.wagner_fischer
 waterman_smith_beyer = edit.waterman_smith_beyer
 
-# variables from overlap-based file
+# Instances from overlap-based file
 longest_common_subsequence = overlap.longest_common_subsequence
 longest_common_substring = overlap.longest_common_substring
 shortest_common_supersequence = overlap.shortest_common_supersequence
@@ -33,8 +33,9 @@ prefix = overlap.prefix
 postfix = overlap.postfix
 ratcliff_obershelp = overlap.ratcliff_obershelp
 
-# Variables from multiple sequence alignment file
+# Instances from multiple sequence alignment file
 feng_doolittle = edit_msa.feng_doolittle
+nhh = edit_msa.nhh
 longest_common_substring_msa = overlap_msa.longest_common_substring_msa
 
 # Classes from edit-based file
@@ -65,4 +66,5 @@ RatcliffObershelp = overlap.RatcliffObershelp
 
 # Classes from multiple sequence alignment file
 FengDoolittle = edit_msa.FengDoolittle
+NotredameHigginsHeringa = edit_msa.NotredameHigginsHeringa
 LongestCommonSubstringMSA = overlap_msa.LongestCommonSubstringMSA
