@@ -121,7 +121,7 @@ class TestWagnerFischer(unittest.TestCase):
 
         for query, subject, expected in test_cases:
             with self.subTest(query=query, subject=subject):
-                result = self.algorithm.matrix(query, subject)
+                result, _ = self.algorithm.matrix(query, subject)
                 numpy.testing.assert_array_equal(result, expected)
 
     def test_normalized_similarity(self):

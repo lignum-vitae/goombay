@@ -19,8 +19,7 @@ class GlobalBase(ABC):
         pass
 
     def matrix(self, query_seq: str, subject_seq: str) -> NDArray[float64]:
-        matrix, _ = self(query_seq, subject_seq)
-        return matrix
+        return self(query_seq, subject_seq)
 
     def distance(self, query_seq: str, subject_seq: str) -> float:
         if not query_seq and not subject_seq:
