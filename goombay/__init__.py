@@ -19,6 +19,7 @@ gotoh_local = edit.gotoh_local
 smith_waterman = edit.smith_waterman
 wagner_fischer = edit.wagner_fischer
 waterman_smith_beyer = edit.waterman_smith_beyer
+wsb_local = edit.wsb_local
 
 # variables from overlap-based file
 longest_common_subsequence = overlap.longest_common_subsequence
@@ -49,6 +50,7 @@ GotohLocal = edit.GotohLocal
 SmithWaterman = edit.SmithWaterman
 WagnerFischer = edit.WagnerFischer
 WatermanSmithBeyer = edit.WatermanSmithBeyer
+WatermanSmithBeyerLocal = edit.WatermanSmithBeyerLocal
 
 # Classes from overlap-based file
 LongestCommonSubsequence = overlap.LongestCommonSubsequence
