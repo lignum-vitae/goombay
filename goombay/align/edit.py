@@ -632,6 +632,165 @@ class WatermanSmithBeyer(_GlobalBase):
         return aligned
 
 
+class WatermanSmithBeyerLocal(_LocalBase):
+    supports_substitution_matrix = True
+
+    def __init__(
+        self,
+        match: int = 1,
+        mismatch: int = 1,
+        new_gap: int = 3,
+        continued_gap: int = 1,
+        substitution_matrix=None,
+        gap_function: str = "affine",
+    ) -> None:
+        self.match = match
+        self.mismatch = mismatch
+        self.gap = new_gap
+        self.continued_gap = continued_gap
+        self.gap_function = gap_function
+        self.has_sub_mat = False
+        self.sub_mat = substitution_matrix
+        if substitution_matrix is not None:
+            self.match_func = lambda a, b: substitution_matrix[a][b]
+            self.has_sub_mat = True
+        else:
+            self.match_func = lambda a, b: self.match if a == b else -self.mismatch
+
+    def _gap_func(self, k: int) -> int:
+        match self.gap_function:
+            case "affine":
+                return -self.gap + (-self.continued_gap * k)
+            case "quadratic":
+                return -self.gap + (-self.continued_gap * k**2)
+            case "log" | "logarithmic":
+                return -self.gap + (-self.continued_gap * numpy.log(k))
+            case _:
+                raise ValueError("Invalid gap function")
+
+    def __call__(
+        self, query_seq: str, subject_seq: str
+    ) -> tuple[NDArray[float64], NDArray[float64]]:
+        qs, ss = [""], [""]
+        qs.extend([x.upper() for x in query_seq])
+        ss.extend([x.upper() for x in subject_seq])
+        qs_len = len(qs)
+        ss_len = len(ss)
+
+        # matrix initialisation
+        self.score = numpy.zeros((qs_len, ss_len))
+        # pointer matrix to trace optimal alignment
+        self.pointer = numpy.zeros((qs_len, ss_len), dtype=object)
+        self.pointer[:, 0] = [(3, 1, 0)] * self.pointer.shape[0]
+        self.pointer[0, :] = [(4, 0, 1)] * self.pointer.shape[1]
+
+        for i in range(1, qs_len):
+            for j in range(1, ss_len):
+                match = self.score[i - 1][j - 1] + self.match_func(qs[i], ss[j])
+                ugap = [
+                    self.score[i - k][j] + self._gap_func(k) for k in range(1, i + 1)
+                ]
+                lgap = [
+                    self.score[i][j - k] + self._gap_func(k) for k in range(1, j + 1)
+                ]
+                ugap_score = max(ugap)
+                u_step = ugap.index(ugap_score) + 1
+                lgap_score = max(lgap)
+                l_step = lgap.index(lgap_score) + 1
+
+                tmax = max(0, match, lgap_score, ugap_score)  # Floor is zero for scores
+
+                self.score[i][j] = tmax  # highest value is best choice
+                pointers = {"pointer": 0, "i_step": 0, "j_step": 0}
+                # matrix for traceback based on results from scoring matrix
+                if match == tmax:
+                    pointers["pointer"] += MATCH
+                if ugap_score == tmax:
+                    pointers["pointer"] += UP
+                    pointers["i_step"] = u_step
+                if lgap_score == tmax:
+                    pointers["pointer"] += LEFT
+                    pointers["j_step"] = l_step
+                self.pointer[i][j] = tuple(pointers.values())
+
+        return self.score, self.pointer
+
+    def distance(self, query_seq: str, subject_seq: str) -> float:
+        return super().distance(query_seq, subject_seq)
+
+    def similarity(self, query_seq: str, subject_seq: str) -> float:
+        return super().similarity(query_seq, subject_seq)
+
+    def normalized_distance(self, query_seq: str, subject_seq: str) -> float:
+        return super().normalized_distance(query_seq, subject_seq)
+
+    def normalized_similarity(self, query_seq: str, subject_seq: str) -> float:
+        return super().normalized_similarity(query_seq, subject_seq)
+
+    def matrix(self, query_seq: str, subject_seq: str) -> list[list[float]]:
+        return super().matrix(query_seq, subject_seq)
+
+    def align(
+        self, query_seq: str, subject_seq: str, all_alignments: bool = False
+    ) -> str | list[str]:
+        matrix, pointer_matrix = self(query_seq, subject_seq)
+
+        qs = [x.upper() for x in query_seq]
+        ss = [x.upper() for x in subject_seq]
+        if matrix.max() == 0:
+            return "There is no local alignment!"
+
+        positions = numpy.argwhere(matrix == matrix.max())
+        aligned = []
+
+        stack = [([""], [""], i, j) for i, j in positions]
+
+        # looks for match/mismatch/gap starting from bottom right of matrix
+        while stack:
+            qs_align, ss_align, i, j = stack.pop()
+            pointer, i_step, j_step = pointer_matrix[i][j]
+            if matrix[i][j] == 0:
+                qs_aligned = "".join(qs_align[::-1])
+                ss_aligned = "".join(ss_align[::-1])
+                aligned.append(f"{qs_aligned}\n{ss_aligned}")
+                continue
+            if pointer in [MATCH, MATCH + UP, MATCH + LEFT, MATCH + UP + LEFT]:
+                # appends match/mismatch then moves to the cell diagonally up and to the left
+                stack.append(
+                    (qs_align + [qs[i - 1]], ss_align + [ss[j - 1]], i - 1, j - 1)
+                )
+                if not all_alignments:
+                    continue
+            if pointer in [UP, UP + MATCH, UP + LEFT, UP + MATCH + LEFT]:
+                # appends gap and accompanying nucleotide, then moves to the cell above
+                stack.append(
+                    (
+                        qs_align + ["".join(qs[i - i_step : i])],
+                        ss_align + ["-"] * i_step,
+                        i - i_step,
+                        j,
+                    )
+                )
+                if not all_alignments:
+                    continue
+            if pointer in [LEFT, LEFT + MATCH, LEFT + UP, LEFT + MATCH + UP]:
+                # appends gap and accompanying nucleotide, then moves to the cell to the left
+                stack.append(
+                    (
+                        qs_align + ["-"] * j_step,
+                        ss_align + ["".join(ss[j - j_step : j])],
+                        i,
+                        j - j_step,
+                    )
+                )
+                if not all_alignments:
+                    continue
+
+        if not all_alignments:
+            return aligned[0]
+        return aligned
+
+
 class Gotoh(_GlobalBase):
     supports_substitution_matrix = True
 
@@ -1477,3 +1636,4 @@ hirschberg = Hirschberg()
 jaro = Jaro()
 jaro_winkler = JaroWinkler()
 lowrance_wagner = LowranceWagner()
+wsb_local = WatermanSmithBeyerLocal()
