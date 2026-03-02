@@ -78,11 +78,11 @@ git remote
 ##### Choose ONE of the following commands
 
 ```nginx
-# Creates a new branch that stays in sync with the develop branch of the main repository
-git checkout -b <feature-name> upstream/develop
+# Creates a new branch that stays in sync with the master branch of the main repository
+git switch -c <feature-name> upstream/master
 
 # Checks out existing branch if you already have a branch locally
-git checkout <feature-name>
+git switch <feature-name>
 ```
 
 #### 6. Make your changes in your local repository and run in your local environment
@@ -127,51 +127,19 @@ to messy commits. Consider using it only when:
 - You've checked git status first
 - Your .gitignore is properly configured
 
-#### 9. Rebase Your Development Branch with the Latest Upstream changes
-
-```nginx
-# Make sure all is committed (or stashed) as necessary on this branch
-git rebase -i upstream/develop feature-name
-```
-
-You may need to resolve conflicts that occur when both a file on the development
-trunk and one of the files in your branch have been changed.
-Edit each conflicting file to resolve the differences, then continue the rebase.
-Each file will need to be "added" to mark the conflict as resolved:
-
-```nginx
-# Resolve conflicts in each file, then:
-git add <resolved-filename>
-git rebase --continue
-```
-
-The behavior of `git pull` can be adjusted to deal with merge conflicts by
-rebasing them instead of merging them by running the command
-`git config pull.rebase true` from the base of this repo.
-
-This will only change the behavior for this repo. To change it for all your current
-repositories, run the command `git config --global pull.rebase true`.
-
-This change can be confirmed by checking that this is in your `.git/config` file:
-
-```toml
-[pull]
-	rebase = true
-```
-
-#### 10. Push your branch to your fork on GitHub
+#### 9. Push your branch to your fork on GitHub
 
 ```nginx
 git push -f origin feature-name
 ```
 
-#### 11. Open a Pull Request (PR) from your branch to the develop branch of the original Goombay repository.
+#### 10. Open a Pull Request (PR) from your branch to the develop branch of the original Goombay repository.
 
 - You may need to click the `compare across forks` link under the
   `Compare changes` header that populates
   when you click `New pull request` to see your local repo fork.
 
-#### 12. In your PR description, include
+#### 11. In your PR description, include
 
 - A summary of the changes.
 - Any relevant issue numbers (e.g., fixes #123).
