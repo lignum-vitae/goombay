@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "goombay"
-version = "0.24.10"
+version = "0.24.11"
 authors = [{ name = "Andrew Hennis", email = "andrew.mr.hennis@gmail.com" }]
 description = "Python implementation of several local, global, and multiple sequence alignment algorithms intended to calculate distance, show alignment, and display the underlying matrices."
 readme = "README.md"
