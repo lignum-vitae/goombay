@@ -281,14 +281,14 @@ class LIPNS:
 
     def distance(self, query_seq: str, subject_seq: str) -> float:
         sim = self.similarity(query_seq, subject_seq)
-        return 1 - sim
+        return 1.0 - sim
 
     def similarity(self, query_seq: str, subject_seq: str) -> float:
         if not query_seq and not subject_seq:
-            return 0
+            return 1.0
         matrix = self(query_seq, subject_seq)
         sim = numpy.sum(matrix)
-        sim_score = 1 - (sim / max(len(query_seq), len(subject_seq)))
+        sim_score = sim / max(len(query_seq), len(subject_seq))
         return sim_score
 
     def normalized_distance(self, query_seq: str, subject_seq: str) -> float:
@@ -305,7 +305,7 @@ class LIPNS:
 
     def is_similar(self, query_seq: str, subject_seq: str) -> int:
         sim_score = self.similarity(query_seq, subject_seq)
-        return sim_score <= self.threshold
+        return sim_score >= self.threshold
 
 
 class MLIPNS(LIPNS):
