@@ -69,7 +69,8 @@ The following algorithms accept the `scoring_matrix` keyword argument as a param
 
 # Implementation
 
-**Below is a table of the methods implemented for each algorithm as well as the class (customizable) and instance (default parameters) names.**
+<details>
+<summary>Table of the methods implemented for each algorithm as well as the class (customizable) and instance (default parameters) names.</summary>
 
 | Algorithm                     | Alignment             | Matrices              | Distance/Similarity/Normalized  | Class                       | Instance                      |
 | ----------------------------- | --------------------- | --------------------- | ------------------------------- | --------------------------- | ----------------------------- |
@@ -98,7 +99,12 @@ The following algorithms accept the `scoring_matrix` keyword argument as a param
 |Postfix                        |<ul><li> [x] </li></ul>|<ul><li> [x] </li></ul>|     <ul><li> [x] </li></ul>     | Postfix                     | postfix                       |
 |Ratcliff Obershelp             |<ul><li> [x] </li></ul>|<ul><li> [ ] </li></ul>|     <ul><li> [x] </li></ul>     | RatcliffObershelp           | ratcliff_obershelp            |
 
+</details>
+
 ## Algorithms Explained
+
+<details>
+  <summary>Brief overview of algorithms</summary>
 
 - [Hamming](https://en.wikipedia.org/wiki/Hamming_distance) -
   The Hamming distance is a distance measurement between two sequences of the same length which measures the minimum number of substitutions 
@@ -228,6 +234,8 @@ The following algorithms accept the `scoring_matrix` keyword argument as a param
   number of characters in both strings. The matching characters are found by progressive
   iterations of finding the longest common substring.
 
+</details>
+
 # Code Examples
 
 **Hamming Distance**
@@ -272,7 +280,7 @@ print(needleman_wunsch.normalized_similarity("ACTG","AATG"))
 print(needleman_wunsch.align("BA","ABA"))
 # -BA
 # ABA
-print(needleman_wunsch.align("BA","ABA", all_alignments=True))
+print(needleman_wunsch.align("ACCG","ACG", all_alignments=True))
 # ["ACCG\nA-CG", "ACCG\nAC-G"]
 print(needleman_wunsch.matrix("AFTG","ACTG"))
 [[0. 2. 4. 6. 8.]
@@ -303,8 +311,6 @@ needleman62 = NeedlemanWunsch(scoring_matrix=Blosum(62))
 print(needleman62.align(seq1, seq2))
 # ME-NSDSLFKLLAEAKGK
 # MEQNSD-IFK-LAQ---K
-
-
 ```
 
 # Contributions
